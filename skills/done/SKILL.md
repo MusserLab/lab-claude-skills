@@ -85,6 +85,16 @@ The project's `.claude/CLAUDE.md` should contain a **Project Document Registry**
 
 Fall back to scanning `.claude/` for any `.md` files and check them manually. Suggest to the user that they add a document registry to their project CLAUDE.md.
 
+### Also check Claude Code plan files
+
+Claude Code's plan mode creates plan files in `~/.claude/plans/`. These are **separate** from registered planning documents but may contain task lists, status tables, and open items relevant to the current project.
+
+1. Check if any plan file was injected into the current session context (look for "plan file exists from plan mode" in the system prompt, or check `~/.claude/plans/` for `.md` files)
+2. If a plan file exists and is relevant to this project:
+   - Update status tables, file tracking, and task checklists the same way you would for registered documents
+   - Mark completed items, update statuses, add open items
+3. If a plan file contains significant multi-session tracking, suggest promoting it to a registered planning document in the project's `.claude/` directory
+
 ---
 
 ## 4. Check Canonical Data Files Registry [Data Science only]

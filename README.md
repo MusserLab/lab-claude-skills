@@ -10,7 +10,7 @@ Claude Code skills are markdown files that automatically load into Claude's cont
 
 ```bash
 # 1. Clone this repo
-git clone git@github.com:YOUR_ORG/lab-claude-skills.git
+git clone git@github.com:MusserLab/lab-claude-skills.git
 cd lab-claude-skills
 
 # 2. Install all skills (creates symlinks in ~/.claude/skills/)

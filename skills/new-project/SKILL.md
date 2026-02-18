@@ -102,7 +102,7 @@ Create only the `.claude/` directory. Do NOT create `data/`, `outs/`, `scripts/`
 
 ---
 
-## 3. Python Environment (Data Science and General — if using Python)
+## 3. Python Environment (if using Python)
 
 ### One-time conda configuration (check first)
 
@@ -118,7 +118,7 @@ conda config --set solver libmamba
 conda config --add channels conda-forge
 ```
 
-### Create environment
+### For Data Science projects: create project-specific environment
 
 ```bash
 source ~/miniconda3/etc/profile.d/conda.sh
@@ -130,9 +130,46 @@ conda activate {project_name}
 
 `ipykernel` is required for Quarto to execute Python chunks.
 
-For **General projects**, ask the user which packages to install instead of defaulting to numpy/pandas/matplotlib.
+### For General projects: choose conda environment
 
-### Export environment
+Ask the user:
+
+#### Question: Conda environment
+- **Use shared `lab-general` environment (Recommended)** — A shared environment for general/documentation/infrastructure projects. Avoids creating a new env for every small project.
+- **Create project-specific environment** — Creates a dedicated `{project_name}` environment. Choose this if the project has specialized dependencies.
+
+**If `lab-general` is chosen:**
+
+1. Check if the `lab-general` environment already exists:
+   ```bash
+   source ~/miniconda3/etc/profile.d/conda.sh && conda env list | grep lab-general
+   ```
+
+2. If it does NOT exist, create it:
+   ```bash
+   source ~/miniconda3/etc/profile.d/conda.sh
+   conda create -n lab-general python=3.11 ipykernel pyyaml requests pandas -y
+   ```
+
+3. Do NOT export an `environment.yml` into the project — `lab-general` is managed independently, not per-project.
+
+**If project-specific is chosen:**
+
+1. Ask the user which packages to install (don't default to numpy/pandas/matplotlib like data science projects — ask what this project needs).
+
+2. Create the environment:
+   ```bash
+   source ~/miniconda3/etc/profile.d/conda.sh
+   conda create -n {project_name} python=3.11 ipykernel {user_packages} -y
+   conda activate {project_name}
+   ```
+
+3. Export environment:
+   ```bash
+   conda env export --from-history > environment.yml
+   ```
+
+### Export environment (Data Science and project-specific General only)
 
 Always use `--from-history` for portable environment files:
 
@@ -140,10 +177,13 @@ Always use `--from-history` for portable environment files:
 conda env export --from-history > environment.yml
 ```
 
+Do NOT create an `environment.yml` for projects using the shared `lab-general` environment.
+
 ### Lab policy
 
 - Never install into the `base` environment
-- One environment per project
+- **Data science projects**: one environment per project, named to match the project
+- **General projects**: use `lab-general` shared environment by default; create project-specific only when specialized dependencies are needed
 - Prefer `conda install` over `pip install`
 - Always include `ipykernel` for Quarto compatibility
 
@@ -407,8 +447,16 @@ Shared helper functions are available at:
 
 ## Environment
 
-{Include if project uses conda, R, or other environments. Otherwise remove this section.}
+{Include if project uses Python. Otherwise remove this section.}
 
+{If using shared lab-general environment:}
+- **Python/Conda**: Shared `lab-general` environment
+  ```bash
+  source ~/miniconda3/etc/profile.d/conda.sh && conda activate lab-general
+  ```
+  This project uses the shared lab-general environment (not a project-specific one).
+
+{If using project-specific environment:}
 - **Python/Conda**: `{project_name}` environment
   ```bash
   source ~/miniconda3/etc/profile.d/conda.sh && conda activate {project_name}
@@ -565,7 +613,7 @@ Project "{project_name}" created successfully!
 
   Project type: General
   Languages: {languages}
-  Conda env: {project_name or "none"}
+  Conda env: {lab-general (shared) / project_name (project-specific) / none}
   Git remote: {github_url}
 
 Next steps:

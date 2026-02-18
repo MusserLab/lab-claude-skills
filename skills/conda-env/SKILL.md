@@ -79,13 +79,35 @@ conda env export --from-history > environment.yml
 
 This records only explicitly installed packages (not platform-specific transitive dependencies), making the file portable across OS and architectures.
 
+## Shared Environments
+
+### `lab-general` — shared environment for general projects
+
+General-type projects (documentation sites, infrastructure tools, Quarto books, utility scripts) can use a shared `lab-general` conda environment instead of creating a project-specific one.
+
+**Contents:** python 3.11, ipykernel, pyyaml, requests, pandas
+
+**When to use `lab-general`:**
+- Documentation projects (Quarto books/sites)
+- Infrastructure and tooling projects
+- Small utility scripts that don't need specialized packages
+- Any `project-type: general` project without complex dependencies
+
+**When to create a project-specific env instead:**
+- The project needs packages that would conflict with or bloat `lab-general`
+- The project has strict reproducibility requirements (pin exact versions)
+- Data science projects (always project-specific — see lab policy below)
+
+**Identifying which env a project uses:** Check the project's `.claude/CLAUDE.md` — it will say either `lab-general` (shared) or `{project_name}` (project-specific) in the Environment section.
+
 ## Lab Policy
 
-1. **Never install into the `base` environment** — always create project-specific environments
-2. **One environment per project** — named to match the project directory
-3. **Always include `ipykernel`** — required for Quarto to execute Python chunks
-4. **Prefer `conda install`** over `pip install` — conda resolves dependencies holistically. Use pip only as a fallback for packages not available via conda/conda-forge
-5. **Install conda packages before pip packages** — if mixing both, conda packages first to avoid conflicts
+1. **Never install into the `base` environment** — always use a named environment
+2. **Data science projects: one environment per project** — named to match the project directory
+3. **General projects: `lab-general` by default** — use the shared environment unless the project needs specialized dependencies, in which case create a project-specific one
+4. **Always include `ipykernel`** — required for Quarto to execute Python chunks
+5. **Prefer `conda install`** over `pip install` — conda resolves dependencies holistically. Use pip only as a fallback for packages not available via conda/conda-forge
+6. **Install conda packages before pip packages** — if mixing both, conda packages first to avoid conflicts
 
 ## Shell Environment
 

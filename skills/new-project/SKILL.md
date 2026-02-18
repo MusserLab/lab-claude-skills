@@ -130,20 +130,16 @@ conda activate {project_name}
 
 `ipykernel` is required for Quarto to execute Python chunks.
 
-### For General projects: choose conda environment
+### For General projects: default to `lab-general`
 
-Ask the user:
-
-#### Question: Conda environment
-- **Use shared `lab-general` environment (Recommended)** — A shared environment for general/documentation/infrastructure projects. Avoids creating a new env for every small project.
-- **Create project-specific environment** — Creates a dedicated `{project_name}` environment. Choose this if the project has specialized dependencies.
-
-**If `lab-general` is chosen:**
+General projects always get the shared `lab-general` environment by default. This is included in the CLAUDE.md regardless of whether the project currently uses Python — it ensures Claude knows which env to activate if Python is needed later.
 
 1. Check if the `lab-general` environment already exists:
    ```bash
    source ~/miniconda3/etc/profile.d/conda.sh && conda env list | grep lab-general
    ```
+
+   > **Customize**: Replace `~/miniconda3` with your actual conda installation path (see `conda-env` skill).
 
 2. If it does NOT exist, create it:
    ```bash
@@ -153,9 +149,9 @@ Ask the user:
 
 3. Do NOT export an `environment.yml` into the project — `lab-general` is managed independently, not per-project.
 
-**If project-specific is chosen:**
+**Opt-out: project-specific environment.** If the user specifically says they need specialized Python dependencies, create a project-specific env instead:
 
-1. Ask the user which packages to install (don't default to numpy/pandas/matplotlib like data science projects — ask what this project needs).
+1. Ask the user which packages to install.
 
 2. Create the environment:
    ```bash
@@ -447,16 +443,14 @@ Shared helper functions are available at:
 
 ## Environment
 
-{Include if project uses Python. Otherwise remove this section.}
-
-{If using shared lab-general environment:}
 - **Python/Conda**: Shared `lab-general` environment
   ```bash
   source ~/miniconda3/etc/profile.d/conda.sh && conda activate lab-general
   ```
-  This project uses the shared lab-general environment (not a project-specific one).
 
-{If using project-specific environment:}
+> **Customize**: Replace `~/miniconda3` with your actual conda installation path.
+
+{If project-specific environment was chosen instead, replace the above with:}
 - **Python/Conda**: `{project_name}` environment
   ```bash
   source ~/miniconda3/etc/profile.d/conda.sh && conda activate {project_name}
@@ -613,7 +607,7 @@ Project "{project_name}" created successfully!
 
   Project type: General
   Languages: {languages}
-  Conda env: {lab-general (shared) / project_name (project-specific) / none}
+  Conda env: {lab-general (shared) / project_name (project-specific)}
   Git remote: {github_url}
 
 Next steps:

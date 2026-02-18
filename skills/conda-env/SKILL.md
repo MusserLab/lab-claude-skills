@@ -83,7 +83,7 @@ This records only explicitly installed packages (not platform-specific transitiv
 
 ### `lab-general` — shared environment for general projects
 
-General-type projects (documentation sites, infrastructure tools, Quarto books, utility scripts) can use a shared `lab-general` conda environment instead of creating a project-specific one.
+All general-type projects (documentation sites, infrastructure tools, Quarto books, utility scripts) use the shared `lab-general` conda environment by default, regardless of whether they currently use Python. This ensures a consistent environment is always available if Python is needed later.
 
 **Contents:** python 3.11, ipykernel, pyyaml, requests, pandas
 

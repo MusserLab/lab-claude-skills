@@ -2,7 +2,8 @@
 name: figure-export
 description: >
   Figure export conventions for publication-quality R figures (PDF/PNG/SVG).
-  Use when saving ggplot2 or base R figures for manuscripts or Inkscape editing.
+  Use when saving plots to files, choosing figure formats, setting DPI or dimensions,
+  or exporting ggplot2 or base R figures for manuscripts or Inkscape editing.
 user-invocable: false
 ---
 

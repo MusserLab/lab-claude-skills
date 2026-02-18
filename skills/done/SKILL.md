@@ -1,6 +1,7 @@
 ---
 name: done
 description: End of session wrap-up - summarize work, update docs, and commit
+user-invocable: true
 ---
 
 # End of Session Wrap-up
@@ -158,19 +159,79 @@ If no memory file exists, skip this step silently.
 
 ---
 
-## 9. Check for New Gotchas
+## 9. Review Project Conventions (CLAUDE.md)
 
-Ask yourself: Did we discover any bugs, gotchas, or important patterns that future sessions should know about?
+Review the session for convention-related changes to the **project** CLAUDE.md. This step has three parts: adding, pruning, and checking gotchas.
+
+**SCOPE: Project CLAUDE.md only.** Never automatically modify the user-level `~/.claude/CLAUDE.md` — a convention that's self-evident in one project may still be needed for other projects.
+
+### 9a. Add new conventions
+
+Did the user state or establish any new conventions during this session? A convention worth recording is one that is **surprising or counter-default** — something Claude wouldn't guess from reading the codebase alone.
+
+**Good candidates** (record these):
+- Non-obvious formatting rules (e.g., "use `{.text}` for terminal blocks, not `bash`")
+- Project-specific naming patterns or style choices
+- Tool usage rules that differ from defaults (e.g., "use built-in callout-warning, not custom CSS")
+- Explicit user preferences stated during the session
+
+**Not worth recording** (skip these):
+- Conventions already visible from the codebase itself (e.g., if every code block already uses `{.text}`)
+- Standard tool defaults that Claude would follow anyway
+- One-time decisions that won't recur
+
+If there are new conventions to add, propose them to the user before editing.
+
+### 9b. Prune self-evident conventions
+
+Check existing convention entries in the project's `.claude/CLAUDE.md`. For each one, ask: **Is this now self-evident from the codebase?**
+
+A convention is self-evident when:
+- The pattern is consistently established across the project's files (e.g., every terminal block uses `{.text}`)
+- Claude would infer it from reading any few files in the project
+- Removing the entry wouldn't cause Claude to do the wrong thing
+
+If any entries are now redundant, propose removing them. Show the user which entries you'd prune and why.
+
+**Be conservative** — only prune conventions that are truly obvious from the code. When in doubt, keep the entry.
+
+### 9c. Check for new gotchas
+
+Did we discover any bugs, gotchas, or important patterns that future sessions should know about?
 
 If yes, propose adding them to the project's `.claude/CLAUDE.md` (get user approval first).
 
-Also check if any project-level skills (e.g., `gene-naming`) need updating based on convention changes made this session.
-
-If no, skip this step silently.
+If no, skip silently.
 
 ---
 
-## 9b. Check renv Lock File [Data Science only]
+## 9d. Propose New Skills
+
+Review the session for patterns that might warrant creating a **new skill**. A skill is appropriate when a convention or workflow is:
+
+- **Too detailed for CLAUDE.md** — needs code examples, decision trees, or multi-section documentation (like TiHKAL's `gene-naming` skill)
+- **Reusable across sessions** — will be needed repeatedly, not a one-off decision
+- **Complex enough to get wrong** — without the skill, Claude might make mistakes or ask the same clarifying questions every session
+
+**Do NOT propose a skill for:**
+- Simple one-liner conventions (those belong in CLAUDE.md)
+- Patterns that are already covered by an existing skill
+- Decisions that are unlikely to come up again
+
+If a new skill seems appropriate, ask the user two questions:
+
+1. **Should we create this skill?** — Briefly describe what it would cover and why it's worth extracting from CLAUDE.md.
+2. **Project-level or user-level?**
+   - **Project-level** (`{project}/.claude/skills/{name}/SKILL.md`) — Specific to this project. Example: gene naming conventions, project-specific data formats.
+   - **User-level** (`~/.claude/skills/{name}/SKILL.md`) — Applies across multiple projects. Example: plotting conventions, environment management patterns.
+
+If the user approves, create the skill with proper YAML frontmatter (`name`, `description`, `user-invocable: false`). Also check if any existing project-level skills need updating based on convention changes made this session.
+
+If nothing warrants a new skill, skip this step silently.
+
+---
+
+## 9e. Check renv Lock File [Data Science only]
 
 If an `renv.lock` file exists in the project:
 
@@ -263,5 +324,7 @@ End with a brief "Session complete" message listing:
 - Planning documents updated (with what changed)
 - Canonical data files updated in registry (if any)
 - Decision log entries added (if any)
+- Conventions added or pruned from project CLAUDE.md (if any)
+- Skills created or updated (if any)
 - Memory updates (if any)
 - Any follow-up items for next session

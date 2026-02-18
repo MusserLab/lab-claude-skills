@@ -1,6 +1,6 @@
 ---
 name: file-safety
-description: File modification rules to prevent overwriting important files. Use when writing, saving, or modifying files.
+description: File modification rules to prevent overwriting important files. Use when overwriting existing files, deleting files, or writing to directories that contain important data (data/, outs/). Also applies when moving or renaming files that other scripts depend on.
 user-invocable: false
 ---
 

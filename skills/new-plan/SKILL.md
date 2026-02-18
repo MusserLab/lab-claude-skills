@@ -1,6 +1,6 @@
 ---
 name: new-plan
-description: Create a new planning document and register it in the project CLAUDE.md
+description: Create a new planning document and register it in the project CLAUDE.md. Use when starting multi-script or multi-session work that needs tracking, or when the user invokes /new-plan.
 user-invocable: true
 ---
 

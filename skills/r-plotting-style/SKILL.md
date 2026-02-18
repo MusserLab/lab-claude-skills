@@ -1,6 +1,6 @@
 ---
 name: r-plotting-style
-description: R ggplot2 plotting conventions and theme. Use when creating plots or visualizations in R.
+description: R ggplot2 plotting conventions and theme. Use when creating, modifying, or styling ggplot2 plots in R, or when adjusting plot themes, colors, labels, or formatting.
 user-invocable: false
 ---
 

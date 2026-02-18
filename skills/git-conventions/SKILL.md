@@ -1,6 +1,6 @@
 ---
 name: git-conventions
-description: Git commit practices and conventions. Use when committing changes or working with git.
+description: Git commit practices and conventions. Use when committing changes, writing commit messages, creating branches, or making PRs.
 user-invocable: false
 ---
 

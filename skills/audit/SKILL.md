@@ -33,7 +33,18 @@ The main project CLAUDE.md should not maintain script or file lists that duplica
 
 ---
 
-## 2. Check for Unregistered Documents and Scripts
+## 2. Planning Document Health
+
+For each registered planning document, check internal health:
+
+1. **Uncollapsed completed phases** — Are there completed phases with detailed content (>10 lines) that should be collapsed to 3-5 line summaries? Report line counts per phase.
+2. **Stale "Next Session" sections** — Does a "Next Session" or "Open Tasks" section contain items that appear to have been done already (based on status tables or completed phases)?
+3. **Status table accuracy** — Are phases marked "Not started" that have actually been worked on, or "In progress" for work that's clearly complete?
+4. **Overall size** — Report line count and KB for each planning doc. Flag any over 300 lines as candidates for collapsing.
+
+---
+
+## 3. Check for Unregistered Documents and Scripts
 
 ### Documents
 
@@ -51,7 +62,7 @@ Check if any significant data files were created but not added to the Canonical 
 
 ---
 
-## 3. Script Lifecycle Status [Data Science only]
+## 4. Script Lifecycle Status [Data Science only]
 
 For projects using the script organization conventions:
 
@@ -61,7 +72,7 @@ For projects using the script organization conventions:
 
 ---
 
-## 4. Prune Self-Evident Conventions
+## 5. Prune Self-Evident Conventions
 
 Review existing convention entries in the project's `.claude/CLAUDE.md`. For each, ask: **Is this now self-evident from the codebase?**
 
@@ -76,7 +87,7 @@ Propose removing redundant entries. Show which entries would be pruned and why.
 
 ---
 
-## 5. CLAUDE.md Size Check
+## 6. Project CLAUDE.md Size Check
 
 Report the current size of the project CLAUDE.md (line count, approximate KB). If it's growing large (>300 lines), suggest:
 - Moving detailed sections into planning documents
@@ -85,10 +96,20 @@ Report the current size of the project CLAUDE.md (line count, approximate KB). I
 
 ---
 
-## 6. Summary
+## 7. User-Level Health Check
+
+Quick checks on user-level configuration (lightweight — skip silently if everything is fine):
+
+1. **MEMORY.md size** — Check `~/.claude/projects/*/memory/MEMORY.md` for the current project. If over 200 lines, flag for pruning.
+2. **User CLAUDE.md size** — Check `~/.claude/CLAUDE.md` line count. If over 150 lines, suggest extracting content into skills.
+3. **Skills scan** — List all skills in `~/.claude/skills/`. For each, check if the description still matches its content (read the first few lines). Flag any that look outdated or redundant.
+
+---
+
+## 8. Summary
 
 Report findings organized as:
-- **Issues found** — things that need fixing (stale references, unregistered files, etc.)
+- **Issues found** — things that need fixing (stale references, unregistered files, uncollapsed phases, etc.)
 - **Suggestions** — optional improvements (convention pruning, size reduction)
 - **All clear** — areas that checked out fine
 

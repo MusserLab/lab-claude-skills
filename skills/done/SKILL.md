@@ -37,7 +37,7 @@ Only update planning documents **directly relevant to this session's work**. Do 
 
 For each relevant planning document:
 
-**a. Status tables** — Mark completed phases/tasks. Add new phases if needed. Collapse completed phases to short summaries (see `/new-plan` skill for guidance).
+**a. Status tables** — Mark completed phases/tasks. Add new phases if needed. When a phase is marked complete, collapse its detailed content to a 3-5 line summary (what was done, key outcomes). Before collapsing, ensure any forward-looking information needed by future phases is already captured elsewhere in the plan.
 
 **b. Script and file tracking** — Add new scripts, mark replaced ones as legacy, update modified entries.
 

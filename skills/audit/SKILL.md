@@ -102,7 +102,12 @@ Quick checks on user-level configuration (lightweight — skip silently if every
 
 1. **MEMORY.md size** — Check `~/.claude/projects/*/memory/MEMORY.md` for the current project. If over 200 lines, flag for pruning.
 2. **User CLAUDE.md size** — Check `~/.claude/CLAUDE.md` line count. If over 150 lines, suggest extracting content into skills.
-3. **Skills scan** — List all skills in `~/.claude/skills/`. For each, check if the description still matches its content (read the first few lines). Flag any that look outdated or redundant.
+3. **Skills scan** — For each skill in `~/.claude/skills/`:
+   - **Path drift**: Grep for absolute user paths (e.g., `/Users/<username>/`) that should be `~/`. This is the most common skill issue — paths leak in during in-session edits.
+   - **Lab repo sync**: Compare each personal skill against the lab skills repo (if one exists). Flag files that differ. Path differences (absolute vs `~/`) count as sync issues.
+   - **Description accuracy**: Read the `description:` frontmatter — does it still match the skill's actual scope? Flag overly broad or narrow triggers.
+   - **Stale references**: Spot-check any file paths, column names, or package names mentioned in skills against the current project state. Only check references relevant to the current project.
+   - Report only actual issues found. Skip this step's output entirely if all skills are healthy.
 
 ---
 

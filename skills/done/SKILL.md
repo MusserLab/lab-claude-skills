@@ -27,9 +27,7 @@ Briefly list what was completed this session:
 - Scripts created or modified
 - Data files created or modified
 - Documentation changes
-- Key analytical or design decisions made (data classification rules, filtering choices, naming conventions, thresholds, edge case handling)
-
-These decisions will be recorded in planning documents in the next step.
+- Key analytical or design decisions made
 
 ---
 
@@ -39,13 +37,11 @@ Only update planning documents **directly relevant to this session's work**. Do 
 
 For each relevant planning document:
 
-**a. Status tables** — Mark completed phases/tasks. Add new phases if needed.
+**a. Status tables** — Mark completed phases/tasks. Add new phases if needed. Collapse completed phases to short summaries (see `/new-plan` skill for guidance).
 
-**b. Decision logs** — Record analytical decisions from Step 1. Each entry: date, topic, issue, decision, rationale.
+**b. Script and file tracking** — Add new scripts, mark replaced ones as legacy, update modified entries.
 
-**c. Script and file tracking** — Add new scripts, mark replaced ones as legacy, update modified entries.
-
-**d. Task lists** — Check/uncheck items as appropriate.
+**c. Task lists** — Check/uncheck items as appropriate.
 
 Show proposed changes before editing.
 

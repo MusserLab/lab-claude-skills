@@ -58,12 +58,6 @@ For general projects (books, tools, infrastructure) with simple task tracking.
 - [ ] Task 1
 - [ ] Task 2
 
-## Decision Log
-
-| Date | Decision | Rationale |
-|------|----------|-----------|
-| {today} | Created planning document | {reason} |
-
 ## Key Files
 
 - (list key files and components as they become relevant)
@@ -71,10 +65,6 @@ For general projects (books, tools, infrastructure) with simple task tracking.
 ## Completed
 
 - [x] (move completed items here)
-
-## Session Notes
-
-_Add notes here during working sessions_
 ```
 
 ### General planning doc (status table style)
@@ -101,19 +91,9 @@ For general projects that benefit from phased tracking.
 |-------|-------------|--------|
 | 1 | {First phase} | Not started |
 
-## Decision Log
-
-| Date | Decision | Rationale |
-|------|----------|-----------|
-| {today} | Created planning document | {reason} |
-
 ## Key Files
 
 - (list key files and components as they become relevant)
-
-## Session Notes
-
-_Add notes here during working sessions_
 ```
 
 ### Data science planning doc
@@ -140,12 +120,6 @@ For analysis projects with numbered scripts, data pipelines, and input/output tr
 |-------|-------------|--------|
 | 1 | {First phase} | Not started |
 
-## Decision Log
-
-| Date | Decision | Rationale |
-|------|----------|-----------|
-| {today} | Created planning document | {reason} |
-
 ## Key Files
 
 ### Inputs
@@ -167,10 +141,6 @@ Track all scripts here. When a script is superseded, move it to the Legacy secti
 | Script | Replaced by | Notes |
 |--------|-------------|-------|
 | (move superseded scripts here) | | |
-
-## Session Notes
-
-_Add notes here during working sessions_
 ```
 
 ---
@@ -235,6 +205,34 @@ For documenting experimental datasets with biological/scientific context.
 ## Processing Notes
 
 {Any important notes about how data was processed or should be used}
+```
+
+---
+
+## Maintaining Plans Over Time
+
+### Collapse completed phases
+
+When a phase is marked complete, collapse its detailed content to a **3-5 line summary**. Keep the phase heading and a brief record of what was done and any key outcomes, but remove per-item audit results, checklists, and working notes that are no longer needed for active work. This prevents plans from growing monotonically as work progresses.
+
+**Before collapsing, check:** Does any information in this phase feed into a future phase that hasn't started yet? If so, ensure that information is already captured in the future phase's section (or the "Next Session" section) before removing it from the completed phase. Only collapse what is truly historical.
+
+Example — before collapsing:
+```markdown
+## Phase 2: Dependency Audit ✓ COMPLETE
+
+### Per-script summary
+(60 lines of detailed per-script audit results...)
+
+### Critical issues
+(30 lines of issue details, all resolved...)
+```
+
+After collapsing:
+```markdown
+## Phase 2: Dependency Audit ✓ COMPLETE
+
+Audited 21 scripts. Found 3 critical issues (all resolved in Phase 4): missing `theme_paper()` definition, hardcoded paths in 2 scripts, undeclared dependency on `datasets_for_plotting/conditions.csv`. Full audit preserved in git history.
 ```
 
 ---

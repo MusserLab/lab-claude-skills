@@ -257,6 +257,10 @@ venv/
 # Quarto rendering
 *_files/
 .quarto/
+*.html
+
+# Claude Code
+.claude/worktrees/
 
 # OS files
 .DS_Store
@@ -293,6 +297,9 @@ venv/
 # Quarto rendering
 *_files/
 .quarto/
+
+# Claude Code
+.claude/worktrees/
 
 # OS files
 .DS_Store

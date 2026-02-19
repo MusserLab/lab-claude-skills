@@ -37,6 +37,8 @@ git pull
 - Large output files (check `.gitignore`)
 - Credentials or secrets (`.env`, `credentials.json`, etc.)
 - IDE-specific files unless project convention says otherwise
+- Claude Code worktrees (`.claude/worktrees/`)
+- Rendered HTML from Quarto/Rmarkdown scripts — these are large, regenerable artifacts
 
 ## When to Prompt User About Commits
 

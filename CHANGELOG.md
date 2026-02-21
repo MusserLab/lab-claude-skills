@@ -12,6 +12,10 @@ Format: date-based entries (this isn't versioned software).
 - `tree-formatting` skill — ETE4 tree visualization and formatting
 - Plugin manifest and marketplace for Claude Code plugin distribution
 - Settings template and permissions guide in README
+- `CHANGELOG.md` — backfilled from git history
+
+### Changed
+- `/done`: detect CHANGELOG.md and propose updates at session end
 
 ## 2026-02-20
 

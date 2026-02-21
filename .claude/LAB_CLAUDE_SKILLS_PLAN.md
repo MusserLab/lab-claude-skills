@@ -8,10 +8,9 @@ Setting up and distributing a shared Claude Code skills repository for the lab. 
 
 - [x] Create a shared, version-controlled repo of Claude Code skills
 - [x] Generalize existing skills (remove machine-specific paths)
-- [x] Provide an install script for easy adoption
+- [x] ~~Provide an install script for easy adoption~~ → Replaced by plugin distribution
 - [ ] Push to GitHub and onboard lab members
-- [ ] Establish contribution workflow (PRs, reviews)
-- [ ] Iterate on skills based on lab member feedback
+- [ ] Iterate on skills based on lab member feedback (via GitHub Issues)
 
 ## Status
 
@@ -44,6 +43,8 @@ Setting up and distributing a shared Claude Code skills repository for the lab. 
 | 2026-02-14 | `figure-export` gained YAML frontmatter | Was the only skill missing `---` frontmatter block. |
 | 2026-02-21 | Added plugin distribution (`.claude-plugin/`) | Students can install via `/plugin install lab-skills`. Namespaced skills (`/lab-skills:*`) coexist with personal overrides in `~/.claude/skills/`. |
 | 2026-02-21 | Added `templates/settings-example.json` | Pre-approved bash commands, WebFetch domains, MCP tools, and deny rules. Students copy to `~/.claude/settings.json`. |
+| 2026-02-21 | CHANGELOG.md + GitHub Releases for change tracking | CHANGELOG.md as running record, GitHub Releases for milestone announcements. `/done` skill detects changelogs in any project. |
+| 2026-02-21 | Plugin-only distribution; removed install.sh, CONTRIBUTING.md | Symlink install was legacy complexity. Students install via plugin, provide feedback via GitHub Issues (no PRs). PI handles all skill changes. |
 
 ## Completed Work
 
@@ -80,11 +81,11 @@ Added `.claude-plugin/plugin.json` (plugin name: `lab-skills`) and `marketplace.
 - [ ] Add new skills based on lab member requests
 - [ ] Refine existing skills based on real usage patterns
 - [ ] Consider making repo public for broader community use
+- [ ] Create GitHub Releases for major batches of skill changes
 
 ## Known Issues / Things to Address
 
-- **Update workflow**: `./install.sh --update` pulls latest git changes, installs any new skills, and flags local copies that differ from repo. Symlinked skills update automatically on pull; local copies require manual action.
-- `conda-env` and `quarto-docs` use `~/miniconda3` as default — members with different conda locations need to copy instead of symlink (documented in README)
+- `conda-env` and `quarto-docs` use `~/miniconda3` as default — members with different conda locations need a local override copy in `~/.claude/skills/` (documented in README)
 - `scientific-manuscript` references directory is large — consider whether all annotated examples should be in the shared repo
 - `done` skill references `~/.claude` git tracking — may need adjustment for members who don't git-track their `.claude/` directory
 - Template CLAUDE.md files use `{placeholder}` syntax — evaluate whether these need more guided setup

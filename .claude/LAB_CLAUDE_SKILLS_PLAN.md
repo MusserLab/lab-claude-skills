@@ -20,7 +20,8 @@ Setting up and distributing a shared Claude Code skills repository for the lab. 
 | 1 | Refactor user CLAUDE.md — extract principles into modular skills | Done |
 | 2 | Scaffold repo structure, copy and generalize skills | Done |
 | 3 | Write install.sh, README, CONTRIBUTING, templates | Done |
-| 4 | Review, initial commit, push to GitHub | Not started |
+| 4 | Review, initial commit, push to GitHub | Done |
+| 4b | Add plugin distribution support | Done |
 | 5 | Onboard lab members — install, test, collect feedback | Not started |
 | 6 | Iterate — new skills, improvements based on usage | Not started |
 
@@ -41,6 +42,8 @@ Setting up and distributing a shared Claude Code skills repository for the lab. 
 | 2026-02-14 | `/done` detects project type and skips data-science steps | Steps 4, 7, 9b marked `[Data Science only]`; Step 0 checks `project-type:` field or infers from signals. |
 | 2026-02-14 | `file-safety` split into General + Data Science sections | General rules (all projects) + data-science rules (outs/ ownership, data/ read-only). |
 | 2026-02-14 | `figure-export` gained YAML frontmatter | Was the only skill missing `---` frontmatter block. |
+| 2026-02-21 | Added plugin distribution (`.claude-plugin/`) | Students can install via `/plugin install lab-skills`. Namespaced skills (`/lab-skills:*`) coexist with personal overrides in `~/.claude/skills/`. |
+| 2026-02-21 | Added `templates/settings-example.json` | Pre-approved bash commands, WebFetch domains, MCP tools, and deny rules. Students copy to `~/.claude/settings.json`. |
 
 ## Completed Work
 
@@ -62,11 +65,10 @@ Setting up and distributing a shared Claude Code skills repository for the lab. 
 ## Remaining Work
 
 ### Phase 4: Review and publish
-- [ ] Review all generalized skills for accuracy
-- [ ] Test `install.sh` on a clean `~/.claude/skills/` setup
-- [ ] Create initial git commit
-- [ ] Create GitHub repo (MusserLab org, private initially?)
-- [ ] Push initial commit
+Repo created on GitHub (MusserLab/lab-claude-skills), pushed, and live. 20 skills total.
+
+### Phase 4b: Plugin distribution
+Added `.claude-plugin/plugin.json` (plugin name: `lab-skills`) and `marketplace.json` (marketplace name: `musser-lab`). Students can install via `/plugin marketplace add MusserLab/lab-claude-skills` + `/plugin install lab-skills`. Also added `templates/settings-example.json` with pre-approved permissions for common lab tools. README restructured with both install methods, customization workflow, and grouped skill reference.
 
 ### Phase 5: Onboard lab members
 - [ ] Share repo link and installation instructions with lab

@@ -76,6 +76,15 @@ If reusable lessons or gotchas were discovered, or existing entries proved wrong
 
 If new `.claude/*.md` files were created this session, add them to the Project Document Registry.
 
+### CHANGELOG.md
+
+If the project has a `CHANGELOG.md` in its root directory:
+- Review what was done this session
+- Propose a changelog entry under today's date, using the existing format (Added/Changed/Fixed/Removed sections as appropriate)
+- If today's date already has an entry, append to it rather than creating a duplicate
+- Show proposed changes before editing
+- If no `CHANGELOG.md` exists, skip silently — do not suggest creating one
+
 ---
 
 ## 4. Git Commit

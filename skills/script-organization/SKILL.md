@@ -75,6 +75,15 @@ project/
 
 Each section has its own script numbering (starting at `01_`). Sections may have one or more planning documents in `.claude/`.
 
+### Choosing a Subdirectory
+
+When creating a new script in a sectioned project:
+
+1. Check the project's CLAUDE.md for a **Script Subdirectories** table listing each subdirectory and its scope
+2. If the task clearly fits one subdirectory, use it
+3. **If ambiguous, ask the user** which subdirectory to use before creating the script
+4. If none of the existing subdirectories fit, propose creating a new one
+
 ### When to Use Each Layout
 
 - **Flat**: Single topic, small scope, fewer than ~10 scripts

@@ -1,0 +1,12 @@
+{
+  "name": "musser-lab",
+  "owner": {
+    "name": "MusserLab"
+  },
+  "plugins": [
+    {
+      "name": "lab-skills",
+      "source": "./"
+    }
+  ]
+}

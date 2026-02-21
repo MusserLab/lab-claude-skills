@@ -1,0 +1,8 @@
+{
+  "name": "lab-skills",
+  "description": "Lab conventions for data science, reproducibility, manuscript writing, and code organization in Claude Code",
+  "version": "1.0.0",
+  "author": {
+    "name": "MusserLab"
+  }
+}

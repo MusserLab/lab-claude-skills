@@ -119,7 +119,7 @@ Use a tiered approach. **Ask the user which tier** or recommend based on dataset
 For initial exploration or when speed matters.
 
 ```bash
-iqtree3 -s alignment.fasta -m MFP -B 1000 -alrt 1000 -T AUTO
+iqtree3 -s alignment.fasta -m MFP -B 1000 -alrt 1000 -nstop 50 -T AUTO
 ```
 
 - ModelFinder (`-m MFP`) selects the best site-homogeneous model automatically
@@ -131,13 +131,17 @@ Two-pass PMSF workflow with ELM exchangeability matrix.
 
 **Pass 1 — guide tree:**
 ```bash
-iqtree3 -s alignment.fasta -m ELM+C60+G -T AUTO -pre guide
+iqtree3 -s alignment.fasta -m ELM+C60+G -nstop 50 -T 8 -pre guide
 ```
 
 **Pass 2 — PMSF tree with full search:**
 ```bash
-iqtree3 -s alignment.fasta -m ELM+C60+G -ft guide.treefile -B 1000 -alrt 1000 -T AUTO
+iqtree3 -s alignment.fasta -m ELM+C60+G -ft guide.treefile -B 1000 -alrt 1000 -nstop 50 -T 8
 ```
+
+> **Bug workaround (IQ-TREE 3.0.1):** `-T AUTO` crashes with an assertion error
+> during PMSF site frequency computation (`computePartialParsimonyFast`). Use a
+> fixed thread count (e.g., `-T 8`) instead. Re-test with future IQ-TREE releases.
 
 - **ELM** (Eukaryotic Linked Mixture): exchangeability matrix estimated under C60 from eukaryotic data. Better than LG when paired with profile mixture models (Banos et al. 2024, MBE).
 - C60: 60-class amino acid profile mixture capturing site heterogeneity
@@ -149,9 +153,9 @@ If the dataset is not primarily eukaryotic, or for comparison:
 
 ```bash
 # Pass 1
-iqtree3 -s alignment.fasta -m LG+C60+F+R -T AUTO -pre guide
+iqtree3 -s alignment.fasta -m LG+C60+F+R -nstop 50 -T 8 -pre guide
 # Pass 2
-iqtree3 -s alignment.fasta -m LG+C60+F+R -ft guide.treefile -B 1000 -alrt 1000 -T AUTO
+iqtree3 -s alignment.fasta -m LG+C60+F+R -ft guide.treefile -B 1000 -alrt 1000 -nstop 50 -T 8
 ```
 
 ### Tier 3: PhyloBayes (optional, not default)

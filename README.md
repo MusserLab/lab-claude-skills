@@ -108,6 +108,64 @@ The `templates/` directory contains starter files:
 
 - **`user-claude-md.md`** — Copy to `~/.claude/CLAUDE.md` as your user-level configuration. Customize the troubleshooting section for your machine.
 - **`project-claude-md.md`** — Copy to `.claude/CLAUDE.md` in new projects. Fill in project-specific details.
+- **`settings-example.json`** — Example `~/.claude/settings.json` with pre-approved permissions for common lab tools. See below.
+
+### Settings (permissions)
+
+Claude Code asks for permission each time it wants to fetch a website, run a bash command, etc. You can pre-approve common actions in `~/.claude/settings.json` so you don't get prompted repeatedly.
+
+The example file includes:
+- **Bash commands** for common tools (`git`, `conda`, `Rscript`, `quarto`, `python`, `mafft`, `iqtree`, etc.)
+- **WebFetch domains** for databases we use regularly (NCBI, Ensembl, UniProt, OrthoDB, etc.)
+- **MCP tools** for literature search (bioRxiv, PubMed, Scholar Gateway)
+- **Deny rules** to block destructive commands (`sudo`, `git push --force`, `git reset --hard`)
+
+To use it:
+
+```bash
+# If you don't have a settings.json yet, copy the example
+cp templates/settings-example.json ~/.claude/settings.json
+
+# If you already have one, merge in the parts you want manually
+```
+
+### What's not in the example (and what you might add)
+
+The example is intentionally conservative. Here are things you may want to add based on your workflow:
+
+**Bash commands.** The example pre-approves common tools individually (`git`, `conda`, `Rscript`, etc.). If you find yourself approving the same commands repeatedly, you can allow all bash commands at once:
+
+```json
+"Bash(*)"
+```
+
+This is convenient but means Claude won't ask before running anything. The deny rules still apply, so `sudo` and force-push are always blocked regardless.
+
+**File operations.** The example pre-approves `Read`, `Edit`, `Write`, `Glob`, `Grep`, and `WebSearch` so Claude can work with files and search the web without prompting. Remove any of these if you want Claude to ask first.
+
+**Additional directories.** If you work across multiple repos or need Claude to access data outside the current project, add `additionalDirectories`:
+
+```json
+"additionalDirectories": [
+  "/path/to/your/shared/data",
+  "/path/to/another/repo"
+]
+```
+
+**Environment variables.** You can set variables that apply to all Claude sessions:
+
+```json
+"env": {
+  "MY_VAR": "value"
+}
+```
+
+**Adding new entries.** Permissions go in the `allow` array as strings. The format depends on the tool:
+- Bash: `"Bash(command pattern *)"` — wildcards match anything
+- WebFetch: `"WebFetch(domain:example.com)"` — one entry per domain
+- MCP tools: `"mcp__server__tool_name"` or `"mcp__server__*"` for all tools on a server
+
+If Claude asks for permission and you click "Always allow", it adds the entry to your settings automatically.
 
 ## Contributing
 

@@ -45,6 +45,7 @@ Setting up and distributing a shared Claude Code skills repository for the lab. 
 | 2026-02-21 | Added `templates/settings-example.json` | Pre-approved bash commands, WebFetch domains, MCP tools, and deny rules. Students copy to `~/.claude/settings.json`. |
 | 2026-02-21 | CHANGELOG.md + GitHub Releases for change tracking | CHANGELOG.md as running record, GitHub Releases for milestone announcements. `/done` skill detects changelogs in any project. |
 | 2026-02-21 | Plugin-only distribution; removed install.sh, CONTRIBUTING.md | Symlink install was legacy complexity. Students install via plugin, provide feedback via GitHub Issues (no PRs). PI handles all skill changes. |
+| 2026-02-21 | Decoupled skill dev from publishing; created `/sync-skills` | Removed auto-prompt to push every skill change to lab repo. PI now uses `/sync-skills` to batch-review and selectively publish. Personal `~/.claude/skills/` serves as dev environment; no git branch needed. |
 
 ## Completed Work
 

@@ -13,12 +13,12 @@ lab-claude-skills/
     data-handling/SKILL.md
     r-plotting-style/SKILL.md
     ...
+  .claude-plugin/            # Plugin distribution metadata
+    plugin.json
   templates/                 # Starter files for new users/projects
     user-claude-md.md
     project-claude-md.md
-  install.sh                 # Symlink installer
   README.md
-  CONTRIBUTING.md
 ```
 
 ---

@@ -4,13 +4,9 @@ Shared [Claude Code](https://docs.anthropic.com/en/docs/claude-code) skills and 
 
 ## What are skills?
 
-Claude Code skills are markdown files that automatically load into Claude's context when relevant. For example, when you ask Claude to create a plot, the `r-plotting-style` skill loads and Claude follows our lab's ggplot2 conventions. Skills live in `~/.claude/skills/` (user-level, apply to all projects) or `.claude/skills/` (project-level, apply to one repo).
+Claude Code skills are markdown files that automatically load into Claude's context when relevant. For example, when you ask Claude to create a plot, the `r-plotting-style` skill loads and Claude follows our lab's ggplot2 conventions.
 
-## Quick start
-
-There are two ways to install: as a **plugin** (recommended) or via **symlinks** (legacy).
-
-### Option A: Plugin install (recommended)
+## Install
 
 ```bash
 # 1. Add the lab marketplace (one-time)
@@ -22,25 +18,7 @@ There are two ways to install: as a **plugin** (recommended) or via **symlinks**
 
 All skills are available as `/lab-skills:skill-name` (e.g., `/lab-skills:done`, `/lab-skills:data-handling`).
 
-### Option B: Symlink install (legacy)
-
-```bash
-# 1. Clone this repo
-git clone git@github.com:MusserLab/lab-claude-skills.git
-cd lab-claude-skills
-
-# 2. Install all skills (creates symlinks in ~/.claude/skills/)
-./install.sh
-
-# 3. Or install specific skills only
-./install.sh data-handling r-plotting-style quarto-docs
-```
-
-Skills are available by short name (e.g., `/done`, `/data-handling`).
-
 ## Updating
-
-### Plugin users
 
 ```bash
 # Check for updates from the lab marketplace
@@ -49,57 +27,25 @@ Skills are available by short name (e.g., `/done`, `/data-handling`).
 
 You can also enable auto-updates: `/plugin` > **Marketplaces** tab > select `musser-lab` > **Enable auto-update**.
 
-### Symlink users
-
-```bash
-cd lab-claude-skills
-./install.sh --update
-```
-
-This pulls the latest changes, installs any new skills, and flags local copies that differ from the repo.
-
-If you installed via symlink (the default), updates to existing skills take effect immediately after `git pull`.
-
 ## Customizing skills
 
-You can override any lab skill with your own version. This is useful for experimenting with changes before proposing them back to the lab.
-
-### Plugin users
+You can override any lab skill with your own version. This is useful for experimenting or adapting a skill to your machine.
 
 1. Copy the skill you want to customize to your personal skills directory:
    ```bash
-   cp -r skills/data-handling ~/.claude/skills/data-handling
+   mkdir -p ~/.claude/skills/data-handling
+   # Copy SKILL.md from the plugin's installed location, or from GitHub
    ```
 2. Edit `~/.claude/skills/data-handling/SKILL.md` as you like
 3. Your personal version (`/data-handling`) takes effect alongside the lab version (`/lab-skills:data-handling`)
-4. When you're happy with your changes, PR them back to this repo
-
-### Symlink users
-
-1. Replace the symlink with a local copy:
-   ```bash
-   rm ~/.claude/skills/data-handling
-   cp -r skills/data-handling ~/.claude/skills/data-handling
-   ```
-2. Edit the local copy
-3. When ready, PR your changes back
 
 Skills that reference machine-specific paths (like `conda-env`) use `~/miniconda3` as the default. If your conda is installed elsewhere, make a local copy and edit the path.
 
 ## Managing your installation
 
 ```bash
-# Plugin: see installed plugins
+# See installed plugins
 /plugin
-
-# Symlink: see what's installed and what's available
-./install.sh --status
-
-# Symlink: install additional skills later
-./install.sh conda-env r-renv
-
-# Symlink: remove a skill
-rm ~/.claude/skills/skill-name
 ```
 
 ## Templates
@@ -167,9 +113,13 @@ This is convenient but means Claude won't ask before running anything. The deny 
 
 If Claude asks for permission and you click "Always allow", it adds the entry to your settings automatically.
 
-## Contributing
+## Feedback and suggestions
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for how to propose new skills or changes.
+If a skill gives Claude bad instructions, doesn't trigger when it should, or you have an idea for a new skill:
+
+1. Open a [GitHub Issue](https://github.com/MusserLab/lab-claude-skills/issues)
+2. Include: which skill, what happened, what you expected
+3. If possible, paste the relevant part of your Claude Code conversation
 
 ---
 

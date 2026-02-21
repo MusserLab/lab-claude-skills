@@ -16,6 +16,11 @@ Format: date-based entries (this isn't versioned software).
 
 ### Changed
 - `/done`: detect CHANGELOG.md and propose updates at session end
+- Distribution simplified to plugin-only; feedback via GitHub Issues
+
+### Removed
+- `install.sh` — symlink install path removed in favor of plugin
+- `CONTRIBUTING.md` — replaced by GitHub Issues workflow
 
 ## 2026-02-20
 

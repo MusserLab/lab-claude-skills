@@ -171,4 +171,48 @@ Auto-load for specific research tasks.
 |-------|-------------|
 | `scientific-manuscript` | High-impact manuscript development for top-tier journals |
 | `protein-phylogeny` | Phylogeny inference: alignment, trimming, tree building |
-| `tree-formatting` | Phylogenetic tree visualization with ETE4 |
+| `gene-lookup` | Look up gene/protein info from database IDs (UniProt, Ensembl, FlyBase, etc.) |
+| `tree-formatting` | Phylogenetic tree visualization with ggtree or iTOL |
+
+---
+
+## Hooks
+
+The plugin includes hooks that automatically enforce lab conventions. These activate when the plugin is installed — no manual configuration needed.
+
+| Hook | Event | What it does |
+|------|-------|-------------|
+| `protect-data-dir.sh` | PreToolUse (Edit/Write) | Blocks writes to `data/` directories — outputs go to `outs/` instead |
+| `require-conda.sh` | PreToolUse (Bash) | Blocks bare `pip install` — requires conda env activation first |
+| `project-reminders.sh` | SessionStart | Injects project-specific reminders from `.claude/project-reminders.txt` if the file exists |
+
+### Project reminders
+
+To use the `project-reminders` hook, create a `.claude/project-reminders.txt` file in your project root with critical rules Claude should always remember:
+
+```
+1. Gene level = automated_name, NEVER bare Trinity IDs
+2. All heatmaps MUST use per-timepoint DMSO normalization
+3. Check PLOTTING_PLAN.md before modifying any plotting script
+```
+
+These are injected into Claude's context at every session start, so important project rules survive context compaction.
+
+### Optional hooks (not in plugin)
+
+These hooks are useful but not included in the plugin by default. Add them to your `~/.claude/settings.json` manually:
+
+**macOS notification** — Alerts you when Claude needs attention:
+```json
+"Notification": [
+  {
+    "matcher": "",
+    "hooks": [
+      {
+        "type": "command",
+        "command": "osascript -e 'display notification \"Claude needs your attention\" with title \"Claude Code\"'"
+      }
+    ]
+  }
+]
+```

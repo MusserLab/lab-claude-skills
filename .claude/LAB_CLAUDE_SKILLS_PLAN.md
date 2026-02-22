@@ -46,6 +46,9 @@ Setting up and distributing a shared Claude Code skills repository for the lab. 
 | 2026-02-21 | CHANGELOG.md + GitHub Releases for change tracking | CHANGELOG.md as running record, GitHub Releases for milestone announcements. `/done` skill detects changelogs in any project. |
 | 2026-02-21 | Plugin-only distribution; removed install.sh, CONTRIBUTING.md | Symlink install was legacy complexity. Students install via plugin, provide feedback via GitHub Issues (no PRs). PI handles all skill changes. |
 | 2026-02-21 | Decoupled skill dev from publishing; created `/sync-skills` | Removed auto-prompt to push every skill change to lab repo. PI now uses `/sync-skills` to batch-review and selectively publish. Personal `~/.claude/skills/` serves as dev environment; no git branch needed. |
+| 2026-02-21 | Expanded `/sync-skills` → `/sync-plugin` | Now syncs skills, hooks, and README. Updates skill reference tables and hooks section in README. Bumps plugin version. |
+| 2026-02-21 | Added plugin hooks (protect-data-dir, require-conda, project-reminders) | Hooks enforce lab conventions automatically when plugin is installed. Project-specific hooks (protect-data-files) and OS-specific hooks (Notification) stay personal. |
+| 2026-02-21 | Guides embedded as skill reference files | Standalone guides (e.g., quarto-pdf-formatting) moved into their related skill's `references/` directory. Distributes through normal skill sync. |
 
 ## Completed Work
 

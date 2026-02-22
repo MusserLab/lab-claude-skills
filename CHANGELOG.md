@@ -8,6 +8,11 @@ Format: date-based entries (this isn't versioned software).
 ## 2026-02-21
 
 ### Added
+- Plugin hooks: `protect-data-dir.sh`, `require-conda.sh`, `project-reminders.sh`
+- `hooks/hooks.json` — hook event configuration for the plugin
+- `gene-lookup` skill added to README domain skills table
+- README: Hooks section documenting plugin hooks and project reminders
+- `quarto-docs`: embedded PDF formatting guide as `references/pdf-formatting.md`
 - `protein-phylogeny` skill — alignment, trimming, tree inference pipeline
 - `tree-formatting` skill — ETE4 tree visualization and formatting
 - Plugin manifest and marketplace for Claude Code plugin distribution
@@ -15,6 +20,7 @@ Format: date-based entries (this isn't versioned software).
 - `CHANGELOG.md` — backfilled from git history
 
 ### Changed
+- Plugin version bumped to 1.1.0; `plugin.json` now declares hooks
 - `/done`: detect CHANGELOG.md and propose updates at session end
 - Distribution simplified to plugin-only; feedback via GitHub Issues
 

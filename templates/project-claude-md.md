@@ -1,8 +1,9 @@
 <!-- project-type: data-science -->
 <!-- Change to "general" for non-data-science projects (infrastructure, tools, documentation) -->
 <!-- slack-channel: #channel-name:CHANNEL_ID -->
+<!-- slack-post-criteria: What kinds of changes to post, e.g. "new analyses and results" -->
 <!-- Get channel ID: right-click channel in Slack → View channel details → scroll to bottom -->
-<!-- Remove this line if you don't want Slack notifications from /done -->
+<!-- Remove slack lines if you don't want Slack notifications from /done -->
 # {Project Name}
 
 {Brief description of what this project does}

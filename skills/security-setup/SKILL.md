@@ -4,6 +4,8 @@ description: Configure and manage Claude Code security protections for sensitive
 user-invocable: true
 ---
 
+<!-- Current SECURITY_VERSION: 1 -->
+
 # Security Setup & Management
 
 When the user invokes `/security-setup`, configure or update Claude Code security protections. This skill is **re-runnable** — it detects whether protections are already configured and adjusts its workflow accordingly.
@@ -243,6 +245,8 @@ Write the customized hooks to `~/.claude/hooks/`:
 
 Make them executable with `chmod +x`.
 
+**Write security version stamp:** Read the current `SECURITY_VERSION` from `scripts/SECURITY_VERSION` in the plugin root (or use the version in the `<!-- Current SECURITY_VERSION: N -->` comment at the top of this skill as a fallback). Write the same version number to `~/.claude/hooks/SECURITY_VERSION`. This allows `project-reminders.sh` to detect when personal hooks are outdated relative to the plugin.
+
 ### Step 7: Update settings.json
 
 Read `~/.claude/settings.json`. Make these changes:
@@ -310,6 +314,8 @@ Report results to the user.
 
 ### Step 1: Read Current Config
 
+Read `~/.claude/hooks/SECURITY_VERSION` (if it exists) to get the personal security version. Read `scripts/SECURITY_VERSION` from the plugin root to get the current plugin version.
+
 Parse `~/.claude/hooks/protect-sensitive-reads.sh` to extract:
 - Current `MODE` (allowlist or blocklist)
 - `ALLOWED_DIRS` array contents
@@ -327,6 +333,7 @@ Parse `~/.claude/settings.json` to extract:
 ### Step 2: Present Current Protections
 
 Show a summary organized by:
+- **Security version**: personal vN / plugin vN (show "up to date" or "outdated — update recommended")
 - **Protection mode**: allowlist or blocklist
 - **Allowed directories** (allowlist mode) or **Blocked directories** (blocklist mode)
 - **Always-blocked directories** (both modes)
@@ -361,6 +368,8 @@ Modify the relevant hook script(s) and/or settings.json. When editing hook scrip
 - Read the current file
 - Use the Edit tool to modify the specific array
 - Preserve all other configuration
+
+After applying changes, update `~/.claude/hooks/SECURITY_VERSION` to the current plugin version (the user just re-ran security-setup, so they're now current).
 
 Show the user what changed (before/after for the modified arrays).
 

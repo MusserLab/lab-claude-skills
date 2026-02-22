@@ -6,7 +6,16 @@ Shared [Claude Code](https://docs.anthropic.com/en/docs/claude-code) skills and 
 
 Claude Code skills are markdown files that automatically load into Claude's context when relevant. For example, when you ask Claude to create a plot, the `r-plotting-style` skill loads and Claude follows our lab's ggplot2 conventions.
 
+## Prerequisites
+
+You need [Claude Code](https://docs.anthropic.com/en/docs/claude-code) installed and working before adding lab skills:
+
+1. Install Claude Code — see [Anthropic's install guide](https://docs.anthropic.com/en/docs/claude-code/overview)
+2. Make sure you can launch it (run `claude` in your terminal)
+
 ## Install
+
+Open Claude Code in your terminal (`claude`) and type these commands at the Claude Code prompt (not your regular shell):
 
 ```bash
 # 1. Add the lab marketplace (one-time)
@@ -17,6 +26,20 @@ Claude Code skills are markdown files that automatically load into Claude's cont
 ```
 
 All skills are available as `/lab-skills:skill-name` (e.g., `/lab-skills:done`, `/lab-skills:data-handling`).
+
+### Recommended setup
+
+After installing the plugin, download the starter files for a smoother experience:
+
+```bash
+# User-level instructions (if you don't have ~/.claude/CLAUDE.md yet)
+curl -o ~/.claude/CLAUDE.md https://raw.githubusercontent.com/MusserLab/lab-claude-skills/main/templates/user-claude-md.md
+
+# Pre-approved permissions for common lab tools (if you don't have ~/.claude/settings.json yet)
+curl -o ~/.claude/settings.json https://raw.githubusercontent.com/MusserLab/lab-claude-skills/main/templates/settings-example.json
+```
+
+See the [Templates](#templates) section for details on what these files do and how to customize them.
 
 ## Updating
 
@@ -66,14 +89,7 @@ The example file includes:
 - **MCP tools** for literature search (bioRxiv, PubMed, Scholar Gateway)
 - **Deny rules** to block destructive commands (`sudo`, `git push --force`, `git reset --hard`)
 
-To use it:
-
-```bash
-# If you don't have a settings.json yet, copy the example
-cp templates/settings-example.json ~/.claude/settings.json
-
-# If you already have one, merge in the parts you want manually
-```
+To use it, download with `curl` (see [Install](#install)) or copy from the repo if you've cloned it. If you already have a `settings.json`, merge in the parts you want manually.
 
 ### What's not in the example (and what you might add)
 

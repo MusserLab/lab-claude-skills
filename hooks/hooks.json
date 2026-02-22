@@ -15,6 +15,10 @@
         "hooks": [
           {
             "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/protect-sensitive-writes.sh"
+          },
+          {
+            "type": "command",
             "command": "${CLAUDE_PLUGIN_ROOT}/scripts/protect-data-dir.sh"
           }
         ]

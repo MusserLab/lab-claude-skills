@@ -270,14 +270,17 @@ The plugin includes hooks that automatically enforce lab conventions. These acti
 | Hook | Event | What it does |
 |------|-------|-------------|
 | `protect-sensitive-reads.sh` | PreToolUse (Read) | Blocks reads to sensitive directories (credentials, passwords, browsers, email) |
+| `protect-sensitive-writes.sh` | PreToolUse (Edit/Write) | Blocks writes to sensitive directories (credentials, passwords, shell configs, LaunchAgents) |
 | `protect-sensitive-bash.sh` | PreToolUse (Bash) | Blocks bash commands referencing sensitive paths or using dangerous patterns |
 | `protect-data-dir.sh` | PreToolUse (Edit/Write) | Blocks writes to `data/` directories — outputs go to `outs/` instead |
 | `require-conda.sh` | PreToolUse (Bash) | Blocks bare `pip install` — requires conda env activation first |
-| `project-reminders.sh` | SessionStart | Injects project-specific reminders from `.claude/project-reminders.txt` if the file exists |
+| `project-reminders.sh` | SessionStart | Injects general and project-specific reminders at session start |
 
 ### Project reminders
 
-To use the `project-reminders` hook, create a `.claude/project-reminders.txt` file in your project root with critical rules Claude should always remember:
+The `project-reminders` hook supports two levels of reminders:
+
+**Project-specific reminders** — Create `.claude/project-reminders.txt` in your project root:
 
 ```
 1. Gene level = automated_name, NEVER bare Trinity IDs
@@ -285,11 +288,18 @@ To use the `project-reminders` hook, create a `.claude/project-reminders.txt` fi
 3. Check PLOTTING_PLAN.md before modifying any plotting script
 ```
 
-These are injected into Claude's context at every session start, so important project rules survive context compaction.
+**General reminders (all sessions)** — Create `~/.claude/hooks/general-reminders.txt` for rules that apply across all projects:
+
+```
+1. Always check planning documents before modifying scripts
+2. Never silently default unmatched data classifications
+```
+
+Both are injected into Claude's context at every session start, so important rules survive context compaction. If both files exist, general reminders appear first, followed by project-specific ones.
 
 ### Security hooks
 
-The `protect-sensitive-reads.sh` and `protect-sensitive-bash.sh` hooks provide automatic security — see [Security](#security) above and [SECURITY.md](SECURITY.md) for details.
+The `protect-sensitive-reads.sh`, `protect-sensitive-writes.sh`, and `protect-sensitive-bash.sh` hooks provide automatic security — see [Security](#security) above and [SECURITY.md](SECURITY.md) for details.
 
 ### Optional hooks (not in plugin)
 

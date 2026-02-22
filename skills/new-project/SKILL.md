@@ -52,6 +52,10 @@ If sectioned, ask for section names (e.g., `phosphoproteomics`, `transcriptomics
 - **Lab organization** (recommended for research projects) or **personal account**?
 - **Private** (recommended) or **public**?
 
+#### Question: Changelog
+- **Yes** (recommended) — create a `CHANGELOG.md` to track changes over time. The `/done` skill will propose entries automatically.
+- **No** — skip. You can always add one later.
+
 ---
 
 ## 2. Create Directory Structure
@@ -579,6 +583,23 @@ Omit Python or R sections if not using that language.
 
 {Document how to use the project}
 ````
+
+---
+
+## 7b. Create CHANGELOG.md (if requested)
+
+If the user opted for a changelog in Step 1, create `CHANGELOG.md`:
+
+````markdown
+# Changelog
+
+## {today's date}
+
+### Added
+- Initial project setup
+````
+
+The `/done` skill auto-detects this file and proposes entries at each session wrap-up. No CLAUDE.md entry needed.
 
 ---
 

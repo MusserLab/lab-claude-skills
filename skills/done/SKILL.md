@@ -121,6 +121,8 @@ If there are changes (skills, CLAUDE.md, etc.):
 - Ask if user wants to commit and push
 - If yes: `git -C ~/.claude add -A && git -C ~/.claude commit -m "message" && git -C ~/.claude push`
 
+**Skill registration check:** If new skills were created in `~/.claude/skills/` this session, verify each appears in the Available Skills table in `~/.claude/CLAUDE.md`. If any are missing, add them before committing.
+
 ### Conditional: renv snapshot [Data Science only]
 
 Only if R packages were installed or updated during this session:

@@ -4,7 +4,7 @@ description: Configure and manage Claude Code security protections for sensitive
 user-invocable: true
 ---
 
-<!-- Current SECURITY_VERSION: 1 -->
+<!-- Current SECURITY_VERSION: 2 -->
 
 # Security Setup & Management
 

@@ -8,6 +8,8 @@ Format: date-based entries (this isn't versioned software).
 ## 2026-02-22
 
 ### Added
+- Hook: `protect-sensitive-writes.sh` — blocks Edit/Write to credential stores, password managers, LaunchAgents, and sensitive filenames (.env, .pem, keys)
+- Write/Edit deny rules in `settings-example.json` for .ssh, .aws, Keychains, LaunchAgents, keyrings, 1Password
 - Security hooks: `protect-sensitive-reads.sh` and `protect-sensitive-bash.sh` — block reads to credential stores, password managers, browsers, and email; block dangerous bash patterns (credential extraction, pipe-to-execute, env dumping)
 - `/security-setup` skill — interactive workflow to scan a machine for sensitive locations, choose allowlist or blocklist mode, and generate personalized hooks at `~/.claude/hooks/`
 - Security-setup templates: configurable `protect-sensitive-reads.sh` and `protect-sensitive-bash.sh` with allowlist/blocklist modes, cloud storage exceptions, and always-block lists
@@ -20,6 +22,16 @@ Format: date-based entries (this isn't versioned software).
 - `<!-- slack-channel: -->` comment support in project CLAUDE.md template for Slack notifications
 
 ### Changed
+- `done`: added skill registration check — verifies new skills appear in `~/.claude/CLAUDE.md` before committing
+- `new-project`: added CHANGELOG.md scaffolding question and Step 7b
+- Hook: `project-reminders.sh` — now supports `~/.claude/hooks/general-reminders.txt` for cross-project reminders
+- `hooks.json`: added `protect-sensitive-writes.sh` to Edit/Write event
+- Plugin version bumped to 1.3.0; `hooks.json` now registers security hooks on Read, Edit/Write, and Bash events
+
+### Security
+- Bumped SECURITY_VERSION to 2 — users with personal hooks should re-run `/security-setup`
+
+### Previously in this date (v1.2.1)
 - Plugin version bumped to 1.2.1; `hooks.json` now registers security hooks on Read and Bash events
 - `/security-setup` skill: detects platform, skips hook generation on Windows, scans platform-appropriate paths
 - `settings-example.json`: added Linux and Windows AppData deny rules alongside existing macOS rules

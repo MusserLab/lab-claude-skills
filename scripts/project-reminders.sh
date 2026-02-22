@@ -6,10 +6,20 @@ CWD=$(echo "$INPUT" | python3 -c "import sys,json; print(json.load(sys.stdin).ge
 
 CONTENT=""
 
+# --- General reminders (all sessions) ---
+GENERAL_REMINDERS="$HOME/.claude/hooks/general-reminders.txt"
+if [[ -f "$GENERAL_REMINDERS" ]]; then
+  CONTENT=$(cat "$GENERAL_REMINDERS")
+fi
+
 # --- Project reminders ---
 REMINDERS_FILE="$CWD/.claude/project-reminders.txt"
 if [[ -f "$REMINDERS_FILE" ]]; then
-  CONTENT=$(cat "$REMINDERS_FILE")
+  if [[ -n "$CONTENT" ]]; then
+    CONTENT="$CONTENT"$'\n\n'"$(cat "$REMINDERS_FILE")"
+  else
+    CONTENT=$(cat "$REMINDERS_FILE")
+  fi
 fi
 
 # --- Security version check ---

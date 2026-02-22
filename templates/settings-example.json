@@ -105,7 +105,19 @@
       "Read($HOME/AppData/Local/Microsoft/Edge/*)",
       "Read($HOME/AppData/Local/1Password/*)",
       "Read($HOME/AppData/Roaming/KeePassXC/*)",
-      "Read($HOME/AppData/Roaming/Bitwarden/*)"
+      "Read($HOME/AppData/Roaming/Bitwarden/*)",
+      "Write($HOME/.ssh/*)",
+      "Write($HOME/.aws/*)",
+      "Write($HOME/Library/Keychains/*)",
+      "Write($HOME/Library/LaunchAgents/*)",
+      "Write($HOME/.config/google-chrome/*)",
+      "Write($HOME/.mozilla/firefox/*)",
+      "Write($HOME/.local/share/keyrings/*)",
+      "Write($HOME/.config/1Password/*)",
+      "Edit($HOME/.ssh/*)",
+      "Edit($HOME/.aws/*)",
+      "Edit($HOME/Library/Keychains/*)",
+      "Edit($HOME/Library/LaunchAgents/*)"
     ],
     "additionalDirectories": [
       "~/.claude",

@@ -57,6 +57,7 @@ Setting up and distributing a shared Claude Code skills repository for the lab. 
 | 2026-02-22 | Windows onboarding checklist (student-facing) | Hooks may not work on Windows PowerShell/cmd. Student runs steps 1-5 to test, reports findings. PI fixes issues in Step 6. |
 | 2026-02-22 | `/done` posts to Slack via `<!-- slack-channel: -->` comment | One-liner + CHANGELOG link after committing. Personal-only for now — test before publishing to students. |
 | 2026-02-22 | `/new-project` asks about CHANGELOG and Slack channel | CHANGELOG optional, auto-maintained by `/done`. Slack channel stored as HTML comment in project CLAUDE.md. |
+| 2026-02-22 | README restructured: merged Security + Starter Config into Setup; condensed Security section | Security/Starter Config had duplicate instructions and conflicting framing (required vs optional). New structure: Install → Setup (numbered steps) → Security (summary + SECURITY.md link) → Skill reference → Hooks → Improving skills. SECURITY.md updated to match (three hooks, writes hook description, fixed anchor). |
 
 ## Completed Work
 

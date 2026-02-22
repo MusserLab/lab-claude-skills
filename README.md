@@ -196,7 +196,7 @@ Invoke these directly to run a workflow.
 
 ### Data science conventions
 
-Auto-load in projects with `project-type: data-science` (numbered scripts, `data/`+`outs/` directories).
+For analysis projects with numbered scripts, `data/`+`outs/` directories.
 
 | Skill | Description |
 |-------|-------------|
@@ -209,7 +209,7 @@ Auto-load in projects with `project-type: data-science` (numbered scripts, `data
 
 ### General conventions
 
-Auto-load in all projects when relevant.
+For all project types.
 
 | Skill | Description |
 |-------|-------------|
@@ -221,7 +221,7 @@ Auto-load in all projects when relevant.
 
 ### Domain skills
 
-Auto-load for specific research tasks.
+For specific research tasks.
 
 | Skill | Description |
 |-------|-------------|

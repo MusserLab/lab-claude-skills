@@ -10,7 +10,7 @@ Claude Code skills are markdown files that automatically load into Claude's cont
 
 You need [Claude Code](https://docs.anthropic.com/en/docs/claude-code) installed and working before adding lab skills:
 
-1. Install Claude Code — see [Anthropic's install guide](https://docs.anthropic.com/en/docs/claude-code/overview)
+1. Install Claude Code — see our [lab compute handbook](https://musserlab.github.io/lab-compute/part1/installation.html) or [Anthropic's install guide](https://docs.anthropic.com/en/docs/claude-code/overview)
 2. Make sure you can launch it (run `claude` in your terminal)
 
 ## Install

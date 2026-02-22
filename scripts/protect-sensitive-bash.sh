@@ -1,0 +1,69 @@
+#!/bin/bash
+# =============================================================================
+# protect-sensitive-bash.sh — Plugin baseline: block dangerous bash commands
+#
+# This is the generic plugin hook that ships with lab-claude-skills.
+# It blocks bash commands that reference sensitive paths or use dangerous
+# patterns (credential extraction, pipe-to-execute).
+#
+# For personalized protections (cloud storage exceptions, custom keywords),
+# run /security-setup to generate customized hooks at ~/.claude/hooks/.
+# =============================================================================
+
+INPUT=$(cat)
+COMMAND=$(echo "$INPUT" | python3 -c "import sys,json; print(json.load(sys.stdin).get('tool_input',{}).get('command',''))" 2>/dev/null)
+
+if [ -z "$COMMAND" ]; then
+  exit 0
+fi
+
+# --- Block standalone commands that dump secrets ---
+TRIMMED=$(echo "$COMMAND" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+if echo "$TRIMMED" | grep -qE "^env$|^printenv$|^printenv |^set$"; then
+  echo "BLOCKED: Command can expose environment secrets. Use specific variable access instead." >&2
+  exit 2
+fi
+
+# --- Block dangerous command patterns ---
+DANGEROUS_PATTERNS=(
+  "security find-generic-password"
+  "security find-internet-password"
+  "security dump-keychain"
+  "security export"
+  "defaults read"
+  "curl|bash" "curl|sh" "curl | bash" "curl | sh"
+  "wget|bash" "wget|sh" "wget | bash" "wget | sh"
+  "curl|python" "curl | python" "wget|python" "wget | python"
+)
+
+for pattern in "${DANGEROUS_PATTERNS[@]}"; do
+  if echo "$COMMAND" | grep -qi "$pattern" 2>/dev/null; then
+    echo "BLOCKED: Dangerous command pattern: $pattern" >&2
+    exit 2
+  fi
+done
+
+# --- Block commands referencing sensitive paths ---
+SENSITIVE_KEYWORDS=(
+  ".ssh/" ".ssh " ".aws/" ".aws " ".gnupg/" ".gnupg "
+  ".config/gh/" ".config/gcloud/" ".config/op/"
+  ".git-credentials" ".netrc" ".npmrc" ".pypirc"
+  "Library/Keychains" "keychain-db"
+  "1password" "1Password" "Bitwarden" "KeePass" "LastPass"
+  "Application Support/Google/Chrome" "Library/Safari"
+  "Application Support/Firefox" "Application Support/Microsoft Edge"
+  "Library/Mail" "Library/Messages"
+  "Application Support/Microsoft/Teams"
+  "Application Support/Slack" "Application Support/zoom.us"
+  "Application Support/Code/User"
+)
+
+for keyword in "${SENSITIVE_KEYWORDS[@]}"; do
+  if echo "$COMMAND" | grep -qi "$keyword" 2>/dev/null; then
+    echo "BLOCKED: Command references sensitive path: $keyword" >&2
+    echo "  For personalized protections, run /security-setup" >&2
+    exit 2
+  fi
+done
+
+exit 0

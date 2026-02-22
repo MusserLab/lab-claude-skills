@@ -190,6 +190,7 @@ Invoke these directly to run a workflow.
 | `/new-project` | Scaffold a new project (data science, docs, or general) |
 | `/new-plan` | Create a planning document for multi-session work |
 | `/audit` | Project health check — cross-check docs, prune conventions, find drift |
+| `/security-setup` | Configure and manage Claude Code security protections for sensitive files and credentials |
 | `/quarto-book-setup` | Initialize a new Quarto book with GitHub Pages |
 | `/quarto-publish` | Commit and publish a Quarto project to GitHub Pages |
 
@@ -237,6 +238,8 @@ The plugin includes hooks that automatically enforce lab conventions. These acti
 
 | Hook | Event | What it does |
 |------|-------|-------------|
+| `protect-sensitive-reads.sh` | PreToolUse (Read) | Blocks reads to sensitive directories (credentials, passwords, browsers, email) |
+| `protect-sensitive-bash.sh` | PreToolUse (Bash) | Blocks bash commands referencing sensitive paths or using dangerous patterns |
 | `protect-data-dir.sh` | PreToolUse (Edit/Write) | Blocks writes to `data/` directories — outputs go to `outs/` instead |
 | `require-conda.sh` | PreToolUse (Bash) | Blocks bare `pip install` — requires conda env activation first |
 | `project-reminders.sh` | SessionStart | Injects project-specific reminders from `.claude/project-reminders.txt` if the file exists |
@@ -252,6 +255,16 @@ To use the `project-reminders` hook, create a `.claude/project-reminders.txt` fi
 ```
 
 These are injected into Claude's context at every session start, so important project rules survive context compaction.
+
+### Security
+
+The plugin provides **layered security** to protect sensitive files on your machine:
+
+1. **Plugin hooks** (automatic) — Block reads and bash commands that target credential stores, password managers, browsers, email, and other sensitive locations. These activate immediately when the plugin is installed.
+2. **Deny rules** (in `settings-example.json`) — Block reads to critical paths (`.ssh`, `.aws`, Keychains, Chrome, 1Password) even if a hook has a bug.
+3. **Bash scoping** — The settings example uses specific command allowlists instead of `Bash(*)`, so unlisted commands prompt for approval.
+
+For **personalized protections** (cloud storage exceptions, custom directories, allowlist mode), run `/security-setup`. This interactive skill scans your machine, lets you choose a protection mode, and generates customized hooks.
 
 ### Optional hooks (not in plugin)
 

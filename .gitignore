@@ -6,6 +6,10 @@ Thumbs.db
 .vscode/
 .positron/
 
+# Rendered HTML (markdown preview artifacts)
+*.html
+*_files/
+
 # Secrets
 .env
 *.pem

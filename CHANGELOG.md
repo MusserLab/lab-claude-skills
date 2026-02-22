@@ -7,6 +7,14 @@ Format: date-based entries (this isn't versioned software).
 
 ## 2026-02-21
 
+### Changed
+- README: added prerequisites section with lab handbook and Anthropic install links
+- README: two install options — plugin (recommended) vs manual (customizable), with Positron-specific instructions
+- README: expanded "What are skills?" — automatic vs user-invoked, activation via descriptions, bundled files
+- README: promoted starter config to own section with templates, settings, and customization subsections
+- README: expanded "Improving skills" — what to report, what makes a good skill, filing issues via Claude
+- README: removed "auto-load" language from skill reference categories
+
 ### Added
 - Plugin hooks: `protect-data-dir.sh`, `require-conda.sh`, `project-reminders.sh`
 - `hooks/hooks.json` — hook event configuration for the plugin

@@ -21,7 +21,7 @@ Setting up and distributing a shared Claude Code skills repository for the lab. 
 | 3 | Write install.sh, README, CONTRIBUTING, templates | Done |
 | 4 | Review, initial commit, push to GitHub | Done |
 | 4b | Add plugin distribution support | Done |
-| 5 | Onboard lab members — install, test, collect feedback | Not started |
+| 5 | Onboard lab members — install, test, collect feedback | In progress |
 | 6 | Iterate — new skills, improvements based on usage | Not started |
 
 ## Decision Log
@@ -49,6 +49,7 @@ Setting up and distributing a shared Claude Code skills repository for the lab. 
 | 2026-02-21 | Expanded `/sync-skills` → `/sync-plugin` | Now syncs skills, hooks, and README. Updates skill reference tables and hooks section in README. Bumps plugin version. |
 | 2026-02-21 | Added plugin hooks (protect-data-dir, require-conda, project-reminders) | Hooks enforce lab conventions automatically when plugin is installed. Project-specific hooks (protect-data-files) and OS-specific hooks (Notification) stay personal. |
 | 2026-02-21 | Guides embedded as skill reference files | Standalone guides (e.g., quarto-pdf-formatting) moved into their related skill's `references/` directory. Distributes through normal skill sync. |
+| 2026-02-21 | README rewritten for onboarding | Added prerequisites, two install paths (plugin vs manual), Positron-specific instructions, expanded skill overview and improving skills sections. First student tested install. |
 
 ## Completed Work
 

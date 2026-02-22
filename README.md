@@ -4,7 +4,16 @@ Shared [Claude Code](https://docs.anthropic.com/en/docs/claude-code) skills and 
 
 ## What are skills?
 
-Claude Code skills are markdown files that automatically load into Claude's context when relevant. For example, when you ask Claude to create a plot, the `r-plotting-style` skill loads and Claude follows our lab's ggplot2 conventions.
+Claude Code skills are markdown files that give Claude specific instructions for particular tasks. They're how we teach Claude our lab's conventions.
+
+**How they work:** Each skill has a short **description** that tells Claude when to activate it, and a **body** with the actual instructions. Some skills also include additional files in their folder — guides, templates, or reference material that Claude can use.
+
+There are two kinds:
+
+- **Automatic skills** load on their own when Claude detects a relevant task. For example, when you ask Claude to make a plot, `r-plotting-style` loads automatically and Claude follows our ggplot2 conventions. You don't need to do anything.
+- **User-invoked skills** (slash commands) are triggered by typing a command like `/done` or `/new-project`. These run specific workflows on demand.
+
+**These skills are under active development.** If Claude does something wrong, or you think a skill is missing guidance for a situation you ran into, or you have an idea for a new skill — open a GitHub issue. See [Improving skills](#improving-skills) below for details.
 
 ## Prerequisites
 
@@ -140,15 +149,27 @@ If Claude asks for permission and you click "Always allow", it adds the entry to
 
 ## Improving skills
 
-Skills are only as good as their instructions. If a skill gives Claude bad advice, doesn't handle a case you ran into, or doesn't trigger when it should — that's worth reporting so everyone benefits.
+Skills are only as good as their instructions, and they're under active development. If something isn't working well, that's worth reporting so everyone benefits.
 
-**What to report:**
-- A skill told Claude to do something wrong or suboptimal
-- A skill didn't load when it should have (e.g., you were making a plot but `r-plotting-style` didn't activate)
-- A skill is missing guidance for a common situation you encountered
-- You have an idea for a new skill
+### What to report
 
-**How to report it:**
+- **Wrong behavior** — a skill told Claude to do something incorrect or suboptimal
+- **Missing cases** — a skill doesn't handle a situation you ran into (e.g., the data-handling skill didn't flag that a join dropped rows)
+- **Activation problems** — a skill didn't load when it should have, or loaded when it shouldn't
+- **New skill ideas** — a recurring task that Claude should handle consistently
+
+### What makes a good skill
+
+When thinking about whether something should be a skill, consider:
+
+- **Repeatable conventions** — things Claude should do the same way every time (file naming, plot styling, commit messages, directory structure)
+- **Guardrails** — mistakes Claude tends to make that a skill can prevent (overwriting data files, skipping diagnostics, using wrong normalization)
+- **Multi-step workflows** — sequences of actions that should follow a specific order (session wrap-up, project scaffolding, publishing)
+- **Domain knowledge** — lab-specific practices that Claude wouldn't know on its own (which databases to query, how we organize analyses)
+
+The most impactful skill improvements are usually about **correctness** — making sure Claude handles edge cases, flags ambiguities, and follows the right conventions for our specific workflows.
+
+### How to report
 
 Open an issue on the [GitHub repo](https://github.com/MusserLab/lab-claude-skills/issues). You can do this on the website, or ask Claude to do it for you right in your conversation:
 

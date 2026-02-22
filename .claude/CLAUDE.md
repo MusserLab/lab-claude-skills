@@ -1,5 +1,5 @@
 <!-- project-type: general -->
-<!-- slack-channel: #code -->
+<!-- slack-channel: #code:C04LBQ8LZTQ -->
 # Lab Claude Skills
 
 Shared Claude Code skills repository for the lab. Contains standardized conventions for data handling, plotting, script organization, reproducibility, and more.

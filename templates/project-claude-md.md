@@ -1,6 +1,7 @@
 <!-- project-type: data-science -->
 <!-- Change to "general" for non-data-science projects (infrastructure, tools, documentation) -->
-<!-- slack-channel: #channel-name -->
+<!-- slack-channel: #channel-name:CHANNEL_ID -->
+<!-- Get channel ID: right-click channel in Slack → View channel details → scroll to bottom -->
 <!-- Remove this line if you don't want Slack notifications from /done -->
 # {Project Name}
 

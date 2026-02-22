@@ -28,7 +28,16 @@ There are two ways to install. Choose whichever fits your needs.
 
 ### Option A: Plugin (recommended)
 
-The simplest way to get all lab skills and keep them up to date. Type these commands in the **Claude Code chat panel** (not the terminal):
+The simplest way to get all lab skills and keep them up to date.
+
+**In Positron / VS Code:**
+
+1. Type `/plugins` in the Claude Code chat panel to open the plugin manager
+2. Go to the **Marketplaces** tab
+3. Add `MusserLab/lab-claude-skills`
+4. Switch to the **Plugins** tab and install `lab-skills`
+
+**In the terminal CLI:**
 
 ```
 /plugin marketplace add MusserLab/lab-claude-skills
@@ -37,17 +46,7 @@ The simplest way to get all lab skills and keep them up to date. Type these comm
 
 This installs all skills and hooks as a single package. Skills are available as `/lab-skills:skill-name` (e.g., `/lab-skills:done`).
 
-To update:
-
-```
-/plugin marketplace update musser-lab
-```
-
-To manage or remove:
-
-```
-/plugin
-```
+To update or manage plugins, type `/plugins` (Positron) or `/plugin` (CLI).
 
 ### Option B: Manual install (if you want to customize)
 

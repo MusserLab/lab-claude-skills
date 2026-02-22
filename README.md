@@ -15,21 +15,60 @@ You need [Claude Code](https://docs.anthropic.com/en/docs/claude-code) installed
 
 ## Install
 
-Open Claude Code in your terminal (`claude`) and type these commands at the Claude Code prompt (not your regular shell):
+There are two ways to install. Choose whichever fits your needs.
 
-```bash
-# 1. Add the lab marketplace (one-time)
+### Option A: Plugin (recommended)
+
+The simplest way to get all lab skills and keep them up to date. Open Claude Code in your terminal (`claude`) and type these commands at the **Claude Code prompt** (not your regular shell):
+
+```
 /plugin marketplace add MusserLab/lab-claude-skills
-
-# 2. Install the plugin
 /plugin install lab-skills
 ```
 
-All skills are available as `/lab-skills:skill-name` (e.g., `/lab-skills:done`, `/lab-skills:data-handling`).
+This installs all skills and hooks as a single package. Skills are available as `/lab-skills:skill-name` (e.g., `/lab-skills:done`).
 
-### Recommended setup
+To update:
 
-After installing the plugin, download the starter files for a smoother experience:
+```
+/plugin marketplace update musser-lab
+```
+
+To manage or remove:
+
+```
+/plugin
+```
+
+### Option B: Manual install (if you want to customize)
+
+If you want to modify skills or pick only the ones you need, clone the repo and copy skills into your personal Claude Code directory instead.
+
+```bash
+# Clone the repo
+git clone https://github.com/MusserLab/lab-claude-skills.git
+cd lab-claude-skills
+
+# Copy all skills to your personal skills directory
+cp -r skills/* ~/.claude/skills/
+
+# Or copy just the ones you want
+cp -r skills/data-handling ~/.claude/skills/
+cp -r skills/r-plotting-style ~/.claude/skills/
+```
+
+To update, pull the repo and re-copy the skills you want:
+
+```bash
+cd lab-claude-skills && git pull
+cp -r skills/data-handling ~/.claude/skills/   # update specific skills
+```
+
+Skills that reference machine-specific paths (like `conda-env`) use `~/miniconda3` as the default. If your conda is installed elsewhere, edit your local copy.
+
+### Recommended: starter configuration
+
+Whichever install method you chose, these starter files are **optional** but reduce permission prompts and give Claude more context about lab conventions. Run these in your **regular terminal**:
 
 ```bash
 # User-level instructions (if you don't have ~/.claude/CLAUDE.md yet)
@@ -40,36 +79,6 @@ curl -o ~/.claude/settings.json https://raw.githubusercontent.com/MusserLab/lab-
 ```
 
 See the [Templates](#templates) section for details on what these files do and how to customize them.
-
-## Updating
-
-```bash
-# Check for updates from the lab marketplace
-/plugin marketplace update musser-lab
-```
-
-You can also enable auto-updates: `/plugin` > **Marketplaces** tab > select `musser-lab` > **Enable auto-update**.
-
-## Customizing skills
-
-You can override any lab skill with your own version. This is useful for experimenting or adapting a skill to your machine.
-
-1. Copy the skill you want to customize to your personal skills directory:
-   ```bash
-   mkdir -p ~/.claude/skills/data-handling
-   # Copy SKILL.md from the plugin's installed location, or from GitHub
-   ```
-2. Edit `~/.claude/skills/data-handling/SKILL.md` as you like
-3. Your personal version (`/data-handling`) takes effect alongside the lab version (`/lab-skills:data-handling`)
-
-Skills that reference machine-specific paths (like `conda-env`) use `~/miniconda3` as the default. If your conda is installed elsewhere, make a local copy and edit the path.
-
-## Managing your installation
-
-```bash
-# See installed plugins
-/plugin
-```
 
 ## Templates
 
@@ -129,13 +138,23 @@ This is convenient but means Claude won't ask before running anything. The deny 
 
 If Claude asks for permission and you click "Always allow", it adds the entry to your settings automatically.
 
-## Feedback and suggestions
+## Improving skills
 
-If a skill gives Claude bad instructions, doesn't trigger when it should, or you have an idea for a new skill:
+Skills are only as good as their instructions. If a skill gives Claude bad advice, doesn't handle a case you ran into, or doesn't trigger when it should — that's worth reporting so everyone benefits.
 
-1. Open a [GitHub Issue](https://github.com/MusserLab/lab-claude-skills/issues)
-2. Include: which skill, what happened, what you expected
-3. If possible, paste the relevant part of your Claude Code conversation
+**What to report:**
+- A skill told Claude to do something wrong or suboptimal
+- A skill didn't load when it should have (e.g., you were making a plot but `r-plotting-style` didn't activate)
+- A skill is missing guidance for a common situation you encountered
+- You have an idea for a new skill
+
+**How to report it:**
+
+Open an issue on the [GitHub repo](https://github.com/MusserLab/lab-claude-skills/issues). You can do this on the website, or ask Claude to do it for you right in your conversation:
+
+> "Open a GitHub issue on MusserLab/lab-claude-skills — the data-handling skill didn't flag that my join dropped 50 rows"
+
+Include which skill was involved, what happened, and what you expected. Pasting the relevant part of your Claude Code conversation is especially helpful.
 
 ---
 

@@ -120,13 +120,8 @@ Keep it focused. A skill should cover one coherent topic, not be a grab-bag.
 
 ## 6. File Workflow
 
-**Always edit local skills first, then ask about the lab repo.**
-
 1. Create/edit in `~/.claude/skills/{name}/SKILL.md`
-2. Ask the user: "Should I also push this to lab-claude-skills?"
-3. If yes, copy to the lab-claude-skills repo at `skills/{name}/SKILL.md` (customize: check your user CLAUDE.md for the repo path)
-4. **Adapt paths**: Replace user-specific paths (e.g., `/Users/username/miniconda3`) with generic ones (e.g., `~/miniconda3`) and add "Customize" notes where needed
-5. Commit and push the lab-claude-skills repo
+2. Use generic paths (e.g., `~/miniconda3`, not `/Users/username/miniconda3`) so skills are portable across machines
 
 ---
 

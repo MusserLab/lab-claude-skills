@@ -95,8 +95,17 @@ Run `git status` to check for uncommitted changes.
 
 If there are changes:
 - **CRITICAL: Only include files actually created or modified during THIS session**
-- Cross-reference git status against what you did in the conversation
-- Files already modified at session start (visible in initial gitStatus context) should NOT be included unless you worked on them
+- **Identifying session files** — use multiple sources, not just git diff:
+  1. **Conversation context** is the primary record of what you did — including
+     compacted/summarized earlier portions of the conversation
+  2. **Git diff** (initial gitStatus vs current `git status`) is a cross-check — files
+     appearing in current but not initial are *candidates* but not certainties
+  3. **Parallel conversations can create files** — another Claude Code session running
+     simultaneously may have added files that show up in your git diff but were NOT
+     created by this conversation
+  4. **When uncertain about a file's origin, ask the user** — do not silently include
+     or exclude files you can't account for from conversation context
+- Files already in initial gitStatus should NOT be included unless you worked on them
 - Show the user session-relevant files and suggest a commit message
 - If approved, commit only those files
 

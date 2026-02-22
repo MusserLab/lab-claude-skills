@@ -1,245 +1,325 @@
 ---
 name: tree-formatting
 description: >
-  Phylogenetic tree visualization and formatting with ETE4. Use when rendering a phylogenetic
-  tree as a figure, choosing tree layout, coloring branches or labels by taxonomy, collapsing
-  clades, displaying support values, or adding alignment/domain overlays to a tree.
-  Do NOT load for tree inference (use protein-phylogeny skill) or domain annotation
-  (future separate skill).
+  Phylogenetic tree visualization and formatting with ggtree (R) or iTOL (web).
+  Use when rendering a phylogenetic tree as a figure, choosing tree layout,
+  coloring branches or labels by taxonomy, collapsing clades, displaying
+  support values, or adding overlays to a tree. Do NOT load for tree inference
+  (use protein-phylogeny skill) or domain annotation (future separate skill).
 user-invocable: false
 ---
 
 # Tree Formatting & Visualization
 
-Conventions for rendering phylogenetic trees as publication-quality PDF figures using ETE4.
-Covers layout choice, taxonomic coloring, clade collapsing, support value display, and
-optional alignment/domain overlays.
+Conventions for rendering phylogenetic trees using **ggtree** (R/Bioconductor)
+or **iTOL** (Interactive Tree of Life, web-based).
 
 ---
 
-## Layout Decision Tree
+## Step 0: Choose Rendering Backend
 
-Choose layout based on the number of tips in the tree. **If > 250 tips, ask the user.**
+Ask the user which backend to use based on their needs:
 
-| Tips | Layout | Details |
-|------|--------|---------|
-| **<= 250** | Rectangular phylogram | All tips shown, branch + label colored by taxonomy |
-| **> 250** | **Ask user:** | Option A: Unrooted radial, branch colors only, no labels |
-| | | Option B: Rectangular with collapsed clades (triangles) |
-| | | Option C: Both |
+| Backend | Best for | Output | Language |
+|---------|----------|--------|----------|
+| **ggtree** | Publication figures, full programmatic control, offline use | PDF/PNG/SVG | R (single script) |
+| **iTOL** | Interactive exploration, quick iteration, web sharing, UI tweaking | Web + PDF/SVG/PNG exports | R (annotations) + Python (upload) |
 
-- **Rectangular:** Default for most trees. Supports alignment display alongside tips.
-- **Unrooted radial:** For large overview trees (500+ tips). Shows overall family structure without committing to a root. Branch colors only, no tip labels (they'd be unreadable).
+### Backend comparison
 
----
-
-## Tip Labels
-
-### Format
-
-```
-G. species GeneSymbol
-```
-
-Examples:
-- `H. sapiens WNT7A`
-- `S. lacustris LAMC1`
-- `N. vectensis NvNetrin`
-- `L. gigantea V4AN98` (non-model: use accession)
-
-### Rules
-
-- One-letter genus + full species name in italics
-- **Model organisms** (human, mouse, fly, worm, etc.): use official gene symbols
-- **Non-model organisms:** use protein accession or ID
-- Space-separated, no pipes
-- Both label text and branch colored by taxonomy (see color scheme below)
+| Feature | ggtree | iTOL |
+|---------|--------|------|
+| Interactive exploration | No | Yes (web UI) |
+| Label alignment control | Full (programmatic) | Limited (UI toggle only, not via API) |
+| Collapse triangle labels | Manual `geom_text()` | Built-in LABELS for internal nodes |
+| Circular label positioning | Complex (manual angle computation) | Automatic |
+| Branch length display | Yes (phylogram/cladogram toggle) | Yes (via UI) |
+| Offline/reproducible | Fully offline | Requires iTOL API + internet |
+| Two-script workflow | No (single .R or .qmd) | Yes (R annotations + Python upload) |
 
 ---
 
-## Taxonomic Color Scheme (Branch + Label Coloring)
+## Step 1: Choose the Tree Type
 
-Used when displaying individual tips. Both branch segments and tip label text are colored.
+Help the user select the right visualization. Ask about **purpose** and **tree size**,
+then recommend from the options below.
 
-| Taxonomic Group | Color | Hex (suggested) |
-|-----------------|-------|-----------------|
-| Demosponges + Hexactinellida | Green | `#2ca02c` |
-| Calcarea + Homoscleromorpha | Light green | `#98df8a` |
-| Ctenophora | Purple | `#9467bd` |
-| Cnidaria + Placozoa | Orange | `#ff7f0e` |
-| Deuterostomia (Chordata + Ambulacraria) | Red | `#d62728` |
-| Protostomia | Blue | `#1f77b4` |
-| Non-metazoan eukaryotes | Black | `#000000` |
+### Tree type options
 
-### Requirements
+| Type | Best for | Tips | Key features |
+|------|----------|------|-------------|
+| **Collapsed rectangular phylogram** | Large family trees; showing branch-length variation and gene family structure | 250-2000+ | Collapsed pure clades, branch lengths, selective labels |
+| **Collapsed rectangular cladogram** | Large family trees; topology focus, cleaner labels | 250-2000+ | Same as phylogram but no branch lengths, narrower page |
+| **Collapsed circular** | Large trees; compact overview showing overall structure | 250-2000+ | Circular layout, collapsed clades, optional selective labels |
+| **Simple rectangular phylogram** | Small-medium trees where all tips are readable | < 250 | All tips labeled, no collapsing needed |
+| **Unrooted** | Networks, showing relationships without root assumption | Any | No directionality implied |
 
-This coloring requires a **taxonomy mapping table**: a file mapping each sequence ID to its
-species and major taxonomic group. The skill should ask for this if not provided.
+### Decision flow
 
-Format (TSV):
-```
-seq_id	species	group
-Q3UNG0	Mus musculus	Deuterostomia
-V4AN98	Lottia gigantea	Protostomia
-Q18823	Caenorhabditis elegans	Protostomia
-```
-
----
-
-## Collapsed Clade Coloring (OG Breadth)
-
-Used when collapsing monophyletic clades in large trees. Triangle color indicates the
-taxonomic breadth of the orthology group.
-
-| OG Breadth | Color | Hex (suggested) |
-|------------|-------|-----------------|
-| Bilaterian OG | Red | `#d62728` |
-| Cnidaria/Placozoa + Bilateria (no sponges/ctenophores) | Orange | `#ff7f0e` |
-| Animal OG (includes sponges and/or ctenophores) | Green | `#2ca02c` |
-| Opisthokont OG | Blue | `#1f77b4` |
-| Broader eukaryote OG | Purple | `#9467bd` |
-
-### Determining OG breadth
-
-Assess which major groups are represented in the clade:
-- Contains sponges/ctenophores + bilaterians → **Animal OG** (even if cnidarians are missing — infer loss)
-- Contains cnidarians/placozoans + bilaterians but no sponges/ctenophores → **Cnidaria/Placozoa + Bilateria**
-- Bilaterians only → **Bilaterian OG**
-- Includes choanoflagellates or fungi → **Opisthokont OG**
-- Includes plants, amoebae, or other non-opisthokonts → **Broader eukaryote OG**
+1. **How many tips?**
+   - < 250: Simple rectangular (all tips labeled)
+   - 250+: Collapsed rectangular or circular — ask user preference
+2. **Branch lengths meaningful?**
+   - Yes -> phylogram option available
+   - No / topology-only -> cladogram
+3. **Layout**: Rectangular or circular? Often useful to produce both.
+4. **Both phylogram and cladogram?** Often useful to produce both for rectangular trees.
+5. **Which species to highlight?** -> Focal species list (see Step 2)
 
 ---
 
-## Clade Collapsing
+## Step 2: User Prompts (Ask Before Building)
 
-### When to collapse
+Gather these decisions before writing any code:
 
-Collapse clades in trees with **> 250 tips** when the user chooses the rectangular collapsed
-layout. Reasonable units to collapse:
-
-- Bilaterian OGs (all bilaterian members of one orthology group)
-- Cnidarian + bilaterian OGs
-- Animal OGs
-- Opisthokont OGs
-- Eukaryote OGs
-
-### How to collapse: soft monophyly with user approval
-
-**Do not require strict monophyly.** Use a soft threshold:
-
-1. Identify candidate monophyletic (or near-monophyletic) clades for a given taxonomic scope
-2. Allow collapsing if >= 90% of the clade belongs to the target taxonomic group
-3. **Flag outliers:** If a clade is 90-99% target group, report the outlier sequences with their support values
-4. **Ask the user before collapsing:** "Found a bilaterian clade (42 sequences) but S. lacustris XP_123456 nests inside it with UFBoot 34. Likely misplacement. Collapse as bilaterian OG anyway?"
-5. The user decides for each flagged case
-
-### Display of collapsed clades
-
-- **Triangle** shape representing the collapsed subtree
-- **Colored** by OG breadth (see table above)
-- **Label** with: OG name (if known) + list of model species gene names in the clade
-- Example: `"LAMC1 — H. sapiens LAMC1, M. musculus Lamc1, D. melanogaster LanB1"`
+1. **Rendering backend**: ggtree or iTOL? (see Step 0)
+2. **Tree type**: Offer the relevant options from the table above based on tip count
+3. **Collapsing strategy**: "Should pure clades be collapsed?
+   (Recommended for trees with >100 tips.)"
+   - **Purity threshold**: 100% pure (strict) or 90%+ (relaxed)?
+   - **Protection**: Which species are never collapsed?
+     - Model species only (human, mouse, fly, worm) — focal species may be
+       collapsed but get annotated labels on the triangle
+     - Model + focal species — both protected from collapsing
+4. **Labeling level**: "What level of tip labeling do you want?"
+   - **No labels** — branch colors only (good for overview figures)
+   - **All tips labeled** — every visible tip gets a label (good for small trees)
+   - **Selective** — model species + focal species only (recommended for large trees)
+5. **Focal species list** (if selective labeling): "Which non-model species should be
+   individually labeled? Typically sponges + species with single-cell data
+   (e.g., Hydra, Nematostella). Provide full species names."
+6. **Rooting strategy**: "Midpoint root, or specify an outgroup?"
+7. **Gene name resolution**: "Do tips include model species from non-Swiss-Prot
+   sources (e.g., tr| entries, Ensembl, FlyBase, WormBase)? If so, we need to look
+   up gene symbols." -> See **gene-lookup** skill for database-specific workflows.
+8. **iTOL project** (if iTOL backend): "Which iTOL project should the tree go in?
+   Name an existing project, or create a new one in the iTOL web UI
+   (My Trees > New Project) and tell me the name." Set as `ITOL_PROJECT` env var
+   or hardcode in the upload script.
 
 ---
 
-## Branch Support Display
+## Step 3a: Build with ggtree
 
-Show UFBoot2 and SH-aLRT values together at internal nodes.
+### Collapsed rectangular (phylogram / cladogram)
 
-### Format
+**Reference template**: `~/.claude/skills/tree-formatting/templates/ggtree/collapsed_rectangular.R`
 
-```
-UFBoot/SH-aLRT
+This template is a complete, runnable script with all tuned style parameters. Copy it
+into the project's `scripts/` directory and adapt the sections marked PROJECT-SPECIFIC:
+- File paths
+- Tip label parsing functions (must match actual label formats in the tree)
+- Taxonomy mapping (species -> group)
+- Model and focal species lists
+
+The template handles: tree loading, midpoint rooting, pure-clade collapsing, branch
+coloring by taxonomy, selective labeling, branch-length capping, and PDF output for
+both phylogram and cladogram.
+
+### Collapsed circular (overview and/or labeled)
+
+**Reference template**: `~/.claude/skills/tree-formatting/templates/ggtree/collapsed_circular.R`
+
+Same structure as rectangular — adapt PROJECT-SPECIFIC sections. Produces:
+- **Circular overview** (no labels): 20" square page, branch colors only
+- **Circular labeled** (selective labels): 28" square page, manually positioned labels
+
+**Critical circular gotcha**: Labels must be positioned BEFORE `collapse()` is called.
+The template handles this by computing angles from y-position (`y / max_y * 360`),
+flipping text on the left half of the circle, and using `geom_text()` with explicit
+angle/hjust values instead of `geom_tiplab2()`.
+
+### Other tree types
+
+For simple rectangular or unrooted trees, no template exists yet. Build from ggtree
+basics:
+
+```r
+# Simple rectangular (all tips labeled)
+p <- ggtree(tree) + geom_tiplab(size = 2)
+
+# Unrooted
+p <- ggtree(tree, layout = "unrooted")
 ```
 
-Example: `97/85`
-
-### Display threshold
-
-Show values at a node if **UFBoot >= 70 OR SH-aLRT >= 50.** Omit values at nodes where
-both are below these thresholds.
-
-### Reference for interpreting support
-
-| | UFBoot2 | SH-aLRT | Traditional bootstrap |
-|---|---|---|---|
-| Strong | >= 95 | >= 80 | >= 70 |
-| Moderate | 70-94 | 50-79 | 50-69 |
-| Weak | < 70 | < 50 | < 50 |
-
-Note: UFBoot values are inflated relative to traditional bootstrap. UFBoot >= 95 roughly
-corresponds to traditional bootstrap >= 70.
+**All style parameters are defined as named constants at the top of each template**
+(e.g., `BRANCH_LINE_WIDTH`, `LABEL_SIZE_PHYLO`, `PAGE_HEIGHT`). Do not scatter
+magic numbers through the code.
 
 ---
 
-## Scale Bar
+## Step 3b: Build with iTOL
 
-Always show a scale bar on the tree. Use branch lengths (substitutions per site).
+### Two-script workflow
 
----
+iTOL requires separate R and Python steps (do not mix in one `.qmd`):
 
-## Rooting
+1. **R script** — generates annotation files + relabeled Newick tree
+2. **Python script** — uploads tree + annotations to iTOL, exports rendered images
 
-- **Default: midpoint rooting**
-- If the user specifies an outgroup, root on that instead
+### Annotation generation (R)
 
----
+**Reference template**: `~/.claude/skills/tree-formatting/templates/itol/annotations.R`
 
-## Optional Overlays
+Copy into project and adapt PROJECT-SPECIFIC sections. Generates these files:
+- `GENE.tree` — relabeled Newick (short display labels, no `|` characters)
+- `GENE_branch_colors.txt` — TREE_COLORS with clade + branch entries
+- `GENE_label_colors.txt` — TREE_COLORS label color entries
+- `GENE_collapse.txt` — COLLAPSE entries for pure clades
+- `GENE_collapse_labels.txt` — LABELS for collapsed clade internal nodes
 
-### Alignment display (for trees with <= ~200 tips)
+### Upload and export (Python)
 
-- Use ETE4's `link_to_alignment()` to display the multiple sequence alignment alongside
-  the tree tips
-- Only practical for smaller trees where individual columns are visible
+**Reference template**: `~/.claude/skills/tree-formatting/templates/itol/upload_export.py`
 
-### Pfam domain annotation
+Uploads two versions:
+1. **Uncollapsed** — tree + branch colors + label colors (all tips visible)
+2. **Collapsed** — tree + all annotations including collapse files
 
-- Requires domain annotations from a **separate domain annotation skill** (not yet built)
-- Input: a table of sequence ID, domain name, start position, end position
-- Display using ETE4's SeqMotifFace or TreeProfiler
-- Domain boxes overlaid on sequences next to the tree
+Exports multiple layout/format combinations (circular PDF/SVG/PNG, rectangular
+PDF/SVG, unrooted PDF).
 
----
+### iTOL API setup
 
-## ETE4 Rendering
+- **API key**: iTOL > My Account > API access -> set as `ITOL_API_KEY` env var
+- **Project**: set `ITOL_PROJECT` env var (default: "misc"). The project must
+  already exist — **the iTOL API cannot create projects**, only the web UI can
+  (My Trees > New Project). Prompt the user to create it if needed.
+- **Paid subscription** required for full batch export API access
 
-### Output format
+### After upload: always report links
 
-- **PDF** (vector graphics, scalable) as the primary output
-- SVG as secondary option
+After rendering the upload script, **always read the BUILD_INFO.txt** and report the
+iTOL URLs back to the user in chat. These clickable links are essential for quick
+iteration. Format:
 
-### Basic rendering pattern
-
-```python
-from ete4 import Tree
-
-t = Tree(open("tree.treefile").read())
-# ... apply styles, layouts, collapsing ...
-t.render("tree.pdf", w=800)
+```
+**Uncollapsed:** http://itol.embl.de/external.cgi?tree=TREE_ID&restore_saved=1
+**Collapsed:** http://itol.embl.de/external.cgi?tree=TREE_ID&restore_saved=1
 ```
 
-### Key ETE4 components
+---
 
-- `TreeStyle`: overall tree appearance (layout mode, scale bar, etc.)
-- `NodeStyle`: per-node styling (branch color, size, etc.)
-- Layout functions: Python functions that dynamically apply styles to nodes
-- `SeqMotifFace`: domain architecture display (ETE3 API, migration to ETE4 in progress;
-  TreeProfiler may be needed)
+## Tip Label Parsing (General Guidance)
+
+Tip label formats vary substantially depending on data source. **Do not assume a
+fixed format.** Inspect the actual tip labels first, then write parsing functions
+tailored to what's present.
+
+### Common formats
+
+| Source | Example | Species part | ID part |
+|--------|---------|-------------|---------|
+| UniProt (sp) | `sp\|O95631\|NET1_HUMAN` | Suffix: `HUMAN` | Gene: `NET1` |
+| UniProt (tr) | `tr\|Q23158\|Q23158_CAEEL` | Suffix: `CAEEL` | Accession: `Q23158` |
+| Species\|taxid.acc | `Mus_musculus\|10090.Q9R1A3` | Before `\|` | After `taxid.` |
+| Species\|acc | `Nematostella\|XP_032238380.2` | Before `\|` | After `\|` |
+| BLAST-annotated | `Hydra\|8692.t25743aep_EHBP1_HUMAN_...` | Before `\|` | Transcript ID only |
+
+### Key rules
+
+- **Model species** (human, mouse, fly, worm): resolve to gene names via sp| labels
+  or the **gene-lookup** skill for other databases
+- **Non-model species**: use actual protein/transcript IDs only — **never** infer
+  gene names from BLAST annotations
+- **Display format**: `G._species_GENE_OR_ID` (e.g., `H._sapiens_SPTB1`,
+  `E._muelleri_Em0014g869a`)
 
 ---
 
-## Required Tools
+## Taxonomic Color Scheme
 
-| Tool | Purpose | Install |
-|------|---------|---------|
-| ETE4 | Tree rendering | `pip install ete4` |
-| TreeProfiler | Domain/annotation display (optional) | `pip install treeprofiler` |
+| Taxonomic Group | Hex |
+|-----------------|-----|
+| Demosponges | `#2ca02c` |
+| Calcarea + Homoscleromorpha | `#98df8a` |
+| Ctenophora | `#9467bd` |
+| Cnidaria + Placozoa | `#ff7f0e` |
+| Deuterostomia | `#d62728` |
+| Protostomia | `#1f77b4` |
+| Non-metazoan eukaryotes | `#555555` |
+| Mixed (internal nodes) | `#999999` |
+
+Species that are commonly misclassified:
+
+| Species | Correct group | Notes |
+|---------|---------------|-------|
+| Thelohanellus_kitauei | Cnidaria + Placozoa | Myxozoan = cnidarian |
+| Meara_stichopi, Waminoa | Deuterostomia | Xenacoelomorpha |
+| Spadella_cephaloptera | Protostomia | Chaetognath |
+| Monosiga, Salpingoeca | Non-metazoan | Choanoflagellates |
+
+---
+
+## Key ggtree Gotchas
+
+These are hard-won lessons — do not skip:
+
+1. **Pre-compute label positions BEFORE `collapse()`** — collapse modifies `p$data`
+   coordinates. Extract x/y from `p$data` first. This applies to BOTH rectangular
+   and circular layouts.
+
+2. **Match on node column, not row index** — `p$data` rows may not be ordered by
+   node ID. Always use `match(tip_node_ids, pre_data$node)`.
+
+3. **Circular labels: use `geom_text()` with manual angles, NOT `geom_tiplab2()`** —
+   compute angles as `y / max_y * 360`, flip text on left half (`angles > 90 & < 270`),
+   and pass angle/hjust outside `aes()`.
+
+4. **`show.legend = FALSE` on `geom_text`** — prevents "a" character artifacts
+   appearing in the color legend.
+
+5. **`branch.length = "none"` for cladogram** — cannot pass `NULL`. Must use
+   if/else to conditionally include this argument.
+
+6. **`coord_cartesian(clip = "off")`** — required for rectangular labels that extend
+   beyond the plot area. Pair with wide right margin. Not needed for circular.
+
+7. **Daylight layout** — produces unusable output for large trees (branches crossing,
+   triangles overlapping). Avoid it.
+
+---
+
+## Key iTOL Gotchas
+
+Hard-won lessons from iTOL annotation file development:
+
+1. **Tip labels must NOT contain `|` characters** — iTOL uses `|` as the MRCA
+   separator in TREE_COLORS clade entries (`tipA|tipB clade ...`), COLLAPSE entries,
+   and LABELS internal node entries. If tip labels contain `|`, all clade/collapse
+   specifications silently break (wrong MRCA selected, or entries ignored entirely).
+   **Solution**: relabel tips to short display names before writing the Newick tree.
+
+2. **`ape::write.tree()` converts spaces to underscores** — display labels must use
+   underscores from the start (`H._sapiens_SPTN2` not `H. sapiens SPTN2`), or
+   annotation file IDs will not match the tree.
+
+3. **`itol.toolkit` R package is incompatible with `|` in tip labels** — the toolkit
+   also uses `|` internally and cannot escape it. Write annotation files manually
+   (plain text with TAB separator) instead of using `itol.toolkit`.
+
+4. **MRCA pair selection**: to specify an internal node, provide one tip from each
+   child subtree (`tipA|tipB`). Using `tips[1]` and `tips[N]` (first/last by array
+   index) can give two tips from the same child, which specifies a different MRCA.
+
+5. **Label alignment is NOT controllable via batch export API** — the "Align tip
+   labels" toggle is UI-only. The `label_display` export parameter controls
+   visibility (0=hide, 1=show) but not alignment. Users must toggle alignment
+   manually in the iTOL web interface.
+
+6. **Collapsed triangle labels** — use LABELS annotation type with MRCA specification
+   (`tipA|tipB\tLabel text`). These render as the displayed name on collapsed
+   triangles.
+
+7. **Two uploads for collapsed vs uncollapsed** — upload annotation files are baked
+   into the tree on upload. To have both an uncollapsed and collapsed version,
+   upload twice: once without collapse files, once with all files.
 
 ---
 
 ## Related Skills
 
 - **protein-phylogeny:** Inference pipeline that produces the tree
-- **Pfam domain annotation (future):** Generates domain annotations for overlay
-- **Sequence retrieval / naming (future):** Maps accessions to proper gene symbols
+- **gene-lookup:** Resolve accessions to gene symbols across databases (UniProt,
+  Ensembl, FlyBase, WormBase, etc.)
+- **Pfam domain annotation (future):** Domain annotations for overlay

@@ -500,6 +500,28 @@ Shared helper functions are available at:
 | [CLAUDE.md](.claude/CLAUDE.md) | Project conventions |
 ````
 
+### Project reminders file
+
+Create `.claude/project-reminders.txt` — this is read by the `project-reminders` hook to inject critical project-specific rules at every session start.
+
+#### Data Science projects
+
+```
+CRITICAL REMINDERS (re-injected after compaction):
+1. (Add project-specific rules here as the project develops)
+2. Check planning documents before modifying scripts
+3. Never silently default unmatched data classifications
+```
+
+#### General projects
+
+```
+REMINDERS (re-injected after compaction):
+1. (Add project-specific rules here as the project develops)
+```
+
+Tell the user: *"I created `.claude/project-reminders.txt` — edit this as you discover critical rules that Claude keeps forgetting after long sessions."*
+
 ---
 
 ## 7. Generate README.md

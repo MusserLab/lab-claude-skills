@@ -334,7 +334,8 @@ session_info.show()
 
 ---
 
-## Detailed Formatting Guide
+## Reference Files
 
-For publication-quality YAML templates (HTML and PDF), see:
-`~/.claude/guides/quarto-pdf-formatting.md`
+| Topic | File |
+|-------|------|
+| Publication-quality YAML templates (HTML and PDF) | `references/pdf-formatting.md` |

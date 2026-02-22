@@ -22,8 +22,8 @@ Ask the user which backend to use based on their needs:
 
 | Backend | Best for | Output | Language |
 |---------|----------|--------|----------|
-| **ggtree** | Publication figures, full programmatic control, offline use | PDF/PNG/SVG | R (single script) |
-| **iTOL** | Interactive exploration, quick iteration, web sharing, UI tweaking | Web + PDF/SVG/PNG exports | R (annotations) + Python (upload) |
+| **ggtree** | Publication figures, full programmatic control, offline use | PDF/PNG/SVG | R (.qmd script) |
+| **iTOL** | Interactive exploration, quick iteration, web sharing, UI tweaking | Web + PDF/SVG/PNG exports | R (.qmd annotations) + Python (.qmd upload) |
 
 ### Backend comparison
 
@@ -35,7 +35,7 @@ Ask the user which backend to use based on their needs:
 | Circular label positioning | Complex (manual angle computation) | Automatic |
 | Branch length display | Yes (phylogram/cladogram toggle) | Yes (via UI) |
 | Offline/reproducible | Fully offline | Requires iTOL API + internet |
-| Two-script workflow | No (single .R or .qmd) | Yes (R annotations + Python upload) |
+| Two-script workflow | No (single .qmd) | Yes (R .qmd annotations + Python .qmd upload) |
 
 ---
 
@@ -76,11 +76,17 @@ Gather these decisions before writing any code:
 2. **Tree type**: Offer the relevant options from the table above based on tip count
 3. **Collapsing strategy**: "Should pure clades be collapsed?
    (Recommended for trees with >100 tips.)"
+   - **Which groups to collapse?** The `collapse_groups` parameter controls which
+     taxonomic groups are eligible. Common choices:
+     - `c("Bilateria")` — only collapse bilaterians (keeps sponges/cnidarians expanded)
+     - `c("Bilateria", "Protostomia", "Deuterostomia")` — collapse specific groups
+     - `NULL` — all groups eligible for collapsing
    - **Purity threshold**: 100% pure (strict) or 90%+ (relaxed)?
-   - **Protection**: Which species are never collapsed?
-     - Model species only (human, mouse, fly, worm) — focal species may be
-       collapsed but get annotated labels on the triangle
-     - Model + focal species — both protected from collapsing
+   - **Model species on triangles**: Collapsed triangles automatically list gene
+     names of model species (human, mouse, fly, worm) inside them, e.g.,
+     `"Bilateria (36 tips: LAMA1, LAMA2, LAMB1)"`. This ensures key gene family
+     members remain visible even when the clade is collapsed.
+   - **Never collapse by gene family** — unless eggNOG orthogroup data is available
 4. **Labeling level**: "What level of tip labeling do you want?"
    - **No labels** — branch colors only (good for overview figures)
    - **All tips labeled** — every visible tip gets a label (good for small trees)
@@ -101,24 +107,38 @@ Gather these decisions before writing any code:
 
 ## Step 3a: Build with ggtree
 
+**All ggtree templates are Quarto `.qmd` documents** following the project's data
+science conventions (YAML frontmatter with status field, git hash, BUILD_INFO.txt).
+
 ### Collapsed rectangular (phylogram / cladogram)
 
-**Reference template**: `~/.claude/skills/tree-formatting/templates/ggtree/collapsed_rectangular.R`
+**Reference template**: `~/.claude/skills/tree-formatting/templates/ggtree/collapsed_rectangular.qmd`
 
-This template is a complete, runnable script with all tuned style parameters. Copy it
+This template is a complete, runnable `.qmd` with all tuned style parameters. Copy it
 into the project's `scripts/` directory and adapt the sections marked PROJECT-SPECIFIC:
 - File paths
 - Tip label parsing functions (must match actual label formats in the tree)
 - Taxonomy mapping (species -> group)
 - Model and focal species lists
+- `collapse_groups` parameter (which taxonomic groups to collapse)
 
-The template handles: tree loading, midpoint rooting, pure-clade collapsing, branch
-coloring by taxonomy, selective labeling, branch-length capping, and PDF output for
-both phylogram and cladogram.
+The template handles: tree loading, midpoint rooting, pure-clade collapsing by
+taxonomic group, branch coloring by taxonomy, all visible tips labeled, model species
+gene names on collapsed triangle labels, formula-based page sizing, and PDF output.
+
+**Key features:**
+- **No branch capping** — branch lengths are never manipulated (this is a hard rule)
+- **Formula-based page sizing** — `INCHES_PER_TIP = 0.12`, height = `max(8, n_visible * INCHES_PER_TIP)`
+- **`collapse_groups` parameter** — controls which taxonomic groups are eligible for
+  collapsing (e.g., `c("Bilateria")` to only collapse bilaterians, or `NULL` for all)
+- **Model species gene names on triangles** — collapsed labels show
+  `"Group (N tips: GENE1, GENE2, ...)"` so key gene family members remain visible
+- **Collapse label positioning** — labels at `max(pre_data$x[tip_ids])` (triangle tip),
+  not at internal node x (triangle base)
 
 ### Collapsed circular (overview and/or labeled)
 
-**Reference template**: `~/.claude/skills/tree-formatting/templates/ggtree/collapsed_circular.R`
+**Reference template**: `~/.claude/skills/tree-formatting/templates/ggtree/collapsed_circular.qmd`
 
 Same structure as rectangular — adapt PROJECT-SPECIFIC sections. Produces:
 - **Circular overview** (no labels): 20" square page, branch colors only
@@ -143,7 +163,7 @@ p <- ggtree(tree, layout = "unrooted")
 ```
 
 **All style parameters are defined as named constants at the top of each template**
-(e.g., `BRANCH_LINE_WIDTH`, `LABEL_SIZE_PHYLO`, `PAGE_HEIGHT`). Do not scatter
+(e.g., `BRANCH_LINE_WIDTH`, `LABEL_SIZE`, `INCHES_PER_TIP`). Do not scatter
 magic numbers through the code.
 
 ---
@@ -262,21 +282,39 @@ These are hard-won lessons — do not skip:
 2. **Match on node column, not row index** — `p$data` rows may not be ordered by
    node ID. Always use `match(tip_node_ids, pre_data$node)`.
 
-3. **Circular labels: use `geom_text()` with manual angles, NOT `geom_tiplab2()`** —
+3. **Collapse label x-position: use `max(pre_data$x[tip_ids])`, NOT node x** —
+   The internal node sits at the base of the collapsed triangle, but the label
+   should appear at the triangle tip (where descendant tips extend to). Using the
+   node x places labels at the triangle base, which looks wrong.
+
+4. **Never cap branch lengths** — Branch lengths represent real evolutionary
+   distances. Capping or truncating them is data manipulation. If long branches
+   compress internal structure, offer a cladogram as the honest alternative.
+
+5. **Circular labels: use `geom_text()` with manual angles, NOT `geom_tiplab2()`** —
    compute angles as `y / max_y * 360`, flip text on left half (`angles > 90 & < 270`),
    and pass angle/hjust outside `aes()`.
 
-4. **`show.legend = FALSE` on `geom_text`** — prevents "a" character artifacts
+6. **`show.legend = FALSE` on `geom_text`** — prevents "a" character artifacts
    appearing in the color legend.
 
-5. **`branch.length = "none"` for cladogram** — cannot pass `NULL`. Must use
+7. **`branch.length = "none"` for cladogram** — cannot pass `NULL`. Must use
    if/else to conditionally include this argument.
 
-6. **`coord_cartesian(clip = "off")`** — required for rectangular labels that extend
+8. **`coord_cartesian(clip = "off")`** — required for rectangular labels that extend
    beyond the plot area. Pair with wide right margin. Not needed for circular.
 
-7. **Daylight layout** — produces unusable output for large trees (branches crossing,
+9. **Daylight layout** — produces unusable output for large trees (branches crossing,
    triangles overlapping). Avoid it.
+
+10. **Page sizing formula** — Use `INCHES_PER_TIP = 0.12` with
+    `PAGE_HEIGHT = max(8, n_visible * INCHES_PER_TIP)` where `n_visible` counts
+    non-collapsed tips plus collapsed triangles. This formula keeps labels readable
+    without excess whitespace. Hardcoded page sizes invariably need adjustment.
+
+11. **Never collapse by gene family** — Unless eggNOG orthogroup data is available
+    to intelligently define ortholog groups, only collapse by taxonomic group.
+    Gene families within a tree are the object of study, not noise to be hidden.
 
 ---
 

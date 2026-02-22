@@ -32,37 +32,44 @@ If quarto is not in PATH, try `/usr/local/bin/quarto` or check your conda enviro
 
 ```bash
 # R QMD — no activation needed (renv handles it)
-quarto render scripts/01_analysis.qmd
+quarto render scripts/01_analysis.qmd --output-dir outs/01_analysis/
 
 # Python QMD — MUST activate conda first
-source ~/miniconda3/etc/profile.d/conda.sh && conda activate PROJECT_ENV && quarto render scripts/02_plots.qmd
+source ~/miniconda3/etc/profile.d/conda.sh && conda activate PROJECT_ENV && \
+  quarto render scripts/02_plots.qmd --output-dir outs/02_plots/
 ```
-
-> **Customize**: Replace `~/miniconda3` with your actual conda installation path (see `conda-env` skill).
 
 ## Rendering Options
 
 ```bash
-# Render to default format (from YAML)
-quarto render script.qmd
+# Render to default format, output to outs/
+quarto render scripts/XX_name.qmd --output-dir outs/XX_name/
 
 # Render to specific format
-quarto render script.qmd --to html
-quarto render script.qmd --to pdf
+quarto render scripts/XX_name.qmd --to html --output-dir outs/XX_name/
+quarto render scripts/XX_name.qmd --to pdf --output-dir outs/XX_name/
 
 # Render with execution
-quarto render script.qmd --execute
+quarto render scripts/XX_name.qmd --execute --output-dir outs/XX_name/
 ```
 
 ## Rendering Output Location
 
-By default, Quarto renders HTML next to the `.qmd` file. To place rendered output in the script's `outs/` folder instead, move the file after rendering:
+**CRITICAL:** Always use `--output-dir` to render HTML directly into the script's `outs/` folder. Never leave rendered HTML next to the `.qmd` source file.
 
 ```bash
-# Render then move to outs/
+# CORRECT: Render directly to outs/ folder
+quarto render scripts/01_analysis.qmd --output-dir outs/01_analysis/
+
+# CORRECT: With R 4.5 override
+QUARTO_R=/Library/Frameworks/R.framework/Versions/4.5-arm64/Resources/bin/R \
+  quarto render scripts/01_analysis.qmd --output-dir outs/01_analysis/
+
+# WRONG: Do NOT render in place (pollutes scripts/ with HTML)
 quarto render scripts/01_analysis.qmd
-mv scripts/01_analysis.html outs/01_analysis/
 ```
+
+The `--output-dir` path is relative to the project root (where you run the command from).
 
 ## Format Choice
 

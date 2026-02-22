@@ -159,6 +159,7 @@ RUN_CDHIT = False                # Redundancy reduction
 CDHIT_THRESHOLD = 0.99
 
 MAFFT_ALGORITHM = "linsi"        # "linsi" | "einsi" | "auto"
+MAFFT_THREADS = 8                # Parallel threads for MAFFT alignment
 
 RUN_TRIMMING = False
 TRIMMING_TOOL = "clipkit"        # "clipkit" | "bmge"
@@ -197,9 +198,9 @@ if result.returncode != 0:
 
 ```python
 MAFFT_FLAGS = {
-    "linsi": ["--localpair", "--maxiterate", "1000", "--reorder"],
-    "einsi": ["--genafpair", "--maxiterate", "1000", "--reorder"],
-    "auto":  ["--auto", "--reorder"],
+    "linsi": ["--localpair", "--maxiterate", "1000", "--reorder", "--thread", str(MAFFT_THREADS)],
+    "einsi": ["--genafpair", "--maxiterate", "1000", "--reorder", "--thread", str(MAFFT_THREADS)],
+    "auto":  ["--auto", "--reorder", "--thread", str(MAFFT_THREADS)],
 }
 ```
 
@@ -312,7 +313,7 @@ The rendered script produces these files in `outs/<subdirectory>/XX_name/`:
 
 ```bash
 source ~/miniconda3/etc/profile.d/conda.sh && conda activate <env>
-quarto render scripts/<subdirectory>/XX_name.qmd
+quarto render scripts/<subdirectory>/XX_name.qmd --output-dir outs/<subdirectory>/XX_name/
 ```
 
 For long-running Tier 2 analyses, consider rendering in a screen/tmux session.

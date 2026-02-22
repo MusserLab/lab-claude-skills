@@ -1,0 +1,575 @@
+---
+title: "GENE_FAMILY ggtree tree"
+subtitle: "Collapsed rectangular phylogram with midpoint rooting"
+author: "Your Name"
+date: today
+status: development
+format:
+  html:
+    toc: true
+    toc-depth: 2
+    number-sections: true
+    code-overflow: wrap
+    code-fold: false
+    code-tools: true
+    highlight-style: github
+    theme: cosmo
+    fontsize: 1rem
+    linestretch: 1.5
+    self-contained: true
+execute:
+  echo: true
+  message: false
+  warning: false
+  cache: false
+---
+
+<!--
+TEMPLATE: Collapsed Rectangular Tree (Phylogram and/or Cladogram)
+=================================================================
+Large trees (100+ tips) with:
+  - Pure-clade collapsing by taxonomic group (colored triangles)
+  - Branch coloring by taxonomy
+  - All visible tips labeled; model species gene names on collapsed triangles
+  - No branch capping (branch lengths are never manipulated)
+
+Produces phylogram (branch lengths) and optionally cladogram (topology only).
+
+USAGE: Copy this template into your project's scripts/ directory,
+       then adapt the sections marked PROJECT-SPECIFIC.
+-->
+
+## Setup
+
+```{r setup}
+suppressPackageStartupMessages({
+  library(ape)
+  library(ggtree)
+  library(treeio)
+  library(ggplot2)
+  library(tidytree)
+  library(phytools)
+  library(here)
+})
+
+git_hash <- system("git rev-parse --short HEAD", intern = TRUE)
+cat("Rendered from commit:", git_hash, "\n")
+
+# PROJECT-SPECIFIC: Output directory
+out_dir <- here("outs", "phylogenetics", "XX_tree_name")
+dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
+```
+
+## Inputs
+
+```{r inputs}
+# PROJECT-SPECIFIC: Tree file and optional metadata
+tree_file <- here("data", "phylogenetics", "GENE", "ALIGNMENT.treefile")
+
+tree <- read.tree(tree_file)
+cat("Tips:", Ntip(tree), "\n")
+```
+
+## Taxonomy and label parsing
+
+```{r taxonomy}
+# =============================================================================
+# PROJECT-SPECIFIC: Tip label parsing
+# =============================================================================
+# These functions MUST be adapted to match the actual label formats in each tree.
+# Inspect tip labels first: head(tree$tip.label, 20)
+#
+# Common label formats:
+#   sp|O95631|NET1_HUMAN           -> species: HUMAN,  gene: NET1
+#   tr|Q23158|Q23158_CAEEL         -> species: CAEEL,  accession: Q23158
+#   Mus_musculus|10090.Q9R1A3      -> species: Mus_musculus, accession: Q9R1A3
+#   Hydra_vulgaris|8692.t25743aep  -> species: Hydra_vulgaris, accession: t25743aep
+#
+# Key rules:
+#   - Model species: resolve to gene names (from sp| labels or gene-lookup skill)
+#   - Non-model species: use actual protein/transcript IDs only
+#   - NEVER infer gene names from BLAST annotations for non-model species
+
+parse_species_id <- function(label) {
+  # UniProt: sp|acc|NAME_SPECIES or tr|acc|NAME_SPECIES
+  if (grepl("^(sp|tr)\\|", label)) {
+    parts <- strsplit(label, "\\|")[[1]]
+    if (length(parts) >= 3) return(sub(".*_", "", parts[3]))
+  }
+  # Pipe-separated: Species_name|...
+  if (grepl("\\|", label)) return(strsplit(label, "\\|")[[1]][1])
+  return(label)
+}
+
+parse_accession <- function(label) {
+  if (grepl("^(sp|tr)\\|", label)) return(strsplit(label, "\\|")[[1]][2])
+  if (grepl("\\|", label)) {
+    after_pipe <- strsplit(label, "\\|")[[1]][2]
+    return(sub("^[0-9]+\\.", "", after_pipe))
+  }
+  return(NA_character_)
+}
+
+# Gene name from Swiss-Prot labels
+parse_gene_name_sp <- function(label) {
+  if (grepl("^sp\\|", label)) {
+    parts <- strsplit(label, "\\|")[[1]]
+    if (length(parts) >= 3) return(sub("_[^_]+$", "", parts[3]))
+  }
+  return(NA_character_)
+}
+
+# Optional: load UniProt accession -> gene name mapping for non-sp| model species
+# Generate by querying: https://rest.uniprot.org/uniprotkb/search?query=(accession:A1 OR ...)&fields=accession,gene_primary&format=tsv
+gene_map_file <- file.path(out_dir, "accession_gene_map.tsv")
+if (file.exists(gene_map_file)) {
+  gene_map <- read.delim(gene_map_file, stringsAsFactors = FALSE)
+  acc_to_gene <- setNames(gene_map$gene_name, gene_map$accession)
+} else {
+  acc_to_gene <- character(0)
+}
+
+resolve_gene_name <- function(label, species_id) {
+  sp_gene <- parse_gene_name_sp(label)
+  if (!is.na(sp_gene)) return(sp_gene)
+  acc <- parse_accession(label)
+  if (!is.na(acc) && acc %in% names(acc_to_gene)) {
+    gene <- acc_to_gene[acc]
+    if (!is.na(gene) && nchar(gene) > 0) return(gene)
+  }
+  if (!is.na(acc)) return(acc)
+  return(NA_character_)
+}
+
+# =============================================================================
+# PROJECT-SPECIFIC: Taxonomy mapping
+# =============================================================================
+taxonomy <- list(
+  "Demosponges" = c(
+    "Amphimedon_queenslandica", "Spongilla_lacustris", "Ephydatia_muelleri",
+    "Tethya_wilhelma", "Halichondria_panicea", "Geodia_barretti"
+  ),
+  "Calcarea/Homoscl." = c(
+    "Sycon_ciliatum", "Oscarella_lobularis", "Corticium_candelabrum"
+  ),
+  "Ctenophora" = c(
+    "Mnemiopsis_leidyi", "Pleurobrachia_bachei", "Bolinopsis_microptera"
+  ),
+  "Cnidaria + Placozoa" = c(
+    "Hydra_vulgaris", "Nematostella_vectensis", "Aurelia_aurita",
+    "Clytia_hemisphaerica", "Sarsia_tubulosa", "Tripedalia_cystophora",
+    "Cladocora_caespitosa", "Trichoplax_sp_H1", "Trichoplax_sp_H2",
+    "Trichoplax_sp._H2", "Trichoplax_adhaerens", "Thelohanellus_kitauei",
+    "Hydractinia_symbiolongicarpus"
+  ),
+  "Deuterostomia" = c(
+    "Homo_sapiens", "Mus_musculus", "Danio_rerio", "Callorhinchus_milii",
+    "Petromyzon_marinus", "Ambystoma_mexicanum", "Xenopus_tropicalis",
+    "Ciona_intestinalis", "Strongylocentrotus_purpuratus",
+    "Branchiostoma_lanceolatum", "Meara_stichopi", "Waminoa"
+  ),
+  "Protostomia" = c(
+    "Drosophila_melanogaster", "Caenorhabditis_elegans",
+    "Parasteatoda_tepidariorum", "Daphnia_pulex", "Hyalella_azteca",
+    "Parhyale_hawaiensis", "Platynereis_dumerilii", "Schistosoma_mansoni",
+    "Schmidtea_mediterranea", "Prostheceraeus_crozeri",
+    "Biomphalaria_glabrata", "Crassostrea_gigas", "Aplysia_californica",
+    "Acanthochitona_crinita", "Spadella_cephaloptera"
+  )
+)
+
+# UniProt suffix -> full species name
+uniprot_to_species <- c(
+  HUMAN = "Homo_sapiens", MOUSE = "Mus_musculus",
+  DROME = "Drosophila_melanogaster", CAEEL = "Caenorhabditis_elegans",
+  DANRE = "Danio_rerio", ANOGA = "Anopheles_gambiae",
+  RAT = "Rattus_norvegicus", BOVIN = "Bos_taurus",
+  CHICK = "Gallus_gallus", XENLA = "Xenopus_laevis",
+  SHEEP = "Ovis_aries", ARATH = "Arabidopsis_thaliana",
+  DICDI = "Dictyostelium_discoideum"
+)
+
+# =============================================================================
+# PROJECT-SPECIFIC: Model and focal species
+# =============================================================================
+# Model species: gene names shown on visible tips AND on collapsed triangle labels
+model_species <- c("HUMAN", "MOUSE", "DROME", "CAEEL")
+model_species_full <- c("Homo_sapiens", "Mus_musculus",
+                        "Drosophila_melanogaster", "Caenorhabditis_elegans")
+
+# Focal non-model species: labeled with protein/gene ID + species abbreviation.
+# Protected from collapsing. UPDATE THIS PER TREE.
+focal_species_full <- c(
+  "Amphimedon_queenslandica", "Spongilla_lacustris", "Ephydatia_muelleri",
+  "Tethya_wilhelma", "Halichondria_panicea", "Geodia_barretti",
+  "Sycon_ciliatum", "Oscarella_lobularis", "Corticium_candelabrum",
+  "Hydra_vulgaris", "Nematostella_vectensis"
+)
+
+# =============================================================================
+# STYLE PARAMETERS
+# =============================================================================
+group_colors <- c(
+  "Demosponges"         = "#2ca02c",
+  "Calcarea/Homoscl."   = "#98df8a",
+  "Ctenophora"          = "#9467bd",
+  "Cnidaria + Placozoa" = "#ff7f0e",
+  "Deuterostomia"       = "#d62728",
+  "Protostomia"         = "#1f77b4",
+  "Non-metazoan euk."   = "#555555",
+  "Mixed"               = "#999999"
+)
+
+BRANCH_LINE_WIDTH  <- 0.2
+TRIANGLE_ALPHA     <- 0.4
+LABEL_SIZE         <- 1.4
+LABEL_OFFSET_FRAC  <- 0.005
+MARGIN_RIGHT       <- 120       # points — room for labels past plot edge
+
+# Page sizing formula: scales with visible elements after collapsing
+# 0.12 in/element keeps labels readable without excess whitespace
+INCHES_PER_TIP     <- 0.12
+PAGE_WIDTH         <- 8
+
+# Collapsing parameters
+COLLAPSE_MIN_PURITY   <- 0.90
+COLLAPSE_MIN_SIZE     <- 3
+COLLAPSE_MAX_FRACTION <- 0.25
+
+# Species abbreviation: "H. sapiens" from "Homo_sapiens"
+abbrev_species <- function(sp_name) {
+  parts <- strsplit(sp_name, "_")[[1]]
+  if (length(parts) >= 2) return(paste0(substr(parts[1], 1, 1), ". ", parts[2]))
+  return(sp_name)
+}
+```
+
+## Build species lookup and assign tip data
+
+```{r tip-data}
+# --- Build species -> group lookup ---
+sp_to_group <- list()
+for (group in names(taxonomy)) {
+  for (sp in taxonomy[[group]]) sp_to_group[[sp]] <- group
+}
+
+get_group <- function(species_id) {
+  if (species_id %in% names(sp_to_group)) return(sp_to_group[[species_id]])
+  if (species_id %in% names(uniprot_to_species)) {
+    mapped <- uniprot_to_species[species_id]
+    if (mapped %in% names(sp_to_group)) return(sp_to_group[[mapped]])
+  }
+  return("Non-metazoan euk.")
+}
+
+resolve_species <- function(species_id) {
+  if (species_id %in% names(uniprot_to_species)) return(uniprot_to_species[species_id])
+  return(species_id)
+}
+
+is_model_species <- function(species_id) {
+  species_id %in% model_species ||
+    resolve_species(species_id) %in% model_species_full
+}
+```
+
+## Prepare tree
+
+```{r prepare-tree}
+# Midpoint root
+tree <- phytools::midpoint.root(tree)
+cat("Midpoint rooted\n")
+
+# --- Assign data to all tips ---
+tip_species_id  <- sapply(tree$tip.label, parse_species_id)
+tip_groups      <- sapply(tip_species_id, get_group)
+tip_genes       <- mapply(resolve_gene_name, tree$tip.label, tip_species_id)
+tip_species_full <- sapply(tip_species_id, resolve_species)
+
+tip_data <- data.frame(
+  label = tree$tip.label,
+  species_id = tip_species_id,
+  species_full = tip_species_full,
+  group = tip_groups,
+  gene = tip_genes,
+  stringsAsFactors = FALSE,
+  row.names = NULL
+)
+
+# Display label: "G. species GENE_OR_ID"
+tip_data$display_label <- mapply(function(sp_full, gene) {
+  sp_abbr <- abbrev_species(sp_full)
+  if (!is.na(gene) && nchar(gene) > 0) {
+    paste0(sp_abbr, " ", gene)
+  } else {
+    sp_abbr
+  }
+}, tip_data$species_full, tip_data$gene)
+
+cat("\nGroup counts:\n")
+print(table(tip_data$group))
+```
+
+## Tree traversal helpers and node groups
+
+```{r node-groups}
+get_tips <- function(tree, node) {
+  desc <- getDescendants(tree, node)
+  desc[desc <= Ntip(tree)]
+}
+
+getDescendants <- function(tree, node) {
+  n <- Ntip(tree)
+  all_desc <- c()
+  queue <- node
+  while (length(queue) > 0) {
+    current <- queue[1]
+    queue <- queue[-1]
+    children <- tree$edge[tree$edge[, 1] == current, 2]
+    all_desc <- c(all_desc, children)
+    queue <- c(queue, children[children > n])
+  }
+  return(all_desc)
+}
+
+# Assign group to every node (tips + internal) for branch coloring
+n_tips <- Ntip(tree)
+node_group <- rep(NA_character_, n_tips + Nnode(tree))
+
+for (i in seq_len(nrow(tip_data))) {
+  tip_idx <- match(tip_data$label[i], tree$tip.label)
+  if (!is.na(tip_idx)) node_group[tip_idx] <- tip_data$group[i]
+}
+
+# Internal nodes: majority rule (>50% = dominant group, else "Mixed")
+for (nd in (n_tips + 1):(n_tips + Nnode(tree))) {
+  nd_tips <- get_tips(tree, nd)
+  nd_groups <- node_group[nd_tips]
+  nd_groups <- nd_groups[!is.na(nd_groups)]
+  if (length(nd_groups) > 0) {
+    grp_tab <- sort(table(nd_groups), decreasing = TRUE)
+    if (grp_tab[1] / sum(grp_tab) > 0.5) {
+      node_group[nd] <- names(grp_tab)[1]
+    } else {
+      node_group[nd] <- "Mixed"
+    }
+  }
+}
+```
+
+## Collapse pure taxonomic group clades
+
+Collapse monophyletic clades where 90%+ of tips belong to the same taxonomic
+group. The `collapse_groups` parameter controls which groups are eligible for
+collapsing — by default only Bilateria are collapsed.
+
+```{r collapse}
+find_collapsible_by_group <- function(tree, tip_data,
+                                       min_purity = COLLAPSE_MIN_PURITY,
+                                       min_size = COLLAPSE_MIN_SIZE,
+                                       max_fraction = COLLAPSE_MAX_FRACTION,
+                                       collapse_groups = NULL) {
+  n_tips <- Ntip(tree)
+  max_size <- floor(n_tips * max_fraction)
+  node_ids <- (n_tips + 1):(n_tips + Nnode(tree))
+
+  clade_info <- lapply(node_ids, function(nd) {
+    nd_tips <- get_tips(tree, nd)
+    nd_groups <- tip_data$group[nd_tips]
+    grp_tab <- sort(table(nd_groups), decreasing = TRUE)
+    list(node = nd, size = length(nd_tips),
+         dominant_group = names(grp_tab)[1],
+         purity = grp_tab[1] / length(nd_tips),
+         tip_ids = nd_tips,
+         group = names(grp_tab)[1])
+  })
+
+  candidates <- Filter(function(x) {
+    group_ok <- if (is.null(collapse_groups)) TRUE else
+                x$dominant_group %in% collapse_groups
+    x$purity >= min_purity & x$size >= min_size & x$size <= max_size & group_ok
+  }, clade_info)
+
+  # Sort by size descending (collapse biggest pure clades first)
+  candidates <- candidates[order(sapply(candidates, `[[`, "size"),
+                                  decreasing = TRUE)]
+
+  # Greedy non-overlapping selection
+  selected <- list()
+  collapsed_tips <- integer(0)
+  for (cand in candidates) {
+    if (any(cand$tip_ids %in% collapsed_tips)) next
+    selected <- c(selected, list(cand))
+    collapsed_tips <- c(collapsed_tips, cand$tip_ids)
+  }
+  return(selected)
+}
+
+# PROJECT-SPECIFIC: Which groups to collapse (NULL = all groups eligible)
+clades_to_collapse <- find_collapsible_by_group(tree, tip_data,
+                                                 collapse_groups = c("Bilateria"))
+
+cat("Collapsing", length(clades_to_collapse), "clades:\n")
+for (cl in clades_to_collapse) {
+  cat(sprintf("  Node %d: %d tips (%s, %.0f%% pure)\n",
+              cl$node, cl$size, cl$dominant_group, cl$purity * 100))
+}
+
+collapsed_tip_ids <- unlist(lapply(clades_to_collapse, function(cl) cl$tip_ids))
+visible_tip_ids <- setdiff(seq_len(Ntip(tree)), collapsed_tip_ids)
+n_visible <- length(visible_tip_ids) + length(clades_to_collapse)
+
+# --- Page height from visible element count ---
+PAGE_HEIGHT <- max(8, n_visible * INCHES_PER_TIP)
+cat(sprintf("\nVisible elements: %d tips + %d collapsed = %d total\n",
+            length(visible_tip_ids), length(clades_to_collapse), n_visible))
+cat(sprintf("Page: %.1f x %.1f in (%.2f in/element)\n",
+            PAGE_WIDTH, PAGE_HEIGHT, INCHES_PER_TIP))
+```
+
+## Build collapse labels with model species gene names
+
+Collapsed triangle labels include the group name, tip count, and gene names
+of any model species (human, mouse, fly, worm) inside the collapsed clade.
+This ensures key gene family members remain visible even when collapsed.
+
+```{r collapse-labels}
+# Filter out UniProt accession-like strings — keep only real gene symbols.
+# tr| entries produce accession strings (e.g., A0A061AD21) instead of gene names.
+is_gene_symbol <- function(name) {
+  if (is.na(name) || nchar(name) == 0) return(FALSE)
+  if (grepl("^A0A", name)) return(FALSE)
+  if (grepl("^[OPQ][0-9][A-Z0-9]{3}[0-9]$", name)) return(FALSE)
+  if (grepl("^[A-NR-Z][0-9][A-Z][A-Z0-9]{2}[0-9]$", name)) return(FALSE)
+  if (grepl("^[A-Z][0-9][A-Z0-9]{4,}", name)) return(FALSE)
+  return(TRUE)
+}
+
+# Extract model species gene SYMBOLS (not accessions) from a collapsed clade
+get_model_genes_in_clade <- function(cl, tip_data) {
+  clade_tips <- tip_data[cl$tip_ids, ]
+  model_rows <- clade_tips[
+    clade_tips$species_id %in% model_species |
+    clade_tips$species_full %in% model_species_full, ]
+  if (nrow(model_rows) == 0) return(NULL)
+  genes <- model_rows$gene[!is.na(model_rows$gene) & nchar(model_rows$gene) > 0]
+  genes <- genes[sapply(genes, is_gene_symbol)]
+  if (length(genes) == 0) return(NULL)
+  return(unique(sort(genes)))
+}
+
+# Build label: "Group (N tips: GENE1, GENE2, ...)" or "Group (N tips)" if none
+format_collapse_label <- function(cl, tip_data) {
+  genes <- get_model_genes_in_clade(cl, tip_data)
+  if (is.null(genes)) {
+    paste0(cl$dominant_group, " (", cl$size, " tips)")
+  } else {
+    gene_str <- paste(genes, collapse = ", ")
+    paste0(cl$dominant_group, " (", cl$size, " tips: ", gene_str, ")")
+  }
+}
+
+# Preview what labels will look like
+for (cl in clades_to_collapse) {
+  cat(format_collapse_label(cl, tip_data), "\n")
+}
+```
+
+## Render phylogram
+
+```{r phylogram}
+#| fig-width: 8
+#| fig-height: 20
+
+p <- ggtree(tree, layout = "rectangular",
+            size = BRANCH_LINE_WIDTH, aes(color = group)) %<+% tip_data
+
+# Inject node group assignments for branch coloring
+p$data$group <- node_group[p$data$node]
+p$data$group[is.na(p$data$group)] <- "Mixed"
+
+# --- CRITICAL: Pre-compute positions BEFORE collapse ---
+# collapse() modifies p$data coordinates, so we must capture them first.
+# Use match() on node column — do NOT assume p$data rows are ordered by node ID.
+pre_data <- p$data
+x_range <- diff(range(pre_data$x, na.rm = TRUE))
+label_offset <- x_range * LABEL_OFFSET_FRAC
+
+# Tip labels for non-collapsed tips
+visible_rows <- tip_data[visible_tip_ids, ]
+tip_node_ids <- match(visible_rows$label, tree$tip.label)
+data_row_idx <- match(tip_node_ids, pre_data$node)
+tip_label_df <- data.frame(
+  x = pre_data$x[data_row_idx],
+  y = pre_data$y[data_row_idx],
+  tip_label = visible_rows$display_label,
+  group = visible_rows$group,
+  stringsAsFactors = FALSE
+)
+
+# Collapse triangle labels — position at max(x) of descendant tips (triangle
+# tip), NOT at the internal node x (triangle base). This is a critical fix:
+# the internal node sits at the base of the triangle, but the label should
+# appear at the point where the triangle extends to.
+collapse_label_df <- do.call(rbind, lapply(clades_to_collapse, function(cl) {
+  nd_row <- match(cl$node, pre_data$node)
+  tip_x_max <- max(pre_data$x[cl$tip_ids])
+  tip_y <- pre_data$y[nd_row]
+  lbl <- format_collapse_label(cl, tip_data)
+  data.frame(x = tip_x_max, y = tip_y, tip_label = lbl,
+             group = cl$group, stringsAsFactors = FALSE)
+}))
+
+# --- Apply collapse (colored triangles) ---
+for (cl in clades_to_collapse) {
+  color <- group_colors[cl$group]
+  if (is.na(color)) color <- "#999999"
+  p <- p |> collapse(node = cl$node, mode = "max",
+                     fill = color, alpha = TRIANGLE_ALPHA, color = color,
+                     linewidth = BRANCH_LINE_WIDTH)
+}
+
+# --- Add labels ---
+p <- p +
+  geom_text(data = tip_label_df,
+            aes(x = x + label_offset, y = y, label = tip_label, color = group),
+            hjust = 0, size = LABEL_SIZE,
+            show.legend = FALSE, inherit.aes = FALSE) +
+  geom_text(data = collapse_label_df,
+            aes(x = x + label_offset, y = y, label = tip_label, color = group),
+            hjust = 0, size = LABEL_SIZE * 0.85, fontface = "italic",
+            show.legend = FALSE, inherit.aes = FALSE) +
+  scale_color_manual(
+    values = group_colors, na.value = "#999999", name = "Taxonomic Group"
+  ) +
+  scale_y_continuous(expand = c(0.005, 0.005)) +
+  coord_cartesian(clip = "off") +
+  theme_tree() +
+  theme(
+    plot.margin = margin(5, MARGIN_RIGHT, 5, 5),
+    legend.position = "bottom",
+    legend.text = element_text(size = 9),
+    legend.title = element_text(size = 10, face = "bold")
+  ) +
+  guides(color = guide_legend(override.aes = list(linewidth = 2)))
+
+ggsave(file.path(out_dir, "GENE_ggtree_rect.pdf"), p,
+       width = PAGE_WIDTH, height = PAGE_HEIGHT, units = "in")
+
+p
+```
+
+## Session info
+
+```{r build-info}
+writeLines(
+  c(
+    paste("script: XX_tree_name.qmd"),
+    paste("commit:", git_hash),
+    paste("date:", format(Sys.time(), "%Y-%m-%d %H:%M:%S"))
+  ),
+  file.path(out_dir, "BUILD_INFO.txt")
+)
+
+sessionInfo()
+```

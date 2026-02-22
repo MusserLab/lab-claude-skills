@@ -5,6 +5,13 @@ Format: date-based entries (this isn't versioned software).
 
 ---
 
+## 2026-02-22
+
+### Changed
+- `protein-phylogeny`: add MAFFT threading (`--thread 8`) and `--output-dir` in render command
+- `quarto-docs`: enforce `--output-dir` for all renders; remove `mv` workaround
+- `tree-formatting`: major update — .qmd templates (replacing .R), no-branch-capping rule, `collapse_groups` parameter, model species gene names on collapsed triangles, formula-based page sizing (`INCHES_PER_TIP`), 5 new gotchas
+
 ## 2026-02-21
 
 ### Changed

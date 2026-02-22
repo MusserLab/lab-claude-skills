@@ -50,6 +50,9 @@ Setting up and distributing a shared Claude Code skills repository for the lab. 
 | 2026-02-21 | Added plugin hooks (protect-data-dir, require-conda, project-reminders) | Hooks enforce lab conventions automatically when plugin is installed. Project-specific hooks (protect-data-files) and OS-specific hooks (Notification) stay personal. |
 | 2026-02-21 | Guides embedded as skill reference files | Standalone guides (e.g., quarto-pdf-formatting) moved into their related skill's `references/` directory. Distributes through normal skill sync. |
 | 2026-02-21 | README rewritten for onboarding | Added prerequisites, two install paths (plugin vs manual), Positron-specific instructions, expanded skill overview and improving skills sections. First student tested install. |
+| 2026-02-22 | Added security hooks, `/security-setup` skill, and SECURITY.md | Three-layer defense (hooks + deny rules + bash scoping). Plugin hooks auto-protect; `/security-setup` generates personalized hooks with allowlist/blocklist modes. Educational SECURITY.md for students. |
+| 2026-02-22 | `/sync-plugin` as sole publish path with reconciliation | No direct commits to lab repo. `/sync-plugin` (Step 6) reconciles derived artifacts: README tables, user-claude-md.md skills table, settings-example.json deny rules, personal CLAUDE.md skills table. `/done` checks skill registration only. |
+| 2026-02-22 | CLAUDE_CODE_ADDITIONAL_DIRECTORIES_CLAUDE_MD env variable | Enables loading CLAUDE.md from additional directories. Added to personal settings and settings-example.json template. |
 
 ## Completed Work
 
@@ -81,6 +84,7 @@ Added `.claude-plugin/plugin.json` (plugin name: `lab-skills`) and `marketplace.
 - [ ] Help first 1-2 members install and test
 - [ ] Collect feedback on which skills are most/least useful
 - [ ] Identify skills that need machine-specific customization guidance
+- [x] Security documentation and hooks ready (SECURITY.md, plugin hooks, `/security-setup`, deny rules in settings template)
 
 ### Phase 6: Iterate
 - [ ] Add new skills based on lab member requests

@@ -94,11 +94,17 @@ Skills are categorized by scope. **General** skills apply to all projects. **Dat
 | `conda-env` | Conda activation patterns |
 | `file-safety` | Rules for not overwriting important files |
 | `scientific-manuscript` | High-impact manuscript development |
-| `/new-plan` | Create a planning document |
-| `/new-project` | Scaffold a new project (data science, documentation, or general) |
-| `/publish` | Commit and publish Quarto projects to GitHub Pages |
-| `/quarto-book-setup` | Initialize a new Quarto book with GitHub Pages |
+| `new-skill` | Create a new skill with proper structure |
+| `protein-phylogeny` | Protein phylogeny pipeline: alignment (MAFFT), trimming, tree inference (IQ-TREE 3) |
+| `tree-formatting` | Phylogenetic tree visualization with ggtree: layout, coloring, collapsing, overlays |
+| `gene-lookup` | Look up gene/protein info from database IDs (UniProt, Ensembl, FlyBase, WormBase, NCBI) |
 | `/done` | End-of-session wrap-up and commit (adapts to project type) |
+| `/new-project` | Scaffold a new project (data science, documentation, or general) |
+| `/new-plan` | Create a planning document |
+| `/audit` | Periodic project health check — cross-check docs, prune conventions, find drift |
+| `/security-setup` | Configure personalized security protections for sensitive files and credentials |
+| `/quarto-book-setup` | Initialize a new Quarto book with GitHub Pages |
+| `/quarto-publish` | Commit and publish Quarto projects to GitHub Pages |
 
 ### Data Science (analysis projects with data/outs/scripts/ layout)
 

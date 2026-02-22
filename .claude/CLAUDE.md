@@ -3,6 +3,8 @@
 
 Shared Claude Code skills repository for the lab. Contains standardized conventions for data handling, plotting, script organization, reproducibility, and more.
 
+**Do not commit directly to this repo.** All changes should flow through `/sync-plugin`, which ensures the README tables, CHANGELOG, templates, and CLAUDE.md skill tables stay in sync. Develop and test skills in `~/.claude/skills/`, then run `/sync-plugin` when ready to publish.
+
 ---
 
 ## Repository Layout

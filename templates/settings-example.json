@@ -1,4 +1,7 @@
 {
+  "env": {
+    "CLAUDE_CODE_ADDITIONAL_DIRECTORIES_CLAUDE_MD": "1"
+  },
   "permissions": {
     "allow": [
       "Read",
@@ -92,6 +95,10 @@
       "Read($HOME/Library/Safari/*)",
       "Read($HOME/Library/Application Support/1Password/*)",
       "Read($HOME/Library/Application Support/Google/Chrome/*)"
+    ],
+    "additionalDirectories": [
+      "~/.claude",
+      "/path/to/your/research"
     ]
   }
 }

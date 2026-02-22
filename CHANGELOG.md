@@ -7,7 +7,16 @@ Format: date-based entries (this isn't versioned software).
 
 ## 2026-02-22
 
+### Added
+- Security hooks: `protect-sensitive-reads.sh` and `protect-sensitive-bash.sh` — block reads to credential stores, password managers, browsers, and email; block dangerous bash patterns (credential extraction, pipe-to-execute, env dumping)
+- `/security-setup` skill — interactive workflow to scan a machine for sensitive locations, choose allowlist or blocklist mode, and generate personalized hooks at `~/.claude/hooks/`
+- Security-setup templates: configurable `protect-sensitive-reads.sh` and `protect-sensitive-bash.sh` with allowlist/blocklist modes, cloud storage exceptions, and always-block lists
+- Deny rules in `settings-example.json` for `.ssh`, `.aws`, Keychains, Mail, Messages, Safari, 1Password, Chrome
+- `SECURITY.md` — educational guide to Claude Code security for lab members
+- README: expanded security section with summary and link to `SECURITY.md`
+
 ### Changed
+- Plugin version bumped to 1.2.1; `hooks.json` now registers security hooks on Read and Bash events
 - `protein-phylogeny`: add MAFFT threading (`--thread 8`) and `--output-dir` in render command
 - `quarto-docs`: enforce `--output-dir` for all renders; remove `mv` workaround
 - `tree-formatting`: major update — .qmd templates (replacing .R), no-branch-capping rule, `collapse_groups` parameter, model species gene names on collapsed triangles, formula-based page sizing (`INCHES_PER_TIP`), 5 new gotchas

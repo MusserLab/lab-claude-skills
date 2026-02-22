@@ -44,7 +44,7 @@ The simplest way to get all lab skills and keep them up to date.
 /plugin install lab-skills
 ```
 
-This installs all skills and hooks as a single package. Skills are available as `/lab-skills:skill-name` (e.g., `/lab-skills:done`).
+This installs all skills and hooks as a single package. Skills are available as `/lab-skills:skill-name` (e.g., `/lab-skills:done`). Security hooks activate automatically — see [Security](#security) below.
 
 To update or manage plugins, type `/plugins` (Positron) or `/plugin` (CLI).
 
@@ -73,6 +73,41 @@ cp -r skills/data-handling ~/.claude/skills/   # update specific skills
 ```
 
 Skills that reference machine-specific paths (like `conda-env`) use `~/miniconda3` as the default. If your conda is installed elsewhere, edit your local copy.
+
+## Security
+
+Claude Code is an AI agent that can read any file on your machine and run any shell command. That includes saved passwords, SSH keys, API tokens, email, browser data, and cloud storage. The lab plugin sets up automatic protections so Claude can't access these things — even by accident.
+
+**If you just installed the plugin, you already have baseline protections.** The plugin hooks block reads and bash commands that target credential stores, password managers, browsers, and email. No configuration needed.
+
+For the full security guide, including how protection works and what's covered, see **[SECURITY.md](SECURITY.md)**.
+
+### Quick setup
+
+After installing the plugin, there are two more steps to complete your security setup:
+
+1. **Copy the settings template** (adds deny rules and bash scoping):
+   ```bash
+   cp templates/settings-example.json ~/.claude/settings.json
+   ```
+   If you already have a `settings.json`, merge in the `deny` array — see [Settings](#settings-permissions) below.
+
+2. **Run `/security-setup`** for personalized protections (recommended):
+   This interactive skill scans your machine, finds sensitive locations specific to your setup (cloud storage mounts, installed password managers, scattered `.env` files), and generates customized hooks. It lets you choose between:
+   - **Allowlist mode** — block everything except directories you explicitly permit (most secure)
+   - **Blocklist mode** — block only sensitive locations, allow everything else (more permissive)
+
+   You can re-run `/security-setup` at any time to adjust protections.
+
+### Three layers of defense
+
+| Layer | What it does | How you get it |
+|-------|-------------|----------------|
+| **Hooks** | Scripts that intercept file reads and bash commands, blocking access to sensitive locations | Automatic with plugin install |
+| **Deny rules** | Settings-level blocks that work even if a hook has a bug | Copy `settings-example.json` |
+| **Bash scoping** | Only pre-approved commands run without prompting; unlisted commands require approval | Copy `settings-example.json` |
+
+See [SECURITY.md](SECURITY.md) for the full explanation of what each layer covers, what's always protected, and how to update your protections over time.
 
 ## Starter configuration
 
@@ -104,7 +139,9 @@ The example file includes:
 - **Bash commands** for common tools (`git`, `conda`, `Rscript`, `quarto`, `python`, `mafft`, `iqtree`, etc.)
 - **WebFetch domains** for databases we use regularly (NCBI, Ensembl, UniProt, OrthoDB, etc.)
 - **MCP tools** for literature search (bioRxiv, PubMed, Scholar Gateway)
-- **Deny rules** to block destructive commands (`sudo`, `git push --force`, `git reset --hard`)
+- **Deny rules** to block destructive commands (`sudo`, `git push --force`, `git reset --hard`) and reads to sensitive directories (`.ssh`, `.aws`, Keychains, etc.)
+- **Additional directories** — `~/.claude` and a placeholder for your research directory, so Claude can access your config and cross-project files
+- **Environment variable** — `CLAUDE_CODE_ADDITIONAL_DIRECTORIES_CLAUDE_MD=1` so CLAUDE.md files from additional directories are loaded into context
 
 If you already have a `settings.json`, merge in the parts you want manually.
 
@@ -122,19 +159,13 @@ This is convenient but means Claude won't ask before running anything. The deny 
 
 **File operations.** The example pre-approves `Read`, `Edit`, `Write`, `Glob`, `Grep`, and `WebSearch` so Claude can work with files and search the web without prompting. Remove any of these if you want Claude to ask first.
 
-**Additional directories.** If you work across multiple repos or need Claude to access data outside the current project, add `additionalDirectories`:
+**Additional directories.** The example includes `~/.claude` and a placeholder research path. Replace `/path/to/your/research` with the root directory of your research projects. Claude can access files outside additional directories if you ask, but additional directories are treated as part of your workspace — Claude proactively considers them in scope, and their CLAUDE.md files are loaded into context (thanks to the `CLAUDE_CODE_ADDITIONAL_DIRECTORIES_CLAUDE_MD` env variable in the example).
 
-```json
-"additionalDirectories": [
-  "/path/to/your/shared/data",
-  "/path/to/another/repo"
-]
-```
-
-**Environment variables.** You can set variables that apply to all Claude sessions:
+**Environment variables.** You can set variables that apply to all Claude sessions in the `env` section. The example includes `CLAUDE_CODE_ADDITIONAL_DIRECTORIES_CLAUDE_MD` — add your own as needed:
 
 ```json
 "env": {
+  "CLAUDE_CODE_ADDITIONAL_DIRECTORIES_CLAUDE_MD": "1",
   "MY_VAR": "value"
 }
 ```
@@ -256,15 +287,9 @@ To use the `project-reminders` hook, create a `.claude/project-reminders.txt` fi
 
 These are injected into Claude's context at every session start, so important project rules survive context compaction.
 
-### Security
+### Security hooks
 
-The plugin provides **layered security** to protect sensitive files on your machine:
-
-1. **Plugin hooks** (automatic) — Block reads and bash commands that target credential stores, password managers, browsers, email, and other sensitive locations. These activate immediately when the plugin is installed.
-2. **Deny rules** (in `settings-example.json`) — Block reads to critical paths (`.ssh`, `.aws`, Keychains, Chrome, 1Password) even if a hook has a bug.
-3. **Bash scoping** — The settings example uses specific command allowlists instead of `Bash(*)`, so unlisted commands prompt for approval.
-
-For **personalized protections** (cloud storage exceptions, custom directories, allowlist mode), run `/security-setup`. This interactive skill scans your machine, lets you choose a protection mode, and generates customized hooks.
+The `protect-sensitive-reads.sh` and `protect-sensitive-bash.sh` hooks provide automatic security — see [Security](#security) above and [SECURITY.md](SECURITY.md) for details.
 
 ### Optional hooks (not in plugin)
 

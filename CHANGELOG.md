@@ -8,6 +8,7 @@ Format: date-based entries (this isn't versioned software).
 ## 2026-02-22
 
 ### Added
+- Security-setup template: `protect-sensitive-writes.sh` — `/security-setup` now generates personalized write-protection hooks (previously only reads and bash were personalized)
 - Hook: `protect-sensitive-writes.sh` — blocks Edit/Write to credential stores, password managers, LaunchAgents, and sensitive filenames (.env, .pem, keys)
 - Write/Edit deny rules in `settings-example.json` for .ssh, .aws, Keychains, LaunchAgents, keyrings, 1Password
 - Security hooks: `protect-sensitive-reads.sh` and `protect-sensitive-bash.sh` — block reads to credential stores, password managers, browsers, and email; block dangerous bash patterns (credential extraction, pipe-to-execute, env dumping)
@@ -22,14 +23,15 @@ Format: date-based entries (this isn't versioned software).
 - `<!-- slack-channel: -->` comment support in project CLAUDE.md template for Slack notifications
 
 ### Changed
+- `/security-setup`: generates personalized `protect-sensitive-writes.sh` (Step 6 for first-time, Step 4 upgrade path for returning users); registers Edit and Write hook matchers; returning-user flow detects missing writes hook and adds it
 - `done`: added skill registration check — verifies new skills appear in `~/.claude/CLAUDE.md` before committing
 - `new-project`: added CHANGELOG.md scaffolding question and Step 7b
 - Hook: `project-reminders.sh` — now supports `~/.claude/hooks/general-reminders.txt` for cross-project reminders
 - `hooks.json`: added `protect-sensitive-writes.sh` to Edit/Write event
-- Plugin version bumped to 1.3.0; `hooks.json` now registers security hooks on Read, Edit/Write, and Bash events
+- Plugin version bumped to 1.3.1; `hooks.json` now registers security hooks on Read, Edit/Write, and Bash events
 
 ### Security
-- Bumped SECURITY_VERSION to 2 — users with personal hooks should re-run `/security-setup`
+- Bumped SECURITY_VERSION to 3 — users with personal hooks should re-run `/security-setup`
 
 ### Previously in this date (v1.2.1)
 - Plugin version bumped to 1.2.1; `hooks.json` now registers security hooks on Read and Bash events

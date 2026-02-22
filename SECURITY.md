@@ -35,7 +35,7 @@ The lab plugin uses three layers of defense. Each layer catches what the others 
 
 Hooks are bash scripts that run *before* Claude executes certain operations. They inspect what Claude is about to do and block it if it touches something sensitive. **On Windows, hooks may not be available** — see [Platform support](#platform-support) above. Deny rules (Layer 2) provide equivalent coverage.
 
-The plugin installs two security hooks:
+The plugin installs three security hooks:
 
 **`protect-sensitive-reads.sh`** — intercepts every file read and blocks access to:
 - Credential stores: `~/.ssh/`, `~/.aws/`, `~/.gnupg/`
@@ -47,13 +47,21 @@ The plugin installs two security hooks:
 - Sensitive filenames: `.env`, `credentials.json`, SSH keys, `.git-credentials`, `.netrc`
 - WSL: Windows-side sensitive paths under `/mnt/c/Users/`
 
+**`protect-sensitive-writes.sh`** — intercepts every file edit/write and blocks writes to:
+- Credential stores: `~/.ssh/`, `~/.aws/`, `~/.gnupg/`
+- Password managers: 1Password, Bitwarden, KeePassXC, LastPass local storage
+- Shell configs: `~/.zshrc`, `~/.bashrc`, `~/.zprofile`, `~/.bash_profile`
+- Launch agents: `~/Library/LaunchAgents/` (macOS), `~/.config/systemd/` (Linux)
+- Keyrings: macOS Keychain, GNOME Keyring, KDE Wallet
+- Sensitive filenames: `.env`, `.pem`, SSH keys, `.git-credentials`, `.netrc`
+
 **`protect-sensitive-bash.sh`** — intercepts every bash command and blocks:
 - Commands that reference sensitive paths (anything in the lists above)
 - Credential extraction tools: macOS `security` commands, Linux `secret-tool`, `kwallet-query`
 - Environment variable dumping (`env`, `printenv`, `set` — these can leak API keys)
 - Pipe-to-execute patterns (`curl | bash`, `wget | sh`, etc.)
 
-Both hooks detect your platform automatically (`uname -s`) and apply the appropriate paths for macOS, Linux, or WSL.
+All three hooks detect your platform automatically (`uname -s`) and apply the appropriate paths for macOS, Linux, or WSL.
 
 These hooks activate automatically when the plugin is installed. You don't need to configure anything.
 
@@ -78,7 +86,7 @@ Deny rules in your `settings.json` provide a second line of defense. Even if a h
 ]
 ```
 
-The `settings-example.json` template includes these. If you haven't copied it yet, see the [Starter configuration](#starter-configuration) section of the README.
+The `settings-example.json` template includes these. If you haven't copied it yet, see the [Setup](#setup) section of the README.
 
 ### Layer 3: Bash scoping (least privilege)
 

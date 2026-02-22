@@ -4,7 +4,7 @@ description: Configure and manage Claude Code security protections for sensitive
 user-invocable: true
 ---
 
-<!-- Current SECURITY_VERSION: 2 -->
+<!-- Current SECURITY_VERSION: 3 -->
 
 # Security Setup & Management
 
@@ -17,6 +17,8 @@ When the user invokes `/security-setup`, configure or update Claude Code securit
 Check if `~/.claude/hooks/protect-sensitive-reads.sh` exists:
 - **Not found** → First-time setup (Section 1)
 - **Found** → Returning user (Section 2)
+
+Also check if `~/.claude/hooks/protect-sensitive-writes.sh` exists. If the reads hook exists but the writes hook does not, treat as returning user (Section 2) — the upgrade path in Step 4 will add the missing writes hook.
 
 ---
 
@@ -230,17 +232,19 @@ Then proceed to Step 7, which generates comprehensive deny rules.
 
 Read the template files from the skill's `templates/` directory:
 - `templates/protect-sensitive-reads.sh`
+- `templates/protect-sensitive-writes.sh`
 - `templates/protect-sensitive-bash.sh`
 
 Customize the templates:
-1. Set `MODE=` to the user's choice
-2. Populate `ALLOWED_DIRS` or `BLOCKED_DIRS` with the user's paths
+1. Set `MODE=` to the user's choice (same mode for reads and writes)
+2. Populate `ALLOWED_DIRS` or `BLOCKED_DIRS` with the user's paths — **keep reads and writes hooks in sync**
 3. Add discovered cloud storage mount points to `BLOCKED_DIRS` (blocklist mode) or leave them out of `ALLOWED_DIRS` (allowlist mode)
 4. Add any 1Password container paths found (e.g., `com.1password.1password-launcher`) to `ALWAYS_BLOCK_DIRS`
 5. Populate `ALLOWED_PATH_EXCEPTIONS` in the bash hook with the same cloud storage project exceptions
 
 Write the customized hooks to `~/.claude/hooks/`:
 - `~/.claude/hooks/protect-sensitive-reads.sh`
+- `~/.claude/hooks/protect-sensitive-writes.sh`
 - `~/.claude/hooks/protect-sensitive-bash.sh`
 
 Make them executable with `chmod +x`.
@@ -285,7 +289,9 @@ WSL — include both Linux and Windows-side paths:
 
 **Register hooks** in the PreToolUse section (if not already registered):
 ```json
-{ "matcher": "Read", "hooks": [{ "type": "command", "command": "~/.claude/hooks/protect-sensitive-reads.sh" }] }
+{ "matcher": "Read", "hooks": [{ "type": "command", "command": "~/.claude/hooks/protect-sensitive-reads.sh" }] },
+{ "matcher": "Edit", "hooks": [{ "type": "command", "command": "~/.claude/hooks/protect-sensitive-writes.sh" }] },
+{ "matcher": "Write", "hooks": [{ "type": "command", "command": "~/.claude/hooks/protect-sensitive-writes.sh" }] }
 ```
 Add the bash hook to the existing Bash matcher's hooks array.
 
@@ -322,12 +328,17 @@ Parse `~/.claude/hooks/protect-sensitive-reads.sh` to extract:
 - `BLOCKED_DIRS` array contents
 - `ALWAYS_BLOCK_DIRS` array contents
 
+Check if `~/.claude/hooks/protect-sensitive-writes.sh` exists:
+- **Found** → Parse it to extract `MODE`, `ALLOWED_DIRS`, `BLOCKED_DIRS`, `ALWAYS_BLOCK_DIRS` (should match reads hook)
+- **Not found** → Flag as "writes hook missing — will be added" in the status summary
+
 Parse `~/.claude/hooks/protect-sensitive-bash.sh` to extract:
 - `BLOCKED_PATH_KEYWORDS` array contents
 - `ALLOWED_PATH_EXCEPTIONS` array contents
 
 Parse `~/.claude/settings.json` to extract:
 - Deny rules
+- Hook registrations (check for Edit and Write matchers — may be missing on older installs)
 - Bash permission rules (scoped or `Bash(*)`)
 
 ### Step 2: Present Current Protections
@@ -335,10 +346,12 @@ Parse `~/.claude/settings.json` to extract:
 Show a summary organized by:
 - **Security version**: personal vN / plugin vN (show "up to date" or "outdated — update recommended")
 - **Protection mode**: allowlist or blocklist
+- **Hooks installed**: reads, writes, bash (flag any missing — e.g., "writes hook: **missing**")
 - **Allowed directories** (allowlist mode) or **Blocked directories** (blocklist mode)
 - **Always-blocked directories** (both modes)
 - **Cloud storage exceptions** (paths where access is allowed within otherwise-blocked cloud storage)
 - **Deny rules** in settings.json
+- **Hook registrations**: Read, Edit, Write, Bash matchers (flag any missing)
 - **Bash permissions**: scoped commands or `Bash(*)`
 
 ### Step 3: Ask What to Change
@@ -364,9 +377,14 @@ Use AskUserQuestion with mode-appropriate options:
 
 ### Step 4: Apply Changes
 
+**If writes hook is missing (upgrade path):**
+Generate `~/.claude/hooks/protect-sensitive-writes.sh` from `templates/protect-sensitive-writes.sh`, copying `MODE`, `ALLOWED_DIRS`, `BLOCKED_DIRS`, and `ALWAYS_BLOCK_DIRS` from the existing reads hook so they stay in sync. Register Edit and Write matchers in settings.json if not already present. Make executable with `chmod +x`.
+
+**For all other changes:**
 Modify the relevant hook script(s) and/or settings.json. When editing hook scripts:
 - Read the current file
 - Use the Edit tool to modify the specific array
+- **Keep reads and writes hooks in sync** — if `ALLOWED_DIRS` or `BLOCKED_DIRS` change in one, apply the same change to the other
 - Preserve all other configuration
 
 After applying changes, update `~/.claude/hooks/SECURITY_VERSION` to the current plugin version (the user just re-ran security-setup, so they're now current).

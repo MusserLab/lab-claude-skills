@@ -11,7 +11,7 @@ Claude Code skills are markdown files that automatically load into Claude's cont
 You need [Claude Code](https://docs.anthropic.com/en/docs/claude-code) installed and working before adding lab skills:
 
 1. Install Claude Code — see our [lab compute handbook](https://musserlab.github.io/lab-compute/part1/installation.html) or [Anthropic's install guide](https://docs.anthropic.com/en/docs/claude-code/overview)
-2. Make sure you can launch it (run `claude` in your terminal)
+2. Open Claude Code — either in Positron (click the Claude Code icon in the sidebar) or in your terminal (run `claude`)
 
 ## Install
 
@@ -19,7 +19,7 @@ There are two ways to install. Choose whichever fits your needs.
 
 ### Option A: Plugin (recommended)
 
-The simplest way to get all lab skills and keep them up to date. Open Claude Code in your terminal (`claude`) and type these commands at the **Claude Code prompt** (not your regular shell):
+The simplest way to get all lab skills and keep them up to date. Type these commands in the **Claude Code chat panel** (not the terminal):
 
 ```
 /plugin marketplace add MusserLab/lab-claude-skills
@@ -66,21 +66,21 @@ cp -r skills/data-handling ~/.claude/skills/   # update specific skills
 
 Skills that reference machine-specific paths (like `conda-env`) use `~/miniconda3` as the default. If your conda is installed elsewhere, edit your local copy.
 
-### Recommended: starter configuration
+## Starter configuration
 
-Whichever install method you chose, these starter files are **optional** but reduce permission prompts and give Claude more context about lab conventions. Run these in your **regular terminal**:
+These files are **optional** but reduce permission prompts and give Claude more context about lab conventions. Copy them from the `templates/` directory in this repo:
 
 ```bash
 # User-level instructions (if you don't have ~/.claude/CLAUDE.md yet)
-curl -o ~/.claude/CLAUDE.md https://raw.githubusercontent.com/MusserLab/lab-claude-skills/main/templates/user-claude-md.md
+cp templates/user-claude-md.md ~/.claude/CLAUDE.md
 
 # Pre-approved permissions for common lab tools (if you don't have ~/.claude/settings.json yet)
-curl -o ~/.claude/settings.json https://raw.githubusercontent.com/MusserLab/lab-claude-skills/main/templates/settings-example.json
+cp templates/settings-example.json ~/.claude/settings.json
 ```
 
-See the [Templates](#templates) section for details on what these files do and how to customize them.
+If you used Option A and don't have the repo cloned, download the files from [templates/ on GitHub](https://github.com/MusserLab/lab-claude-skills/tree/main/templates).
 
-## Templates
+### Templates
 
 The `templates/` directory contains starter files:
 
@@ -98,7 +98,7 @@ The example file includes:
 - **MCP tools** for literature search (bioRxiv, PubMed, Scholar Gateway)
 - **Deny rules** to block destructive commands (`sudo`, `git push --force`, `git reset --hard`)
 
-To use it, download with `curl` (see [Install](#install)) or copy from the repo if you've cloned it. If you already have a `settings.json`, merge in the parts you want manually.
+If you already have a `settings.json`, merge in the parts you want manually.
 
 ### What's not in the example (and what you might add)
 

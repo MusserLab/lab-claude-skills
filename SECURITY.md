@@ -8,10 +8,24 @@ This isn't a hypothetical risk. An AI agent that can read arbitrary files and ru
 - Access saved passwords in your browser or password manager's local storage
 - Read email and messages stored on disk
 - Browse files in cloud storage (Dropbox, OneDrive, Google Drive)
-- Run commands that extract credentials from the macOS Keychain
+- Run commands that extract credentials from the system keychain (macOS Keychain, GNOME Keyring, KDE Wallet)
 - Pipe downloaded scripts directly to your shell
 
 Claude won't do any of these things intentionally — but mistakes happen, prompt injections exist, and defense-in-depth is good practice. The lab plugin sets up protections so these scenarios are blocked automatically.
+
+## Platform support
+
+Security protections work across macOS, Linux, and Windows, but the available layers differ by platform:
+
+| Layer | macOS | Linux | Windows |
+|-------|:-----:|:-----:|:-------:|
+| **Hooks** (automatic interception) | All 3 layers | All 3 layers | Deny rules + bash scoping only |
+| **Deny rules** (settings.json) | Yes | Yes | Yes |
+| **Bash scoping** (settings.json) | Yes | Yes | Yes |
+
+**Why the difference:** Hooks are bash shell scripts. They run natively on macOS and Linux. On Windows, Claude Code uses PowerShell or cmd.exe, which can't run bash scripts directly. Windows users still get two layers of protection through `settings.json` (deny rules and bash scoping), which are evaluated by Claude Code itself regardless of shell.
+
+**Windows users:** Run `/security-setup` — it detects your platform and focuses on generating comprehensive deny rules for your `settings.json`. If you have Git Bash installed, hooks may also work (the skill will test this).
 
 ## How protection works
 
@@ -19,7 +33,7 @@ The lab plugin uses three layers of defense. Each layer catches what the others 
 
 ### Layer 1: Hooks (automatic interception)
 
-Hooks are shell scripts that run *before* Claude executes certain operations. They inspect what Claude is about to do and block it if it touches something sensitive.
+Hooks are bash scripts that run *before* Claude executes certain operations. They inspect what Claude is about to do and block it if it touches something sensitive. **On Windows, hooks may not be available** — see [Platform support](#platform-support) above. Deny rules (Layer 2) provide equivalent coverage.
 
 The plugin installs two security hooks:
 
@@ -27,15 +41,19 @@ The plugin installs two security hooks:
 - Credential stores: `~/.ssh/`, `~/.aws/`, `~/.gnupg/`
 - Password managers: 1Password, Bitwarden, KeePassXC, LastPass local storage
 - Browsers: Chrome, Safari, Firefox, Edge (saved passwords, cookies, sessions)
-- Communication apps: Apple Mail, iMessage
-- IDE configs: VS Code settings (may contain tokens)
+- Communication apps: Mail, Messages (macOS); Thunderbird, Evolution (Linux)
+- IDE configs: VS Code, Positron settings (may contain tokens)
+- Keyrings: macOS Keychain, GNOME Keyring, KDE Wallet
 - Sensitive filenames: `.env`, `credentials.json`, SSH keys, `.git-credentials`, `.netrc`
+- WSL: Windows-side sensitive paths under `/mnt/c/Users/`
 
 **`protect-sensitive-bash.sh`** — intercepts every bash command and blocks:
 - Commands that reference sensitive paths (anything in the lists above)
-- macOS credential extraction (`security find-generic-password`, `security dump-keychain`, etc.)
+- Credential extraction tools: macOS `security` commands, Linux `secret-tool`, `kwallet-query`
 - Environment variable dumping (`env`, `printenv`, `set` — these can leak API keys)
 - Pipe-to-execute patterns (`curl | bash`, `wget | sh`, etc.)
+
+Both hooks detect your platform automatically (`uname -s`) and apply the appropriate paths for macOS, Linux, or WSL.
 
 These hooks activate automatically when the plugin is installed. You don't need to configure anything.
 
@@ -52,7 +70,11 @@ Deny rules in your `settings.json` provide a second line of defense. Even if a h
   "Read($HOME/.aws/*)",
   "Read($HOME/Library/Keychains/*)",
   "Read($HOME/Library/Application Support/1Password/*)",
-  "Read($HOME/Library/Application Support/Google/Chrome/*)"
+  "Read($HOME/Library/Application Support/Google/Chrome/*)",
+  "Read($HOME/.config/google-chrome/*)",
+  "Read($HOME/.mozilla/firefox/*)",
+  "Read($HOME/.local/share/keyrings/*)",
+  "Read($HOME/.config/1Password/*)"
 ]
 ```
 
@@ -105,7 +127,7 @@ You can re-run `/security-setup` at any time to adjust your protections (add dir
 
 ### Allowlist vs. blocklist mode
 
-**Allowlist mode** is the more secure option. Claude can only read files in directories you've explicitly allowed (plus system directories like `/usr/local` and `~/miniconda3`). If you start a project in a new directory, you'll need to add it. This is good for people who work in a small number of known project directories.
+**Allowlist mode** is the more secure option. Claude can only read files in directories you've explicitly allowed (plus system directories like `/usr/local`, `/opt`, and `~/miniconda3`). If you start a project in a new directory, you'll need to add it. This is good for people who work in a small number of known project directories.
 
 **Blocklist mode** is more permissive. Claude can read anything *except* the sensitive locations identified in the scan. This is good for people who work across many directories and don't want to maintain an allowlist. The tradeoff is that anything not in the blocklist is accessible.
 
@@ -115,14 +137,14 @@ Both modes always block critical locations (`.ssh`, `.aws`, `.gnupg`, Keychains,
 
 ### Always protected (both modes, all layers)
 
-| Category | Examples |
-|----------|----------|
-| SSH/cloud credentials | `~/.ssh/`, `~/.aws/`, `~/.gnupg/` |
-| Password managers | 1Password, Bitwarden, KeePassXC, LastPass |
-| Browsers | Chrome, Safari, Firefox, Edge |
-| Communication | Apple Mail, iMessage |
-| macOS Keychain | `~/Library/Keychains/` |
-| Sensitive files | `.env`, `credentials.json`, SSH keys, `.git-credentials` |
+| Category | macOS | Linux | Windows |
+|----------|-------|-------|---------|
+| SSH/cloud credentials | `~/.ssh/`, `~/.aws/`, `~/.gnupg/` | Same | `$HOME/.ssh/`, `$HOME/.aws/` |
+| Password managers | 1Password, Bitwarden, KeePassXC, LastPass | Same (Linux config paths) | `AppData` paths via deny rules |
+| Browsers | Chrome, Safari, Firefox, Edge | Chrome, Chromium, Firefox, Edge | Chrome, Firefox, Edge via deny rules |
+| Communication | Apple Mail, iMessage | Thunderbird, Evolution | Via deny rules |
+| System keychain | `~/Library/Keychains/` | GNOME Keyring, KDE Wallet | Windows Credential Manager (deny rules) |
+| Sensitive files | `.env`, `credentials.json`, SSH keys, `.git-credentials` | Same | Same |
 
 ### Protected with `/security-setup` (personalized)
 

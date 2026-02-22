@@ -1,9 +1,10 @@
 <!-- project-type: general -->
+<!-- slack-channel: #code -->
 # Lab Claude Skills
 
 Shared Claude Code skills repository for the lab. Contains standardized conventions for data handling, plotting, script organization, reproducibility, and more.
 
-**Do not commit directly to this repo.** All changes should flow through `/sync-plugin`, which ensures the README tables, CHANGELOG, templates, and CLAUDE.md skill tables stay in sync. Develop and test skills in `~/.claude/skills/`, then run `/sync-plugin` when ready to publish.
+**Skill and hook changes must flow through `/sync-plugin`.** Develop and test skills in `~/.claude/skills/`, then run `/sync-plugin` when ready to publish — it keeps README tables, CHANGELOG, templates, and CLAUDE.md skill tables in sync and notifies Slack. Documentation-only changes (README rewrites, SECURITY.md, templates) can be committed directly, but post a Slack update to `#code` after pushing.
 
 ---
 

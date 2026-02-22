@@ -4,6 +4,7 @@
 #
 # Blocks Claude Code from running bash commands that reference sensitive
 # paths or use dangerous patterns (credential extraction, pipe-to-execute).
+# Cross-platform: macOS, Linux, and WSL. OS is detected automatically.
 #
 # Edit the arrays below to customize. Changes take effect immediately.
 # To manage this file interactively, run: /security-setup
@@ -11,9 +12,12 @@
 
 # ---- CONFIGURATION (edit these) ---------------------------------------------
 
+# Detect platform
+OS=$(uname -s)
+
 # BLOCKED PATH KEYWORDS: If a command contains any of these strings, block it.
 BLOCKED_PATH_KEYWORDS=(
-  # Credential stores
+  # Credential stores (all platforms)
   ".ssh/"
   ".ssh "
   ".aws/"
@@ -27,45 +31,69 @@ BLOCKED_PATH_KEYWORDS=(
   ".netrc"
   ".npmrc"
   ".pypirc"
-  # macOS Keychain
-  "Library/Keychains"
-  "keychain-db"
-  # Password managers
+  # Password managers (cross-platform keywords)
   "1password"
   "1Password"
   "Bitwarden"
   "KeePass"
   "LastPass"
-  # Browsers
-  "Application Support/Google/Chrome"
-  "Library/Safari"
-  "Application Support/Firefox"
-  "Application Support/Microsoft Edge"
-  # Communication
-  "Library/Mail"
-  "Library/Messages"
-  "Application Support/Microsoft/Teams"
-  "Application Support/Slack"
-  "Application Support/zoom.us"
-  # IDE token storage
-  "Application Support/Code/User"
-  # Cloud storage (broad blocks)
-  "OneDrive"
-  "Google Drive"
-  "CloudStorage"
-  "Mobile Documents"
-  # >>> SECURITY-SETUP will add any personal dir keywords here <<<
 )
+
+# Platform-specific keywords
+case "$OS" in
+  Darwin)
+    BLOCKED_PATH_KEYWORDS+=(
+      "Library/Keychains"
+      "keychain-db"
+      "Application Support/Google/Chrome"
+      "Library/Safari"
+      "Application Support/Firefox"
+      "Application Support/Microsoft Edge"
+      "Library/Mail"
+      "Library/Messages"
+      "Application Support/Microsoft/Teams"
+      "Application Support/Slack"
+      "Application Support/zoom.us"
+      "Application Support/Code/User"
+      # Cloud storage (broad blocks)
+      "OneDrive"
+      "Google Drive"
+      "CloudStorage"
+      "Mobile Documents"
+      # >>> SECURITY-SETUP will add any personal dir keywords here <<<
+    )
+    ;;
+  Linux)
+    BLOCKED_PATH_KEYWORDS+=(
+      ".config/google-chrome"
+      ".config/chromium"
+      ".mozilla/firefox"
+      ".config/microsoft-edge"
+      ".thunderbird"
+      ".local/share/evolution"
+      ".local/share/keyrings"
+      ".local/share/kwalletd"
+      ".config/Slack"
+      ".config/teams-for-linux"
+      ".config/Code/User"
+      ".config/Positron"
+      # >>> SECURITY-SETUP will add any personal dir keywords here <<<
+    )
+    # WSL: also block Windows-side sensitive keywords
+    if grep -qi "microsoft\|wsl" /proc/version 2>/dev/null; then
+      BLOCKED_PATH_KEYWORDS+=(
+        "AppData/Local/Google/Chrome"
+        "AppData/Local/Microsoft/Edge"
+        "AppData/Roaming/Mozilla/Firefox"
+        "AppData/Local/1Password"
+        "AppData/Roaming/keepassxc"
+      )
+    fi
+    ;;
+esac
 
 # BLOCKED COMMAND PATTERNS: Dangerous command patterns to block.
 BLOCKED_COMMAND_PATTERNS=(
-  # macOS credential access
-  "security find-generic-password"
-  "security find-internet-password"
-  "security dump-keychain"
-  "security export"
-  # macOS preferences (can expose app tokens)
-  "defaults read"
   # Pipe-to-execute patterns (download and run)
   "curl|bash"
   "curl|sh"
@@ -80,6 +108,24 @@ BLOCKED_COMMAND_PATTERNS=(
   "wget|python"
   "wget | python"
 )
+case "$OS" in
+  Darwin)
+    BLOCKED_COMMAND_PATTERNS+=(
+      "security find-generic-password"
+      "security find-internet-password"
+      "security dump-keychain"
+      "security export"
+      "defaults read"
+    )
+    ;;
+  Linux)
+    BLOCKED_COMMAND_PATTERNS+=(
+      "secret-tool lookup"
+      "secret-tool search"
+      "kwallet-query"
+    )
+    ;;
+esac
 
 # BLOCKED STANDALONE COMMANDS: Block these when used alone (they dump secrets).
 BLOCKED_STANDALONE=(

@@ -32,16 +32,54 @@ Tell the user:
 >
 > The plugin already provides baseline protection. This setup adds **personal protections** tailored to your machine.
 
+### Step 1b: Detect Platform
+
+Determine the operating system and shell environment:
+
+```bash
+uname -s 2>/dev/null          # Darwin, Linux, MINGW64_NT-* (Git Bash), or fails on cmd/PowerShell
+echo %OS% 2>/dev/null         # "Windows_NT" on Windows cmd/PowerShell
+$PSVersionTable 2>/dev/null   # Non-empty on PowerShell
+```
+
+**Platform categories:**
+- **macOS**: `uname -s` returns `Darwin`
+- **Linux**: `uname -s` returns `Linux` (also check for WSL: `grep -qi "microsoft\|wsl" /proc/version 2>/dev/null`)
+- **Windows (Git Bash / Cygwin)**: `uname -s` returns `MINGW*` or `CYGWIN*` — bash is available, hooks may work
+- **Windows (PowerShell / cmd)**: `uname` fails or isn't available — hooks won't work, focus on deny rules
+
+**Test hook capability on Windows:** If on Windows, test whether bash scripts can execute:
+```bash
+bash -c "echo hook-test" 2>/dev/null
+```
+If this succeeds, hooks are viable. If it fails, skip hook generation and note that deny rules are the primary protection.
+
+Use the detected platform to select the appropriate scan paths in Step 2 and determine whether to generate hooks (Step 6).
+
 ### Step 2: Comprehensive Scan
 
-Run discovery commands to check which sensitive locations exist on the user's machine. Use `ls -d` with `2>/dev/null` for each path. Organize results by category:
+Run discovery commands to check which sensitive locations exist on the user's machine. Use `ls -d` with `2>/dev/null` for each path. **Only scan paths relevant to the detected platform.** Organize results by category:
 
-**Credential stores & password managers:**
+#### All platforms
+
+**Credential stores & config:**
 - `~/.ssh/`, `~/.aws/`, `~/.gnupg/`
 - `~/.config/gh/`, `~/.config/gcloud/`, `~/.docker/`, `~/.kube/`, `~/.azure/`
 - `~/.config/op/` (1Password CLI)
 - `~/.netrc`, `~/.npmrc`, `~/.pypirc`, `~/.git-credentials`
 - `~/.Renviron` (R environment variables, may contain API keys)
+
+**IDE configs (may contain tokens):**
+- Jupyter: `~/.jupyter/`
+- IPython: `~/.ipython/`
+
+**Scattered credential files:**
+- `.env` files: `find ~ -maxdepth 3 -name ".env" -o -name ".env.*" 2>/dev/null`
+- GCP service accounts: `find ~ -maxdepth 3 -name "credentials.json" -o -name "service-account*.json" 2>/dev/null`
+
+#### macOS only
+
+**Password managers:**
 - macOS Keychain: `~/Library/Keychains/`
 - 1Password: `~/Library/Application Support/1Password/`, `~/Library/Containers/com.1password.*`
 - Bitwarden: `~/Library/Application Support/Bitwarden/`
@@ -68,15 +106,87 @@ Run discovery commands to check which sensitive locations exist on the user's ma
 - iCloud: `~/Library/Mobile Documents/`
 - Box: `~/Library/CloudStorage/Box-*/`, `~/Box/`
 
-**IDE configs (may contain tokens):**
+**IDE configs:**
 - VS Code: `~/Library/Application Support/Code/User/`
 - Positron: `~/.positron/`
-- Jupyter: `~/.jupyter/`
-- IPython: `~/.ipython/`
 
-**Scattered credential files:**
-- `.env` files: `find ~ -maxdepth 3 -name ".env" -o -name ".env.*" 2>/dev/null`
-- GCP service accounts: `find ~ -maxdepth 3 -name "credentials.json" -o -name "service-account*.json" 2>/dev/null`
+#### Linux only
+
+**Password managers & keyrings:**
+- GNOME Keyring: `~/.local/share/keyrings/`
+- KDE Wallet: `~/.local/share/kwalletd/`
+- 1Password: `~/.config/1Password/`
+- Bitwarden: `~/.config/Bitwarden/`
+- KeePassXC: `~/.config/keepassxc/`, `~/.local/share/keepassxc/`
+
+**Browser profiles:**
+- Chrome: `~/.config/google-chrome/`
+- Chromium: `~/.config/chromium/`
+- Firefox: `~/.mozilla/firefox/`
+- Edge: `~/.config/microsoft-edge/`
+
+**Communication apps:**
+- Thunderbird: `~/.thunderbird/`
+- Evolution: `~/.local/share/evolution/`
+- Slack: `~/.config/Slack/`
+- Teams: `~/.config/teams-for-linux/`
+
+**Cloud storage mounts:**
+- Dropbox: `~/Dropbox/`
+- Check for FUSE mounts: `mount | grep fuse` (Google Drive, rclone-mounted OneDrive, etc.)
+
+**IDE configs:**
+- VS Code: `~/.config/Code/User/`
+- Positron: `~/.config/Positron/`, `~/.positron/`
+
+#### WSL only (in addition to Linux paths)
+
+**Windows-side sensitive locations** — scan `/mnt/c/Users/*/` for:
+- `AppData/Local/Google/Chrome/`
+- `AppData/Local/Microsoft/Edge/`
+- `AppData/Roaming/Mozilla/Firefox/`
+- `AppData/Local/1Password/`
+- `AppData/Roaming/keepassxc/`
+- `.ssh/`, `.aws/`
+
+Note: The Windows-side user directory is at `/mnt/c/Users/<username>/`. Use `ls /mnt/c/Users/` to find the right username (skip `Public` and `Default`).
+
+#### Windows only (native — PowerShell, cmd, Git Bash, Cygwin)
+
+On native Windows, `$HOME` or `%USERPROFILE%` typically points to `C:\Users\<username>`. Use `echo $HOME` or `echo %USERPROFILE%` to find the home directory, then scan:
+
+**Credential stores:**
+- `$HOME/.ssh/`, `$HOME/.aws/`, `$HOME/.gnupg/`
+- `$HOME/.config/gh/`, `$HOME/.config/gcloud/`
+- `$HOME/.netrc`, `$HOME/.npmrc`, `$HOME/.pypirc`, `$HOME/.git-credentials`
+- `$HOME/.Renviron`
+
+**Browser profiles (saved passwords, cookies, sessions):**
+- Chrome: `$HOME/AppData/Local/Google/Chrome/User Data/`
+- Firefox: `$HOME/AppData/Roaming/Mozilla/Firefox/`
+- Edge: `$HOME/AppData/Local/Microsoft/Edge/User Data/`
+
+**Password managers:**
+- 1Password: `$HOME/AppData/Local/1Password/`
+- KeePassXC: `$HOME/AppData/Roaming/KeePassXC/`
+- Bitwarden: `$HOME/AppData/Roaming/Bitwarden/`
+
+**Communication apps:**
+- Teams: `$HOME/AppData/Roaming/Microsoft/Teams/`
+- Slack: `$HOME/AppData/Roaming/Slack/`
+- Zoom: `$HOME/AppData/Roaming/Zoom/`
+
+**Cloud storage:**
+- OneDrive: `$HOME/OneDrive/` or `$HOME/OneDrive - */`
+- Google Drive: `G:/` or `$HOME/Google Drive/` (varies by install)
+- Dropbox: `$HOME/Dropbox/`
+
+**IDE configs:**
+- VS Code: `$HOME/AppData/Roaming/Code/User/`
+- Positron: `$HOME/AppData/Roaming/Positron/` (if applicable)
+- Jupyter: `$HOME/.jupyter/`
+
+**Windows Credential Manager:** Not file-based, but block `cmdkey` and `vaultcmd` commands via deny rules.
 
 ### Step 3: Present Findings
 
@@ -108,6 +218,14 @@ All scanned sensitive dirs are blocked by default. Ask two questions:
 
 ### Step 6: Generate Personal Hooks
 
+**Skip this step on Windows if bash is not available** (detected in Step 1b). Instead, tell the user:
+
+> Your shell doesn't support bash hooks, so we'll skip hook generation and rely on deny rules (settings.json) as your primary protection. Deny rules are evaluated by Claude Code directly and work on all platforms.
+
+Then proceed to Step 7, which generates comprehensive deny rules.
+
+**On macOS, Linux, or Windows with bash available:**
+
 Read the template files from the skill's `templates/` directory:
 - `templates/protect-sensitive-reads.sh`
 - `templates/protect-sensitive-bash.sh`
@@ -129,7 +247,9 @@ Make them executable with `chmod +x`.
 
 Read `~/.claude/settings.json`. Make these changes:
 
-**Add deny rules** (defense-in-depth) for critical paths found in the scan. Only add deny rules for paths that actually exist. Use the user's actual home directory path (not `$HOME`):
+**Add deny rules** (defense-in-depth) for critical paths found in the scan. Only add deny rules for paths that actually exist. Use the user's actual home directory path (not `$HOME`).
+
+macOS example:
 ```json
 "Read(/Users/username/.ssh/*)",
 "Read(/Users/username/.aws/*)",
@@ -139,6 +259,24 @@ Read `~/.claude/settings.json`. Make these changes:
 "Read(/Users/username/Library/Safari/*)",
 "Read(/Users/username/Library/Application Support/1Password/*)",
 "Read(/Users/username/Library/Application Support/Google/Chrome/*)"
+```
+
+Linux example:
+```json
+"Read(/home/username/.ssh/*)",
+"Read(/home/username/.aws/*)",
+"Read(/home/username/.config/google-chrome/*)",
+"Read(/home/username/.mozilla/firefox/*)",
+"Read(/home/username/.local/share/keyrings/*)",
+"Read(/home/username/.config/1Password/*)",
+"Read(/home/username/.thunderbird/*)"
+```
+
+WSL — include both Linux and Windows-side paths:
+```json
+"Read(/home/username/.ssh/*)",
+"Read(/mnt/c/Users/winuser/.ssh/*)",
+"Read(/mnt/c/Users/winuser/AppData/Local/Google/Chrome/*)"
 ```
 
 **Register hooks** in the PreToolUse section (if not already registered):

@@ -7,6 +7,8 @@
 #   MODE="allowlist" — block everything except ALLOWED_DIRS (most secure)
 #   MODE="blocklist" — block only BLOCKED_DIRS, allow everything else
 #
+# Cross-platform: macOS, Linux, and WSL. OS is detected automatically.
+#
 # Edit the arrays below to customize. Changes take effect immediately.
 # To manage this file interactively, run: /security-setup
 # =============================================================================
@@ -24,8 +26,13 @@ ALLOWED_DIRS=(
   # "$HOME/path/to/another/project"
 )
 
+# Detect platform for default paths
+OS=$(uname -s)
+
 # BLOCKLIST MODE: These directories are blocked; everything else is allowed.
 # (Only used when MODE="blocklist")
+#
+# Universal paths (all platforms):
 BLOCKED_DIRS=(
   # >>> SECURITY-SETUP will populate these based on scan results <<<
   "$HOME/.ssh"
@@ -37,39 +44,108 @@ BLOCKED_DIRS=(
   "$HOME/.kube"
   "$HOME/.azure"
   "$HOME/.config/op"
-  "$HOME/Library/Keychains"
-  "$HOME/Library/Mail"
-  "$HOME/Library/Messages"
-  "$HOME/Library/Safari"
-  "$HOME/Library/Application Support/Google/Chrome"
-  "$HOME/Library/Application Support/1Password"
-  "$HOME/Library/Application Support/Bitwarden"
-  "$HOME/Library/Application Support/KeePassXC"
-  "$HOME/Library/Application Support/LastPass"
-  "$HOME/Library/Application Support/Firefox"
-  "$HOME/Library/Application Support/Microsoft Edge"
-  "$HOME/Library/Application Support/Microsoft/Teams"
-  "$HOME/Library/Application Support/Slack"
-  "$HOME/Library/Application Support/zoom.us"
-  "$HOME/Library/Application Support/Code/User"
-  "$HOME/Library/Mobile Documents"
-  # >>> SECURITY-SETUP will add cloud storage paths found on your machine <<<
-  # >>> SECURITY-SETUP will add any additional sensitive dirs you specify <<<
 )
+
+# Platform-specific defaults for BLOCKED_DIRS:
+case "$OS" in
+  Darwin)
+    BLOCKED_DIRS+=(
+      "$HOME/Library/Keychains"
+      "$HOME/Library/Mail"
+      "$HOME/Library/Messages"
+      "$HOME/Library/Safari"
+      "$HOME/Library/Application Support/Google/Chrome"
+      "$HOME/Library/Application Support/1Password"
+      "$HOME/Library/Application Support/Bitwarden"
+      "$HOME/Library/Application Support/KeePassXC"
+      "$HOME/Library/Application Support/LastPass"
+      "$HOME/Library/Application Support/Firefox"
+      "$HOME/Library/Application Support/Microsoft Edge"
+      "$HOME/Library/Application Support/Microsoft/Teams"
+      "$HOME/Library/Application Support/Slack"
+      "$HOME/Library/Application Support/zoom.us"
+      "$HOME/Library/Application Support/Code/User"
+      "$HOME/Library/Mobile Documents"
+      # >>> SECURITY-SETUP will add cloud storage paths found on your machine <<<
+      # >>> SECURITY-SETUP will add any additional sensitive dirs you specify <<<
+    )
+    ;;
+  Linux)
+    BLOCKED_DIRS+=(
+      # Browsers
+      "$HOME/.config/google-chrome"
+      "$HOME/.config/chromium"
+      "$HOME/.mozilla/firefox"
+      "$HOME/.config/microsoft-edge"
+      # Password managers
+      "$HOME/.config/1Password"
+      "$HOME/.config/Bitwarden"
+      "$HOME/.config/keepassxc"
+      "$HOME/.local/share/keepassxc"
+      # Communication
+      "$HOME/.thunderbird"
+      "$HOME/.local/share/evolution"
+      "$HOME/.config/Slack"
+      "$HOME/.config/teams-for-linux"
+      # Keyring / wallet
+      "$HOME/.local/share/keyrings"
+      "$HOME/.local/share/kwalletd"
+      # IDE configs
+      "$HOME/.config/Code/User"
+      "$HOME/.config/Positron"
+      # >>> SECURITY-SETUP will add cloud storage paths found on your machine <<<
+      # >>> SECURITY-SETUP will add any additional sensitive dirs you specify <<<
+    )
+    # WSL: also block Windows-side sensitive locations
+    if grep -qi "microsoft\|wsl" /proc/version 2>/dev/null; then
+      for win_user_dir in /mnt/c/Users/*/; do
+        [ -d "$win_user_dir" ] || continue
+        [[ "$(basename "$win_user_dir")" == "Public" ]] && continue
+        [[ "$(basename "$win_user_dir")" == "Default" ]] && continue
+        BLOCKED_DIRS+=(
+          "${win_user_dir}.ssh"
+          "${win_user_dir}.aws"
+          "${win_user_dir}AppData/Local/Google/Chrome"
+          "${win_user_dir}AppData/Local/Microsoft/Edge"
+          "${win_user_dir}AppData/Roaming/Mozilla/Firefox"
+          "${win_user_dir}AppData/Local/1Password"
+          "${win_user_dir}AppData/Roaming/keepassxc"
+          # >>> SECURITY-SETUP will add Windows-side paths found <<<
+        )
+      done
+    fi
+    ;;
+esac
 
 # ALWAYS BLOCKED: These are blocked in BOTH modes, even if under an allowed dir.
 ALWAYS_BLOCK_DIRS=(
   "$HOME/.ssh"
   "$HOME/.aws"
   "$HOME/.gnupg"
-  "$HOME/Library/Keychains"
-  "$HOME/Library/Mail"
-  "$HOME/Library/Messages"
-  "$HOME/Library/Safari"
-  "$HOME/Library/Application Support/Google/Chrome"
-  "$HOME/Library/Application Support/1Password"
-  "$HOME/Library/Application Support/Code/User"
 )
+case "$OS" in
+  Darwin)
+    ALWAYS_BLOCK_DIRS+=(
+      "$HOME/Library/Keychains"
+      "$HOME/Library/Mail"
+      "$HOME/Library/Messages"
+      "$HOME/Library/Safari"
+      "$HOME/Library/Application Support/Google/Chrome"
+      "$HOME/Library/Application Support/1Password"
+      "$HOME/Library/Application Support/Code/User"
+    )
+    ;;
+  Linux)
+    ALWAYS_BLOCK_DIRS+=(
+      "$HOME/.config/google-chrome"
+      "$HOME/.mozilla/firefox"
+      "$HOME/.local/share/keyrings"
+      "$HOME/.local/share/kwalletd"
+      "$HOME/.config/Code/User"
+      "$HOME/.config/1Password"
+    )
+    ;;
+esac
 
 # ALWAYS BLOCKED: Sensitive filename patterns (matched anywhere in path).
 ALWAYS_BLOCK_FILENAMES=(
@@ -91,17 +167,32 @@ ALWAYS_BLOCK_FILENAMES=(
 
 # SYSTEM PATHS: Always allowed (needed for development tooling).
 SYSTEM_DIRS=(
-  "/usr/local"
-  "/opt/homebrew"
-  "/Library/Frameworks"
   "$HOME/miniconda3"
-  "$HOME/Library/Caches/R/renv"
   "$HOME/.claude"
   "/tmp"
-  "/var/folders"
-  "/private/tmp"
-  "/private/var/folders"
 )
+case "$OS" in
+  Darwin)
+    SYSTEM_DIRS+=(
+      "/usr/local"
+      "/opt/homebrew"
+      "/Library/Frameworks"
+      "$HOME/Library/Caches/R/renv"
+      "/var/folders"
+      "/private/tmp"
+      "/private/var/folders"
+    )
+    ;;
+  Linux)
+    SYSTEM_DIRS+=(
+      "/usr/local"
+      "/usr/lib"
+      "/opt"
+      "$HOME/.local/lib"
+      "$HOME/.cache/R/renv"
+    )
+    ;;
+esac
 
 # ---- END CONFIGURATION ------------------------------------------------------
 

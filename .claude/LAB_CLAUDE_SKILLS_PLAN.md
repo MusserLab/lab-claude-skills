@@ -53,6 +53,10 @@ Setting up and distributing a shared Claude Code skills repository for the lab. 
 | 2026-02-22 | Added security hooks, `/security-setup` skill, and SECURITY.md | Three-layer defense (hooks + deny rules + bash scoping). Plugin hooks auto-protect; `/security-setup` generates personalized hooks with allowlist/blocklist modes. Educational SECURITY.md for students. |
 | 2026-02-22 | `/sync-plugin` as sole publish path with reconciliation | No direct commits to lab repo. `/sync-plugin` (Step 6) reconciles derived artifacts: README tables, user-claude-md.md skills table, settings-example.json deny rules, personal CLAUDE.md skills table. `/done` checks skill registration only. |
 | 2026-02-22 | CLAUDE_CODE_ADDITIONAL_DIRECTORIES_CLAUDE_MD env variable | Enables loading CLAUDE.md from additional directories. Added to personal settings and settings-example.json template. |
+| 2026-02-22 | Cross-platform security hooks (macOS, Linux, WSL) | Students use macOS, Linux, and Windows. Hooks use `uname -s` for OS detection. Windows hooks skip gracefully — deny rules are primary protection. |
+| 2026-02-22 | Windows onboarding checklist (student-facing) | Hooks may not work on Windows PowerShell/cmd. Student runs steps 1-5 to test, reports findings. PI fixes issues in Step 6. |
+| 2026-02-22 | `/done` posts to Slack via `<!-- slack-channel: -->` comment | One-liner + CHANGELOG link after committing. Personal-only for now — test before publishing to students. |
+| 2026-02-22 | `/new-project` asks about CHANGELOG and Slack channel | CHANGELOG optional, auto-maintained by `/done`. Slack channel stored as HTML comment in project CLAUDE.md. |
 
 ## Completed Work
 
@@ -92,12 +96,73 @@ Added `.claude-plugin/plugin.json` (plugin name: `lab-skills`) and `marketplace.
 - [ ] Consider making repo public for broader community use
 - [ ] Create GitHub Releases for major batches of skill changes
 
+## Windows Onboarding Checklist
+
+Steps 1-5 are designed for a student to run independently in Positron on Windows. Step 6 is for the PI to act on the results. Send this checklist to the first Windows student and ask them to report back their findings from Step 5.
+
+### For the student: Testing security on Windows
+
+Open the Claude Code panel in Positron and work through these steps. Copy/paste the prompts directly into the chat.
+
+#### Step 1: Identify your environment
+
+Type this into Claude Code:
+
+> "What shell are you using? Run `echo $SHELL` or `echo %COMSPEC%` and tell me what OS and shell you detect."
+
+Write down the answer (PowerShell, cmd.exe, Git Bash, etc.) — it determines which protections are available.
+
+#### Step 2: Test deny rules
+
+The settings template uses `$HOME` in deny rules. We need to verify these actually block on Windows.
+
+1. Make sure you've copied `settings-example.json` to `~/.claude/settings.json` (from the install instructions)
+2. Type: "Try to read `~/.ssh/id_rsa`" — should be blocked by a deny rule
+3. Type: "Try to read `~/.aws/credentials`" — should also be blocked
+4. If blocked: great, deny rules work. Ask Claude what exact path it tried to read and write it down.
+5. If NOT blocked: ask Claude to try reading the same file using your full home path (e.g., `C:/Users/YourName/.ssh/id_rsa`). Write down which path format works.
+
+#### Step 3: Test hooks
+
+1. Type: "Read `~/.claude/settings.json` and show me the hooks section" — verify hooks are registered
+2. Type: "Try to read a file at `~/.gnupg/`" — if hooks work, you'll see a "BLOCKED" message mentioning a hook script
+3. If you see "BLOCKED" from a hook: hooks work on your shell (likely Git Bash is available)
+4. If no hook message appears: that's expected on PowerShell/cmd. The deny rules from Step 2 are your primary protection.
+
+#### Step 4: Test /security-setup
+
+1. Type `/security-setup` in the Claude Code panel (or `/lab-skills:security-setup` if using the plugin)
+2. The skill should detect Windows and adapt:
+   - It should scan Windows-specific paths (`AppData/`, etc.)
+   - If hooks can't run on your shell, it should skip hook generation and focus on deny rules
+   - If hooks can run, it should generate hooks as normal
+3. Check that the deny rules it generates use path formats that actually match what you found in Step 2
+
+#### Step 5: Report findings
+
+Send these results back to the PI:
+- Shell detected: ___
+- `$HOME` expansion format (the exact path Claude tried in Step 2): ___
+- Deny rules work: yes / no / with modified paths
+- Hooks work: yes / no
+- `/security-setup` completed successfully: yes / no
+- Path format needed for Windows deny rules: ___
+- Any errors or unexpected behavior: ___
+
+### For the PI: Fix what's broken (Step 6)
+
+Based on the student's findings, update:
+- `settings-example.json` deny rules (if path format needs adjusting)
+- `/security-setup` skill (if Windows scan or deny rule generation needs fixes)
+- `SECURITY.md` (update Windows section with confirmed behavior)
+
 ## Known Issues / Things to Address
 
 - `conda-env` and `quarto-docs` use `~/miniconda3` as default — members with different conda locations need a local override copy in `~/.claude/skills/` (documented in README)
 - `scientific-manuscript` references directory is large — consider whether all annotated examples should be in the shared repo
 - `done` skill references `~/.claude` git tracking — may need adjustment for members who don't git-track their `.claude/` directory
 - Template CLAUDE.md files use `{placeholder}` syntax — evaluate whether these need more guided setup
+- **Windows security**: Hooks (Layer 1) may not work on Windows — depends on shell. Deny rules (Layer 2) and bash scoping (Layer 3) are the primary protection. See Windows Onboarding Checklist above.
 
 ## Key Files
 

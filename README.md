@@ -103,7 +103,7 @@ After installing the plugin, there are two more steps to complete your security 
 
 | Layer | What it does | How you get it |
 |-------|-------------|----------------|
-| **Hooks** | Scripts that intercept file reads and bash commands, blocking access to sensitive locations | Automatic with plugin install |
+| **Hooks** | Scripts that intercept file reads and bash commands, blocking access to sensitive locations | Automatic with plugin install (macOS/Linux; see [SECURITY.md](SECURITY.md) for Windows) |
 | **Deny rules** | Settings-level blocks that work even if a hook has a bug | Copy `settings-example.json` |
 | **Bash scoping** | Only pre-approved commands run without prompting; unlisted commands require approval | Copy `settings-example.json` |
 
@@ -265,7 +265,7 @@ For specific research tasks.
 
 ## Hooks
 
-The plugin includes hooks that automatically enforce lab conventions. These activate when the plugin is installed — no manual configuration needed.
+The plugin includes hooks that automatically enforce lab conventions. These activate when the plugin is installed — no manual configuration needed. Hooks are bash scripts, so they run natively on macOS and Linux. On Windows, hooks may not fire (depends on shell) — deny rules in `settings.json` provide equivalent protection. See [SECURITY.md](SECURITY.md) for details.
 
 | Hook | Event | What it does |
 |------|-------|-------------|

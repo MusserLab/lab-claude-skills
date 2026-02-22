@@ -94,7 +94,18 @@
       "Read($HOME/Library/Messages/*)",
       "Read($HOME/Library/Safari/*)",
       "Read($HOME/Library/Application Support/1Password/*)",
-      "Read($HOME/Library/Application Support/Google/Chrome/*)"
+      "Read($HOME/Library/Application Support/Google/Chrome/*)",
+      "Read($HOME/.config/google-chrome/*)",
+      "Read($HOME/.mozilla/firefox/*)",
+      "Read($HOME/.local/share/keyrings/*)",
+      "Read($HOME/.config/1Password/*)",
+      "Read($HOME/.thunderbird/*)",
+      "Read($HOME/AppData/Local/Google/Chrome/*)",
+      "Read($HOME/AppData/Roaming/Mozilla/Firefox/*)",
+      "Read($HOME/AppData/Local/Microsoft/Edge/*)",
+      "Read($HOME/AppData/Local/1Password/*)",
+      "Read($HOME/AppData/Roaming/KeePassXC/*)",
+      "Read($HOME/AppData/Roaming/Bitwarden/*)"
     ],
     "additionalDirectories": [
       "~/.claude",

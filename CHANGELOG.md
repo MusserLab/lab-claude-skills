@@ -14,9 +14,17 @@ Format: date-based entries (this isn't versioned software).
 - Deny rules in `settings-example.json` for `.ssh`, `.aws`, Keychains, Mail, Messages, Safari, 1Password, Chrome
 - `SECURITY.md` — educational guide to Claude Code security for lab members
 - README: expanded security section with summary and link to `SECURITY.md`
+- Cross-platform support for security hooks — OS detection via `uname -s`, Linux paths, WSL detection with Windows-side path blocking
+- Windows scan paths and deny rules in `/security-setup` skill and `settings-example.json` (AppData paths for Chrome, Firefox, Edge, 1Password, KeePassXC, Bitwarden)
+- Platform support table in SECURITY.md (macOS, Linux, Windows — hooks vs deny rules)
+- `<!-- slack-channel: -->` comment support in project CLAUDE.md template for Slack notifications
 
 ### Changed
 - Plugin version bumped to 1.2.1; `hooks.json` now registers security hooks on Read and Bash events
+- `/security-setup` skill: detects platform, skips hook generation on Windows, scans platform-appropriate paths
+- `settings-example.json`: added Linux and Windows AppData deny rules alongside existing macOS rules
+- README: hooks section notes Windows limitation; three-layer table links to SECURITY.md for Windows
+- SECURITY.md: expanded from macOS-only to three-column platform coverage (macOS, Linux, Windows)
 - `protein-phylogeny`: add MAFFT threading (`--thread 8`) and `--output-dir` in render command
 - `quarto-docs`: enforce `--output-dir` for all renders; remove `mv` workaround
 - `tree-formatting`: major update — .qmd templates (replacing .R), no-branch-capping rule, `collapse_groups` parameter, model species gene names on collapsed triangles, formula-based page sizing (`INCHES_PER_TIP`), 5 new gotchas

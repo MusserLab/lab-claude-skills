@@ -1,5 +1,7 @@
 <!-- project-type: data-science -->
 <!-- Change to "general" for non-data-science projects (infrastructure, tools, documentation) -->
+<!-- slack-channel: #channel-name -->
+<!-- Remove this line if you don't want Slack notifications from /done -->
 # {Project Name}
 
 {Brief description of what this project does}

@@ -56,7 +56,7 @@ case "$OS" in
 esac
 
 for pattern in "${DANGEROUS_PATTERNS[@]}"; do
-  if echo "$COMMAND" | grep -qi "$pattern" 2>/dev/null; then
+  if echo "$COMMAND" | grep -qFi "$pattern" 2>/dev/null; then
     echo "BLOCKED: Dangerous command pattern: $pattern" >&2
     exit 2
   fi

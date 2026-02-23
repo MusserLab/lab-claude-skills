@@ -54,7 +54,7 @@ Setting up and distributing a shared Claude Code skills repository for the lab. 
 | 2026-02-22 | `/sync-plugin` as sole publish path with reconciliation | No direct commits to lab repo. `/sync-plugin` (Step 6) reconciles derived artifacts: README tables, user-claude-md.md skills table, settings-example.json deny rules, personal CLAUDE.md skills table. `/done` checks skill registration only. |
 | 2026-02-22 | CLAUDE_CODE_ADDITIONAL_DIRECTORIES_CLAUDE_MD env variable | Enables loading CLAUDE.md from additional directories. Added to personal settings and settings-example.json template. |
 | 2026-02-22 | Cross-platform security hooks (macOS, Linux, WSL) | Students use macOS, Linux, and Windows. Hooks use `uname -s` for OS detection. Windows hooks skip gracefully — deny rules are primary protection. |
-| 2026-02-22 | Windows onboarding checklist (student-facing) | Hooks may not work on Windows PowerShell/cmd. Student runs steps 1-6 (install, settings, shell check, protection tests, `/security-setup`, report). PI section has diagnostic table for interpreting results and mapping problems to files. |
+| 2026-02-22 | Windows onboarding checklist (student-facing) | Simplified to 4 steps: install, settings, `/security-setup`, report. Manual protection tests removed (Claude's model-level safety blocks them). `/security-setup`'s built-in verification is the reliable test. PI section documents confirmed Windows findings (v1.3.2 hooks fix, `$HOME` expansion, update workflow). |
 | 2026-02-22 | `/done` posts to Slack via `<!-- slack-channel: -->` comment | One-liner + CHANGELOG link after committing. Personal-only for now — test before publishing to students. |
 | 2026-02-22 | `/new-project` asks about CHANGELOG and Slack channel | CHANGELOG optional, auto-maintained by `/done`. Slack channel stored as HTML comment in project CLAUDE.md. |
 | 2026-02-22 | README restructured: merged Security + Starter Config into Setup; condensed Security section | Security/Starter Config had duplicate instructions and conflicting framing (required vs optional). New structure: Install → Setup (numbered steps) → Security (summary + SECURITY.md link) → Skill reference → Hooks → Improving skills. SECURITY.md updated to match (three hooks, writes hook description, fixed anchor). |
@@ -99,131 +99,97 @@ Added `.claude-plugin/plugin.json` (plugin name: `lab-skills`) and `marketplace.
 
 ## Windows Onboarding Checklist
 
-Steps 1-6 are for a student to run independently in Positron on Windows. The PI section at the end explains how to interpret the results and what to fix. Send the student section to the first Windows student and ask them to send back the report from Step 6.
+Steps 1-4 are for a student to run independently in Positron on Windows. The PI section at the end documents known issues and fixes.
 
-### For the student: Testing security on Windows
+### For the student: Setting up security on Windows
 
-This takes about 10 minutes. You'll install the lab plugin, run a few tests, and fill out a short report at the end.
+This takes about 15 minutes. You'll install the lab plugin, copy a settings file, and run a setup wizard.
 
-#### Step 1: Install or update the plugin
+#### Step 1: Install the plugin
 
 Open the Claude Code panel in Positron (click the Claude Code icon in the sidebar). Type `/plugins` in the chat to open the plugin manager.
 
-**If you don't have the plugin yet:**
 1. Go to the **Marketplaces** tab
 2. Add `MusserLab/lab-claude-skills`
 3. Switch to the **Plugins** tab and install `lab-skills`
 
-**If you already have the plugin:**
-1. Go to the **Plugins** tab
-2. Check if `lab-skills` has an update available — if so, update it
+You should see a confirmation after installing. If you get an error, stop here and send a screenshot to the PI.
 
-You should see a confirmation after installing or updating. If you get an error, stop here and send a screenshot to the PI.
+**To update an existing install:** The Positron plugin GUI may not have an update button. If not, open a terminal and run `claude`, then type `/plugin uninstall lab-skills` followed by `/plugin install lab-skills`.
 
 #### Step 2: Copy the settings file
 
-Open a **terminal** in Positron (Terminal menu at the top, not the Claude Code panel). Run this command:
+Open a **terminal** in Positron (Terminal menu at the top, not the Claude Code panel). It will open PowerShell. Run:
 
+```powershell
+Invoke-WebRequest -Uri "https://raw.githubusercontent.com/MusserLab/lab-claude-skills/main/templates/settings-example.json" -OutFile "$HOME/.claude/settings.json"
 ```
-cp ~/.claude/plugins/lab-skills/templates/settings-example.json ~/.claude/settings.json
-```
 
-If you get an error saying the file already exists, stop here and ask the PI — they'll help you merge the files.
+If that gives an error, go back to the Claude Code panel and type:
+> Download the settings-example.json template from the lab-claude-skills GitHub repo and save it to ~/.claude/settings.json
 
-#### Step 3: Check your shell
+If you get an error saying `settings.json` already exists, stop here and ask the PI — they'll help you merge the files.
 
-Go back to the **Claude Code panel**. Type:
+#### Step 3: Run security setup
 
-> What shell are you using? Run `echo $SHELL` or `echo %COMSPEC%` and `bash -c 'echo hook-test'` and tell me the results.
-
-**What to record:** Write down (a) the shell name Claude reports (e.g., PowerShell, cmd.exe, Git Bash) and (b) whether the bash test printed "hook-test" or gave an error.
-
-#### Step 4: Test that protections work
-
-Type each of these into Claude Code, **one at a time**. For each one, Claude should refuse and show an error message — that means the protection is working.
-
-**Test A** — type:
-> Try to read `~/.ssh/id_rsa`
-
-**Test B** — type:
-> Try to write a test file to `~/.ssh/test.txt`
-
-**Test C** — type:
-> Try to read `~/AppData/Local/Google/Chrome/`
-
-**Test D** — type:
-> Run `env`
-
-**What to record:** For each test (A/B/C/D), write down whether Claude was blocked or not. If it was blocked, note whether the error message says "BLOCKED" (that's from a hook) or mentions a "deny rule" (that's from settings). If any test was NOT blocked, try it again using your full home path instead (e.g., `C:/Users/YourName/.ssh/id_rsa`) and note whether that version gets blocked.
-
-#### Step 5: Run personalized security setup
-
-Type:
+Go to the **Claude Code panel** and type:
 
 > /security-setup
 
 Claude will walk you through a setup wizard. It will:
-- Ask about your operating system (it should detect Windows)
-- Scan for sensitive locations on your machine
+- Detect your operating system and shell
+- Scan for sensitive locations on your machine (passwords, credentials, cloud storage, etc.)
 - Ask which directories you work in
-- Set up protections based on your answers
+- Ask whether you want allowlist mode (most secure — blocks everything except your project directories) or blocklist mode (blocks only sensitive locations)
+- Generate security hooks and deny rules
+- Run verification tests to confirm everything works
 
-Follow the prompts and answer its questions. When it's done, it will run a few tests to confirm everything works.
+Follow the prompts and answer its questions. **Blocklist mode** is a good choice if you're unsure — it's less restrictive and you won't get blocked from directories unexpectedly.
 
-**What to record:** Did it finish successfully? Were there any errors?
+When it's done, it will show a summary of what it set up and how many verification tests passed.
 
-#### Step 6: Send your results to the PI
+#### Step 4: Send results to the PI
 
 Copy this template, fill in the blanks, and send it:
 
 ```
 ## Windows Security Test Results
 
-Shell name: ___
-Bash test (Step 3): printed "hook-test" / gave an error
-
-Test A - read ~/.ssh/id_rsa: blocked / not blocked
-Test B - write to ~/.ssh/test.txt: blocked / not blocked
-Test C - read AppData/Chrome: blocked / not blocked
-Test D - run env: blocked / not blocked
-
-Error messages said "BLOCKED" (hook) or "deny rule": ___
-If anything wasn't blocked, did the full-path version work? ___
+Shell Claude is using: ___
+Protection mode chosen: allowlist / blocklist
 
 /security-setup completed: yes / no
+Verification tests: ___ / ___ passed
 
 Any errors or anything unexpected (paste error messages here):
 
 ```
 
-### For the PI: Interpret results and fix what's broken
+### For the PI: Known Windows issues and fixes
 
-Use the student's report to diagnose what's working and what needs fixing.
+These are confirmed findings from the first Windows onboarding (2026-02-22).
 
-#### Reading the report
+#### Confirmed behavior
 
-| Student reported | What it means |
-|-----------------|---------------|
-| Bash test printed "hook-test" | Hooks (bash scripts) can run. All three security layers are available. |
-| Bash test gave an error | Hooks can't run (PowerShell/cmd). Only deny rules and bash scoping protect this machine. This is expected — no fix needed, but the deny rules must be comprehensive. |
-| Tests A-D all blocked | Protections are working. Check whether blocks came from hooks ("BLOCKED") or deny rules — both are fine, but it tells you which layer is active. |
-| Test A or B not blocked | `$HOME` in deny rules doesn't expand correctly on this Windows setup. Check what path format the student recorded and update `settings-example.json` to match. |
-| Test C (AppData) not blocked | The Windows-specific AppData deny rules in `settings-example.json` don't match this machine's path format. May need `%USERPROFILE%` instead of `$HOME`, or full paths. |
-| Test D (env) not blocked | The bash hook isn't running. Expected if bash test failed. If bash test *passed* but `env` wasn't blocked, there's a bug in the bash hook or hook registration. |
-| /security-setup failed | Check the error message. Common issues: skill couldn't detect Windows, path scanning failed, or deny rule generation used wrong path format. |
+- **Positron terminal defaults to PowerShell.** Claude Code itself uses Git Bash (MSYS2). These are different shells — PowerShell commands and bash commands are not interchangeable.
+- **Hooks work on Windows** when Git Bash is available (which it is in standard Positron installs). All three hooks (reads, writes, bash) fire correctly.
+- **`$HOME` in deny rules does NOT expand on Windows.** The `settings-example.json` deny rules (which use `$HOME`) are ineffective as a baseline. `/security-setup` fixes this by generating deny rules with absolute paths.
+- **Plugin update via GUI may not work.** Uninstall + reinstall via CLI (`claude` → `/plugin uninstall` → `/plugin install`) is the reliable path.
+- **Claude's model-level safety refuses sensitive-file tests** before hooks fire. Manual "try to read ~/.ssh" tests don't work — Claude declines on principle. `/security-setup`'s built-in verification (which tests hooks directly) is the reliable way to confirm protections work.
 
-#### Files to update based on findings
+#### v1.3.2 fix: duplicate hooks registration
+
+Plugin versions ≤1.3.1 had `"hooks": "./hooks/hooks.json"` in `plugin.json`. Claude Code auto-loads `hooks/hooks.json`, so the explicit entry caused a duplicate detection error that silently (or loudly, on newer Claude Code versions) prevented all hooks from loading. Fixed in v1.3.2 by removing the redundant line.
+
+#### Files to update if issues arise
 
 | Problem | Files to fix |
 |---------|-------------|
-| `$HOME` doesn't expand in deny rules | `templates/settings-example.json` — try `%USERPROFILE%` or absolute paths |
-| AppData paths don't match | `templates/settings-example.json` — adjust the Windows AppData deny rules (lines 103-108) |
-| Hooks don't run (bash unavailable) | No fix needed — this is expected. Make sure deny rules cover everything hooks would catch. |
-| Hooks don't run (bash available but hooks fail) | `hooks/hooks.json` — check if `${CLAUDE_PLUGIN_ROOT}` resolves correctly on Windows. Also check `scripts/protect-sensitive-*.sh` for Windows path issues. |
-| `/security-setup` skill fails on Windows | `skills/security-setup/SKILL.md` — fix platform detection (Step 1b) or scan paths (Step 2) |
-| `/security-setup` generates wrong deny rules | `skills/security-setup/SKILL.md` — fix deny rule generation (Step 7) to use the correct Windows path format |
-
-After fixing, update `SECURITY.md` (the Windows section) to document confirmed behavior, then run `/sync-plugin` to publish.
+| `$HOME` doesn't expand in deny rules | `templates/settings-example.json` — consider documenting that Windows users should run `/security-setup` for working deny rules |
+| Hooks don't run (bash unavailable) | No fix needed — expected on pure PowerShell/cmd. Deny rules (via `/security-setup`) are the primary protection. |
+| Hooks don't run (bash available but hooks fail) | Check `hooks/hooks.json` — `${CLAUDE_PLUGIN_ROOT}` may not resolve on Windows. Check `scripts/protect-sensitive-*.sh` for path issues. |
+| `/security-setup` fails on Windows | `skills/security-setup/SKILL.md` — fix platform detection (Step 1b) or scan paths (Step 2) |
+| `curl\|bash` pattern not caught by bash hook | `scripts/protect-sensitive-bash.sh` — use `grep -qFi` (fixed string) instead of `grep -qi` (regex) for command patterns containing `\|` |
 
 ## Known Issues / Things to Address
 
@@ -231,7 +197,7 @@ After fixing, update `SECURITY.md` (the Windows section) to document confirmed b
 - `scientific-manuscript` references directory is large — consider whether all annotated examples should be in the shared repo
 - `done` skill references `~/.claude` git tracking — may need adjustment for members who don't git-track their `.claude/` directory
 - Template CLAUDE.md files use `{placeholder}` syntax — evaluate whether these need more guided setup
-- **Windows security**: All three hook scripts (reads, writes, bash) require bash. On Windows PowerShell/cmd, hooks won't run — deny rules (Layer 2) and bash scoping (Layer 3) are the primary protection. Git Bash may enable hooks. See Windows Onboarding Checklist above.
+- **Windows security**: Hooks work when Git Bash is available (confirmed). `$HOME` in deny rules doesn't expand — `/security-setup` generates absolute paths as workaround. Plugin update requires CLI uninstall/reinstall. `curl|bash` grep pattern needs `grep -F` fix. See Windows Onboarding Checklist above.
 
 ## Key Files
 

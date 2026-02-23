@@ -164,7 +164,7 @@ done
 
 # --- Check BLOCKED_COMMAND_PATTERNS ---
 for pattern in "${BLOCKED_COMMAND_PATTERNS[@]}"; do
-  if echo "$COMMAND" | grep -qi "$pattern" 2>/dev/null; then
+  if echo "$COMMAND" | grep -qFi "$pattern" 2>/dev/null; then
     echo "BLOCKED: Dangerous command pattern detected: $pattern" >&2
     exit 2
   fi

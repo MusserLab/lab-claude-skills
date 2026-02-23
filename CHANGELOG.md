@@ -30,6 +30,10 @@ Format: date-based entries (this isn't versioned software).
 - `hooks.json`: added `protect-sensitive-writes.sh` to Edit/Write event
 - Plugin version bumped to 1.3.1; `hooks.json` now registers security hooks on Read, Edit/Write, and Bash events
 
+### Fixed
+- Plugin hooks not loading: removed duplicate `"hooks"` entry from `plugin.json` — `hooks/hooks.json` is auto-loaded by Claude Code, so the explicit manifest entry caused a duplicate detection error that silently prevented all hooks from firing (v1.3.2)
+- `curl|bash` pipe-to-execute pattern not caught by bash hook on some platforms — changed `grep -qi` to `grep -qFi` (fixed string match) so the `|` character is treated literally
+
 ### Security
 - Bumped SECURITY_VERSION to 3 — users with personal hooks should re-run `/security-setup`
 

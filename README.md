@@ -46,7 +46,19 @@ The simplest way to get all lab skills and keep them up to date.
 
 This installs all skills and hooks as a single package. Skills are available as `/lab-skills:skill-name` (e.g., `/lab-skills:done`). Security hooks activate automatically — see [Security](#security) below.
 
-To update or manage plugins, type `/plugins` (Positron) or `/plugin` (CLI).
+**To update the plugin:**
+
+Updates include new skills, security improvements, and bug fixes. Check for updates periodically.
+
+*In Positron / VS Code:*
+1. Type `/plugins` in the Claude Code chat panel
+2. Go to the **Plugins** tab
+3. If `lab-skills` shows an update available, install it
+
+*In the terminal CLI:*
+```
+/plugin update lab-skills
+```
 
 ### Option B: Manual install (if you want to customize)
 

@@ -40,3 +40,15 @@ lab-claude-skills/
 | Document | Topic |
 |----------|-------|
 | [CLAUDE.md](.claude/CLAUDE.md) | This file — project overview and registry |
+
+---
+
+## Session Log
+<!-- Maintained by /done. Most recent first. Keep last 5 entries. -->
+
+### 2026-02-28 — README update instructions, Slack format
+- **Plans:** None
+- **Work:** Updated README plugin update section to note marketplace auto-updates on restart (manual CLI as fallback). Posted proper v1.3.2 security follow-up to #code. Established two Slack message format templates (security vs normal) in MEMORY.md.
+- **Next:**
+  - Verify marketplace auto-update actually works for students on next plugin version bump
+  - Consider whether Windows plugin update path (no GUI update button) needs separate documentation

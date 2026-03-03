@@ -46,11 +46,11 @@ The simplest way to get all lab skills and keep them up to date.
 
 This installs all skills and hooks as a single package. Skills are available as `/lab-skills:skill-name` (e.g., `/lab-skills:done`). Security hooks activate automatically — see [Security](#security) below.
 
-**To update the plugin:**
+**Updates:**
 
-Updates include new skills, security improvements, and bug fixes. Check for updates periodically.
+If you installed via the marketplace (Option A), the plugin updates automatically when you restart Claude Code. No manual action needed — just restart when prompted.
 
-Open a terminal and run `claude` to enter the CLI, then:
+If auto-update doesn't work or you installed via CLI, you can manually update by opening a terminal, running `claude`, then:
 
 ```
 /plugin uninstall lab-skills

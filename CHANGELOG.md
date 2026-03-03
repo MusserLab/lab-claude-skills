@@ -5,6 +5,11 @@ Format: date-based entries (this isn't versioned software).
 
 ---
 
+## 2026-02-28
+
+### Changed
+- README: plugin update instructions now note marketplace auto-updates on restart; manual CLI uninstall/reinstall kept as fallback
+
 ## 2026-02-22
 
 ### Added

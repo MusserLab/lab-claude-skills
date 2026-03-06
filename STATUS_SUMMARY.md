@@ -25,7 +25,7 @@
 - Verify marketplace auto-update on next version bump
 - Consider adding Slack integration to student-facing plugin (currently PI-only)
 
-## Flags for Chief of Staff
+## Flags for Executive Assistant
 No flags.
 
 ## Recent Activity

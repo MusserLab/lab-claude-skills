@@ -93,7 +93,6 @@ Skills are categorized by scope. **General** skills apply to all projects. **Dat
 | `git-conventions` | Git commit practices |
 | `conda-env` | Conda activation patterns |
 | `file-safety` | Rules for not overwriting important files |
-| `scientific-manuscript` | High-impact manuscript development |
 | `new-skill` | Create a new skill with proper structure |
 | `protein-phylogeny` | Protein phylogeny pipeline: alignment (MAFFT), trimming, tree inference (IQ-TREE 3) |
 | `tree-formatting` | Phylogenetic tree visualization with ggtree: layout, coloring, collapsing, overlays |
@@ -105,6 +104,8 @@ Skills are categorized by scope. **General** skills apply to all projects. **Dat
 | `/security-setup` | Configure personalized security protections for sensitive files and credentials |
 | `/quarto-book-setup` | Initialize a new Quarto book with GitHub Pages |
 | `/quarto-publish` | Commit and publish Quarto projects to GitHub Pages |
+| `/gene-list-deep-research` | Generate deep research prompts from scRNAseq marker gene lists for cell type annotation |
+| `/process-deep-research` | Process deep research report outputs: clean artifacts, generate PDF/HTML, parse YAML headers |
 
 ### Data Science (analysis projects with data/outs/scripts/ layout)
 

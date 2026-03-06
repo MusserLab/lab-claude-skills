@@ -172,6 +172,8 @@ Invoke these directly to run a workflow.
 | `/security-setup` | Configure and manage Claude Code security protections for sensitive files and credentials |
 | `/quarto-book-setup` | Initialize a new Quarto book with GitHub Pages |
 | `/quarto-publish` | Commit and publish a Quarto project to GitHub Pages |
+| `/gene-list-deep-research` | Generate deep research prompts from scRNAseq marker gene lists for cell type annotation |
+| `/process-deep-research` | Process deep research report outputs — clean artifacts, generate PDF/HTML, parse YAML headers |
 
 ### Data science conventions
 
@@ -204,7 +206,6 @@ For specific research tasks.
 
 | Skill | Description |
 |-------|-------------|
-| `scientific-manuscript` | High-impact manuscript development for top-tier journals |
 | `protein-phylogeny` | Phylogeny inference: alignment, trimming, tree building |
 | `gene-lookup` | Look up gene/protein info from database IDs (UniProt, Ensembl, FlyBase, etc.) |
 | `tree-formatting` | Phylogenetic tree visualization with ggtree or iTOL |

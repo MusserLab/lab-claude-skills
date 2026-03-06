@@ -62,6 +62,14 @@ For general projects (books, tools, infrastructure) with simple task tracking.
 
 - (list key files and components as they become relevant)
 
+## Key Decisions
+
+- (record decisions with dates as they are made — accumulates, never trimmed)
+
+## Working Notes
+
+(free-form context for next session — what's in progress, gotchas, context that doesn't fit elsewhere)
+
 ## Completed
 
 - [x] (move completed items here)
@@ -94,6 +102,14 @@ For general projects that benefit from phased tracking.
 ## Key Files
 
 - (list key files and components as they become relevant)
+
+## Key Decisions
+
+- (record decisions with dates as they are made — accumulates, never trimmed)
+
+## Working Notes
+
+(free-form context for next session — what's in progress, gotchas, context that doesn't fit elsewhere)
 ```
 
 ### Data science planning doc
@@ -141,6 +157,14 @@ Track all scripts here. When a script is superseded, move it to the Legacy secti
 | Script | Replaced by | Notes |
 |--------|-------------|-------|
 | (move superseded scripts here) | | |
+
+## Key Decisions
+
+- (record decisions with dates as they are made — accumulates, never trimmed)
+
+## Working Notes
+
+(free-form context for next session — what's in progress, gotchas, context that doesn't fit elsewhere)
 ```
 
 ---

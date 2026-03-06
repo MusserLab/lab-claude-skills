@@ -5,6 +5,18 @@ Format: date-based entries (this isn't versioned software).
 
 ---
 
+## 2026-03-06
+
+### Added
+- `/gene-list-deep-research` skill — generate deep research prompts from scRNAseq marker gene lists for cell type annotation (with templates and annotation method reference library)
+- `/process-deep-research` skill — process deep research report outputs: clean platform artifacts, generate PDF/HTML, parse YAML headers, maintain annotation summary table (with CSS and cleaning pattern templates)
+- `git-conventions`: added "Commit Message Format" section — use multiple `-m` flags instead of heredocs (heredocs break permission allowlist glob matching)
+- `new-plan`: added "Key Decisions" and "Working Notes" sections to all three plan templates (simple, multi-phase, multi-component)
+- `quarto-docs`: added AI Attribution Block (callout note for Claude-generated scripts) and Troubleshooting section (common QMD rendering issues)
+
+### Removed
+- `scientific-manuscript` skill — removed from shared repo (PI-only)
+
 ## 2026-02-28
 
 ### Changed

@@ -32,6 +32,24 @@ git pull
    git diff --staged
    ```
 
+## Commit Message Format
+
+**IMPORTANT: Use multiple `-m` flags for commit messages — do NOT use heredocs (`<<'EOF'`).**
+
+Heredocs create multi-line Bash commands that don't match permission allowlist glob patterns (the `*` wildcard doesn't match newlines). Multiple `-m` flags keep the command on a single line.
+
+Single-line message:
+```bash
+git commit -m "Title line here" -m "Co-Authored-By: Claude <noreply@anthropic.com>"
+```
+
+Multi-line message (title + body + co-author):
+```bash
+git commit -m "Title line here" -m "Body paragraph explaining the why." -m "Co-Authored-By: Claude <noreply@anthropic.com>"
+```
+
+Each `-m` flag adds a separate paragraph to the commit message (separated by a blank line in the git log).
+
 ## Don't Commit
 
 - Large output files (check `.gitignore`)

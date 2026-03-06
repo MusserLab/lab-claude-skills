@@ -46,6 +46,14 @@ lab-claude-skills/
 ## Session Log
 <!-- Maintained by /done. Most recent first. Keep last 5 entries. -->
 
+### 2026-03-06 — Sync plugin v1.4.0
+- **Plans:** None
+- **Work:** Synced 5 skill changes to lab repo: new `deep-research-genelist` and `deep-research-reports` skills, updated `git-conventions` (commit format), `new-plan` (Key Decisions/Working Notes), `quarto-docs` (AI Attribution + Troubleshooting). Removed `scientific-manuscript` (now PI-only). Updated README, templates, CHANGELOG, plugin.json. Diagnosed Bash sandbox behavior (file ops restricted to CWD; use Read/Write tools for cross-directory copies).
+- **Next:**
+  - Publish `prost-gene-naming` when ready (held back for improvement)
+  - Verify marketplace auto-update removes scientific-manuscript for students
+  - Update sync-plugin skill to use Read+Write instead of cp for cross-directory copies
+
 ### 2026-02-28 — README update instructions, Slack format
 - **Plans:** None
 - **Work:** Updated README plugin update section to note marketplace auto-updates on restart (manual CLI as fallback). Posted proper v1.3.2 security follow-up to #code. Established two Slack message format templates (security vs normal) in MEMORY.md.

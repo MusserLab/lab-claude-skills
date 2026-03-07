@@ -229,6 +229,31 @@ Create a temporary `_report_for_render.md` from `{base}_clean.md`:
 
 3. **Remove the H1 title** from the body (it's now in the YAML `title:` field)
 
+4. **Normalize heading levels** — ChatGPT reports nest headings too deep, producing tiny headers at H4/H5 in PDFs. Apply these fixes in order:
+
+   a. **Remove redundant heading pairs.** ChatGPT often outputs a generic `##` heading immediately followed by the lettered `###` section (e.g., `## Comparative biological analysis` then `### H. Comparative Biological Analysis`). Remove the redundant `##` line:
+   ```python
+   body = re.sub(r'^##\s+[^\n]+\n\n(###\s+[A-K]\.)', r'\1', body, flags=re.MULTILINE)
+   ```
+
+   b. **Shift all headings up one level.** Since the H1 title was removed, the remaining hierarchy is too deep (`##`→`####`). Shift `##`→`#`, `###`→`##`, `####`→`###`, etc. (never shift H1):
+   ```python
+   def shift_heading(m):
+       hashes = m.group(1)
+       rest = m.group(2)
+       if len(hashes) > 1:
+           return '#' * (len(hashes) - 1) + rest
+       return m.group(0)
+   body = re.sub(r'^(#{2,})([ \t].*)$', shift_heading, body, flags=re.MULTILINE)
+   ```
+
+   After normalization, the typical hierarchy is: `#` (sections A–K), `##` (subsections like "Core identity modules"), `###` (sub-subsections).
+
+5. **Escape backslashes in gene names for LaTeX.** ChatGPT reports sometimes include gene names with literal backslashes (e.g., `Dmel\cg5579`), which LaTeX interprets as control sequences. Escape them in the body only:
+   ```python
+   body = re.sub(r'\\(?=[a-zA-Z])', r'\\\\', body)
+   ```
+
 **Generate PDF:**
 ```bash
 /usr/local/bin/quarto pandoc \

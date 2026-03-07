@@ -9,7 +9,7 @@ Format: date-based entries (this isn't versioned software).
 
 ### Changed
 - `deep-research-genelist`: Refactored annotation workflow — annotation profile system replaces inline detection. Interactive discovery for new species/datasets, YAML profile caching for batch reuse. Added `annotation_profile_example.yaml` template.
-- `deep-research-reports`: Improved YAML fixer — targeted line-by-line fix for ChatGPT 1-space indent (replaces global indentation doubling). Expanded summary table with complete field mapping from YAML (38 columns with explicit source→column mapping).
+- `deep-research-reports`: Improved YAML fixer — targeted line-by-line fix for ChatGPT 1-space indent (replaces global indentation doubling). Expanded summary table with complete field mapping from YAML (38 columns with explicit source→column mapping). Added heading normalization (removes redundant ChatGPT headings, shifts levels up) and LaTeX backslash escaping for gene names.
 
 ## 2026-03-06 (v1.4.0)
 

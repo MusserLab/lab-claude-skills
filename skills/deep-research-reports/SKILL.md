@@ -120,14 +120,70 @@ Report: "Claude report — no artifacts detected. Renamed to {base}_clean.md."
 
 Parse the YAML front matter from the clean file using Python `yaml.safe_load()`.
 
-**ChatGPT YAML indentation fix:** ChatGPT inconsistently outputs YAML with 1-space or 2-space indentation across runs. When it uses 1-space indent, two patterns break standard YAML parsing:
-1. **Folded block scalars** (`summary: >`) — continuation lines at the same indent as sibling keys
-2. **Mapping list items** (`- key: value`) — continuation keys at the same indent as the `- ` marker
+**ChatGPT YAML indentation fix:** ChatGPT inconsistently outputs YAML with 1-space or 2-space indentation across runs. 1-space indent is valid YAML for simple key-value mappings, but breaks for two specific constructs:
 
-The fix: **try `yaml.safe_load()` first**. If it fails, apply a fixer that:
-- Doubles all indentation (1-space → 2-space)
-- Adds extra indent to folded block continuation lines
-- Adds extra indent to mapping list item continuations (but NOT scalar list items like `- "string"`)
+1. **Folded block scalars** (`summary: >`) — the continuation text lands at the same indent as sibling keys, so the parser can't distinguish block scalar content from a new key
+2. **List item mapping continuations** (`- cell_type: "..."` followed by `organism: "..."`) — continuation keys land at the same indent as the `- ` marker, so they're parsed as siblings rather than part of the list item's mapping
+
+**Important:** Do NOT "double all indentation" — this breaks normal mapping keys by making children indent past their siblings. Instead, apply a **targeted fix** that only touches the two broken patterns:
+
+The fix: **try `yaml.safe_load()` first**. If it fails, apply a line-by-line fixer that:
+- After a line ending in `: >` or `: |`, adds 1 extra space to continuation lines (non-key, non-blank lines at the same indent) until a blank line or a real key is encountered
+- After a line matching `- key: value` (list item mapping start), adds 2 extra spaces to subsequent non-`-` key lines at the same indent (these are continuation keys inside the mapping)
+- Leaves all other indentation unchanged
+
+```python
+def fix_chatgpt_yaml(yaml_text):
+    """Fix ChatGPT 1-space indent YAML: folded block scalars + list item mapping continuations."""
+    lines = yaml_text.split('\n')
+    fixed = []
+    in_block_scalar = False
+    block_scalar_key_indent = -1
+    in_list_item = False
+    list_item_indent = -1
+
+    for i, line in enumerate(lines):
+        stripped = line.lstrip(' ')
+        n_spaces = len(line) - len(stripped)
+
+        if stripped == '':
+            in_block_scalar = False
+            fixed.append(line)
+            continue
+
+        # FIX 1: Folded/literal block scalar continuation
+        if in_block_scalar:
+            if (n_spaces == block_scalar_key_indent
+                    and not re.match(r'[\w-]+\s*:', stripped)
+                    and not stripped.startswith('- ')):
+                fixed.append(' ' * (n_spaces + 1) + stripped)
+                continue
+            else:
+                in_block_scalar = False
+
+        # FIX 2: List item mapping continuation
+        if in_list_item:
+            if (n_spaces == list_item_indent
+                    and re.match(r'[\w_-]+\s*:', stripped)
+                    and not stripped.startswith('- ')):
+                fixed.append(' ' * (n_spaces + 2) + stripped)
+                continue
+            elif n_spaces <= list_item_indent and not (
+                    n_spaces == list_item_indent and stripped.startswith('- ')):
+                in_list_item = False
+
+        if re.search(r':\s*[>|]\s*$', stripped):
+            in_block_scalar = True
+            block_scalar_key_indent = n_spaces
+
+        if re.match(r'- [\w_-]+\s*:', stripped):
+            in_list_item = True
+            list_item_indent = n_spaces
+
+        fixed.append(line)
+
+    return '\n'.join(fixed)
+```
 
 This handles both 1-space and 2-space ChatGPT output without breaking valid YAML.
 
@@ -211,18 +267,55 @@ Extract fields from validated YAML and update `outs/deep_research/annotation_sum
 5. Sort by module_id, then platform
 6. Write back TSV
 
-**Columns** (see plan file for full schema):
+**Columns — parse ALL YAML fields into the summary table:**
 
-`module_id`, `organism`, `common_name`, `dataset`, `module_type`, `source_object`, `clustering_column`, `marker_file`, `comparison_mode`, `clade_family`, `n_genes`, `proposed_name`, `confidence`, `one_line`, `cell_type_family`, `top_tfs`, `top_markers`, `key_pathways`, `best_match_1`, `n_uncharacterized`, `date_generated`, `platform`, `report_file`, `date_processed`
+`module_id`, `organism`, `common_name`, `clade`, `dataset`, `module_type`, `source_object`, `clustering_column`, `marker_file`, `comparison_mode`, `clade_family`, `biological_context`, `n_genes`, `proposed_name`, `alternative_names`, `confidence`, `confidence_rationale`, `one_line`, `summary`, `cell_type_family`, `family_conservation`, `top_tfs`, `top_markers`, `top_diagnostic_ids`, `top_diagnostic_roles`, `receptors_channels`, `signaling_ligands`, `adhesion_molecules`, `secreted_products`, `key_pathways`, `metabolic_signature`, `n_uncharacterized`, `best_match_1`, `best_match_2`, `best_match_3`, `date_generated`, `platform`, `report_file`, `date_processed`
 
-New fields added for merged marker mode:
-- `comparison_mode`: "single" or "merged" — from `query.comparison_mode`
-- `clade_family`: cell type clade used for within-clade comparison — from `query.clade_family`
-These fields may be absent in older reports (pre-merged-mode); default to empty string.
+**Field mapping from YAML:**
 
-For list fields (TFs, markers, pathways): join with `; ` separator.
-For `top_markers`: use top 5 from `markers.top_diagnostic[].name`.
-For `best_match_1`: format as `cell_type (organism)` from first entry in `best_matches`.
+| Summary column | YAML source | Format |
+|---------------|-------------|--------|
+| `module_id` | `query.module_id` | verbatim |
+| `organism` | `query.organism` | verbatim |
+| `common_name` | `query.common_name` | verbatim |
+| `clade` | `query.clade` | verbatim |
+| `dataset` | `query.dataset` | verbatim |
+| `module_type` | `query.module_type` | verbatim |
+| `source_object` | `query.source_object` | verbatim |
+| `clustering_column` | `query.clustering_column` | verbatim |
+| `marker_file` | `query.marker_file` | verbatim |
+| `comparison_mode` | `query.comparison_mode` | verbatim; default empty |
+| `clade_family` | `query.clade_family` | verbatim; default empty |
+| `biological_context` | `query.biological_context` | verbatim |
+| `n_genes` | `query.n_genes` | integer |
+| `proposed_name` | `annotation.proposed_name` | verbatim |
+| `alternative_names` | `annotation.alternative_names` | join with `; ` |
+| `confidence` | `annotation.confidence` | verbatim |
+| `confidence_rationale` | `annotation.confidence_rationale` | verbatim |
+| `one_line` | `annotation.one_line` | verbatim |
+| `summary` | `annotation.summary` | verbatim (may be multi-line — flatten to single line) |
+| `cell_type_family` | `annotation.cell_type_family` | verbatim |
+| `family_conservation` | `annotation.family_conservation` | verbatim |
+| `top_tfs` | `markers.transcription_factors` | join with `; ` |
+| `top_markers` | `markers.top_diagnostic[].name` | top 5, join with `; ` |
+| `top_diagnostic_ids` | `markers.top_diagnostic[].gene_id` | top 5, join with `; ` |
+| `top_diagnostic_roles` | `markers.top_diagnostic[].role` | top 5, join with `; ` |
+| `receptors_channels` | `markers.receptors_channels` | join with `; ` |
+| `signaling_ligands` | `markers.signaling_ligands` | join with `; ` |
+| `adhesion_molecules` | `markers.adhesion_molecules` | join with `; ` |
+| `secreted_products` | `markers.secreted_products` | join with `; ` |
+| `key_pathways` | `markers.key_pathways` | join with `; ` |
+| `metabolic_signature` | `markers.metabolic_signature` | verbatim |
+| `n_uncharacterized` | `markers.n_uncharacterized_notable` | integer |
+| `best_match_1` | `annotation.best_matches[0]` | `cell_type (organism) [conservation]` |
+| `best_match_2` | `annotation.best_matches[1]` | `cell_type (organism) [conservation]` |
+| `best_match_3` | `annotation.best_matches[2]` | `cell_type (organism) [conservation]` |
+| `date_generated` | `query.date_generated` | verbatim |
+| `platform` | detected platform | `chatgpt` or `claude` |
+| `report_file` | computed path | `{base}_clean.md` |
+| `date_processed` | current date | YYYY-MM-DD |
+
+Fields may be absent in older reports — default to empty string.
 
 ### Step 7: Report Results
 

@@ -46,6 +46,13 @@ lab-claude-skills/
 ## Session Log
 <!-- Maintained by /done. Most recent first. Keep last 5 entries. -->
 
+### 2026-03-12 — Sync plugin v1.5.0
+- **Plans:** None
+- **Work:** Synced 4 changes to lab repo: new `audit-script` and `learn-code` skills, updated `deep-research-genelist` (family-aware mode) and `deep-research-reports` (family-aware support). Updated README, user-claude-md template, CHANGELOG, plugin.json. Posted to #code.
+- **Next:**
+  - Publish `prost-gene-naming` when ready (held back for improvement)
+  - Update sync-plugin skill to use Read+Write instead of cp for cross-directory copies
+
 ### 2026-03-06 — Sync plugin v1.4.0
 - **Plans:** None
 - **Work:** Synced 5 skill changes to lab repo: new `deep-research-genelist` and `deep-research-reports` skills, updated `git-conventions` (commit format), `new-plan` (Key Decisions/Working Notes), `quarto-docs` (AI Attribution + Troubleshooting). Removed `scientific-manuscript` (now PI-only). Updated README, templates, CHANGELOG, plugin.json. Diagnosed Bash sandbox behavior (file ops restricted to CWD; use Read/Write tools for cross-directory copies).

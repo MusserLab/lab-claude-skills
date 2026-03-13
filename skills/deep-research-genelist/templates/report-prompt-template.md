@@ -23,6 +23,8 @@ Genes whose display_name is a bare gene ID (e.g., `comp12345_c0`, `XLOC_012345`,
 
 {{MERGED_MODE_INPUT_GUIDANCE}}
 
+{{FAMILY_CROSS_REFERENCE}}
+
 When analyzing these genes, keep the following in mind:
 - We do not know the function of the {{COMMON_NAME}} genes directly. The orthology and homology assignments are a guide to what proteins are most similar in sequence or structure.
 - When a {{COMMON_NAME}} gene is orthologous or homologous to multiple genes in another species, we do not know which is the closest functional match. Consider all orthologs/homologs when discussing potential function.
@@ -41,6 +43,7 @@ query:
   dataset: "{{DATASET_DESCRIPTION}}"
   module_type: "{{MODULE_TYPE}}"
   module_id: "{{MODULE_ID}}"
+  report_type: "{{REPORT_TYPE}}"
   source_object: "{{SOURCE_OBJECT}}"
   clustering_column: "{{CLUSTERING_COLUMN}}"
   marker_file: "{{MARKER_FILE}}"
@@ -173,6 +176,8 @@ Integrate the results from Sections A–E into a synthetic narrative. This secti
 
 {{SECTION_F_COMPARISON_TYPE}}
 
+{{FAMILY_AWARE_SYNTHESIS_NOTE}}
+
 ### G. Interpretation in the Context of {{COMMON_NAME}} Biology
 
 Conduct a thorough literature search on cell types and tissues in {{COMMON_NAME}}, closely related species within the {{CLADE_PLURAL}}, and the broader phylum. Specifically:
@@ -222,6 +227,8 @@ Discuss the evidence for each interpretation. Note that 1-to-1 cell type homolog
 ### K. Comparison Type Summary
 
 {{SECTION_K}}
+
+{{SECTION_K_FAMILY_AWARE}}
 
 ## 5. Citation and Formatting Requirements
 

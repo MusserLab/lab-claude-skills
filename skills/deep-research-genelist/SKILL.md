@@ -43,6 +43,15 @@ Ask the user for the following information. Use `AskUserQuestion` for structured
 |-------|-------------|---------|
 | `CLADE_FAMILY` | Cell type clade/family for the within-clade comparison | shell, cerebral_neurons, sensory_motoneuron |
 
+**Required for family_aware mode only:**
+
+| Input | Description | Example |
+|-------|-------------|---------|
+| `CLADE_FAMILY` | (per-cluster, from clade lookup) | neurons, epithelial, mesoderm |
+| `FAMILY_MARKERS_DIR` | Path to per-family filtered marker TSVs | `outs/13_.../family_markers_filtered/` |
+| `CLADE_LOOKUP_PATH` | Path to clade lookup TSV | `outs/13_.../clade_lookup.tsv` |
+| `MEMBER_CLUSTERS` | (per-family report) List of fine clusters in this family | `["VNC-ChAT+", "VNC-interneuron-ChAT", ...]` |
+
 **Optional (ask if not provided):**
 
 | Input | Description | Default |
@@ -80,6 +89,26 @@ Check whether the gene list has a `comparison_type` column:
 |------|-------------|
 | `single` | One gene list without comparison_type (e.g., vs all cells only, or a plain gene list) |
 | `merged` | One list with `comparison_type` column (vs_all / within_clade / both) |
+| `family_aware` | Merged list + family marker data available (see detection below) |
+
+**Decision tree:**
+
+```
+Has comparison_type column?
+├─ NO → single mode (unchanged)
+└─ YES → Has family marker data available?
+    ├─ NO → merged mode (unchanged)
+    └─ YES → family_aware mode
+         ├─ Generate family reports (one per family, using family template)
+         └─ Generate cluster reports (family markers removed, cross-reference added)
+```
+
+**Detecting family marker data:** Family-aware mode is available when the marker directory contains:
+- `family_markers_filtered/` directory with per-family marker TSVs
+- `family_marker_genes.tsv` (gene IDs per family for exclusion reference)
+- `clade_lookup.tsv` with `cluster_name` and `family` columns
+
+If these files are present, offer family-aware mode to the user. If not present but the user has family/clade groupings, suggest computing family markers first.
 
 For `merged` mode:
 - Ask which **cell type clade/family** is used for the within-clade comparison (e.g., "shell clade", "neuron clade"). These are groups of related cell types on the cell type tree.
@@ -87,6 +116,16 @@ For `merged` mode:
   - `both` — gene is a marker in BOTH vs-all and within-clade comparisons (most diagnostic)
   - `vs_all` — gene is distinctive globally but shared within the clade (reflects clade-level identity)
   - `within_clade` — gene distinguishes this cluster from its closest relatives but is not globally distinctive
+
+For `family_aware` mode:
+- All `merged` mode inputs apply (comparison_type semantics are the same)
+- Additionally require:
+  - `FAMILY_MARKERS_DIR` — path to per-family filtered marker TSVs (e.g., `family_markers_filtered/`)
+  - `CLADE_LOOKUP_PATH` — path to clade lookup TSV (`cluster_name`, `family` columns)
+- Per-cluster merged files should already have family markers removed (the marker computation script handles this)
+- **Two report types are generated:**
+  1. **Family reports** — one per family, using the family report template (`templates/family-report-template.md`). Gene list is the broadly expressed family markers.
+  2. **Cluster reports** — one per cluster, using the cluster template with family cross-reference conditionals. Gene list is the per-cluster merged markers (family markers already removed).
 
 ### Step 3: Build Annotation Source Guide
 
@@ -346,11 +385,58 @@ as follows:
   >
   > For each category, provide 1-2 sentences summarizing the functional theme and the most important genes.
 
+**Family-aware mode additional placeholders (cluster template only):**
+
+These resolve to empty for single and merged modes. In family_aware mode, they add family cross-reference context to cluster reports.
+
+**`{{FAMILY_CROSS_REFERENCE}}`:**
+- Single/merged mode: *(empty)*
+- Family_aware mode:
+  > **Family context:** This cluster belongs to the **{{CLADE_FAMILY}}** cell type family
+  > ({{N_FAMILY_MEMBERS}} clusters: {{FAMILY_MEMBER_LIST}}). A separate family-level report
+  > characterizes the shared {{CLADE_FAMILY}} program.
+  >
+  > **Important:** The gene list below has had broadly expressed family markers removed —
+  > genes that define the shared {{CLADE_FAMILY}} identity are analyzed in the family report,
+  > not here. The top family markers include: {{TOP_FAMILY_MARKERS}}.
+  >
+  > Your analysis should focus on what makes this specific cluster **unique within** the
+  > {{CLADE_FAMILY}} family, not on features shared across all {{CLADE_FAMILY}} cells.
+
+**`{{FAMILY_AWARE_SYNTHESIS_NOTE}}`:**
+- Single/merged mode: *(empty)*
+- Family_aware mode (added to Section F):
+  > **Family context:** Since family-level markers have been removed from this gene list,
+  > the genes here represent this cluster's **specialization within** the {{CLADE_FAMILY}}
+  > family. Focus your synthesis on what distinguishes this cluster from other
+  > {{CLADE_FAMILY}} cells. Refer to the separate {{CLADE_FAMILY}} family report for the
+  > shared program.
+
+**`{{SECTION_K_FAMILY_AWARE}}`:**
+- Single/merged mode: *(empty)*
+- Family_aware mode (appended to Section K):
+  > 6. **Relationship to family program:** Briefly note how this cluster's unique features
+  >    relate to the shared {{CLADE_FAMILY}} program (described in the family report).
+  >    Is this a specialized subtype, a developmental stage, or a functionally distinct
+  >    member of the family?
+
 **`{{ORGANISM_SPECIFIC_CONTEXT}}`:**
 - If provided, insert as a paragraph at the end of Section G:
   > *Additional context:* [user-provided text]
 - If not provided, insert:
   > Consider the known biology of {{COMMON_NAME}} cell types and how the inferred functions relate to the organism's life history and ecology.
+
+### Step 4b: Fill Family Template (family_aware mode only)
+
+For family reports, use the family template at `~/.claude/skills/deep-research-genelist/templates/family-report-template.md`.
+
+1. Read the family template.
+2. Replace all `{{PLACEHOLDER}}` tokens. The family template uses the same organism/dataset placeholders as the cluster template, plus family-specific ones:
+   - `{{FAMILY_NAME}}` — the coarse family name (e.g., "neurons", "epithelial")
+   - `{{MEMBER_CLUSTERS}}` — comma-separated list of fine cluster names in this family
+   - `{{N_MEMBER_CLUSTERS}}` — count of member clusters
+   - `{{FAMILY_MARKERS_DESCRIPTION}}` — how family markers were computed (broadly expressed across ≥80% of member clusters)
+3. The gene list for family reports is the filtered family markers from `family_markers_filtered/{family}_markers.tsv`.
 
 ### Step 5: Build Slim Gene List and Embed
 
@@ -406,7 +492,7 @@ are shared. The skill should:
 
 1. Gather shared inputs once (organism, clade, dataset description, etc.)
 2. Build or load the annotation profile once for the whole batch.
-3. Determine mode (single vs merged) once for the whole batch.
+3. Determine mode (single vs merged vs family_aware) once for the whole batch.
 4. Apply marker filtering once (p_val_adj < 0.05, pct.1 > 0.10) if input is a marker table.
 5. For each cluster:
    - Set `MODULE_ID`, `MODULE_TYPE_DESCRIPTION`, `BIOLOGICAL_CONTEXT`, and `CLADE_FAMILY`
@@ -423,6 +509,29 @@ The `CLADE_FAMILY` is set per-cluster from the clade lookup table.
 
 The annotation profile (`annotation_profile.yaml`) is read once and applied to
 all clusters — no need to re-ask annotation source questions per cluster.
+
+### Family-aware batch mode
+
+In `family_aware` mode, batch generation produces **two passes**:
+
+**Pass 1 — Family reports** (one per family):
+- Use the family report template (`templates/family-report-template.md`)
+- Gene list: filtered family markers from `family_markers_filtered/{family}_markers.tsv`
+- `MODULE_ID`: `family_{family_name}` (e.g., `family_neurons`, `family_epithelial`)
+- `MODULE_TYPE`: `"family markers"`
+- `MODULE_TYPE_DESCRIPTION`: `"broadly expressed markers defining the {family} cell type family"`
+- `BIOLOGICAL_CONTEXT`: `"Markers shared across {N} clusters in the {family} family: {member_list}"`
+- Apply same marker filtering (p_val_adj < 0.05, pct > 0.10) to family marker files
+
+**Pass 2 — Cluster reports** (one per cluster):
+- Use the cluster template with family cross-reference placeholders filled
+- Gene list: per-cluster merged markers from `per_cluster_merged/{cluster}.tsv` (family markers already removed)
+- Fill `{{FAMILY_CROSS_REFERENCE}}`, `{{FAMILY_AWARE_SYNTHESIS_NOTE}}`, `{{SECTION_K_FAMILY_AWARE}}` with family context
+- `{{TOP_FAMILY_MARKERS}}`: top 10 family markers by score from the family filtered file
+
+**Single-member families** (e.g., glia with 1 cluster): Skip the family report. Generate the cluster report in merged mode (not family_aware mode) since there's no meaningful family vs. cluster distinction.
+
+Report all saved file paths at the end, grouped by family reports and cluster reports.
 
 ---
 

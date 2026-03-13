@@ -5,6 +5,16 @@ Format: date-based entries (this isn't versioned software).
 
 ---
 
+## 2026-03-12 (v1.5.0)
+
+### Added
+- `/audit-script` skill — systematic audit of data analysis scripts for bugs, analytical reasoning, data handling, style, and reproducibility (3 modes: thorough, fast, report-only)
+- `/learn-code` skill — interactive script walkthrough for teaching coding mechanics, script organization, and analytical reasoning to PhD students
+
+### Changed
+- `deep-research-genelist`: added family-aware mode — two-pass batch generation (family reports + cluster reports), family marker detection, family report template, cross-reference placeholders for cluster reports
+- `deep-research-reports`: added family-aware support — `report_type`, `member_clusters`, `n_member_clusters` fields in YAML validation and summary table
+
 ## 2026-03-06 (v1.4.1)
 
 ### Changed

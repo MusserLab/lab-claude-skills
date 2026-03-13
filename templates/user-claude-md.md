@@ -101,6 +101,8 @@ Skills are categorized by scope. **General** skills apply to all projects. **Dat
 | `/new-project` | Scaffold a new project (data science, documentation, or general) |
 | `/new-plan` | Create a planning document |
 | `/audit` | Periodic project health check — cross-check docs, prune conventions, find drift |
+| `/audit-script` | Systematic script audit for bugs, analytical reasoning, data handling, style, and reproducibility |
+| `/learn-code` | Interactive script walkthrough for teaching coding, organization, and analytical reasoning |
 | `/security-setup` | Configure personalized security protections for sensitive files and credentials |
 | `/quarto-book-setup` | Initialize a new Quarto book with GitHub Pages |
 | `/quarto-publish` | Commit and publish Quarto projects to GitHub Pages |

@@ -169,6 +169,8 @@ Invoke these directly to run a workflow.
 | `/new-project` | Scaffold a new project (data science, docs, or general) |
 | `/new-plan` | Create a planning document for multi-session work |
 | `/audit` | Project health check — cross-check docs, prune conventions, find drift |
+| `/audit-script` | Systematic audit of data analysis scripts for bugs, analytical reasoning, data handling, style, and reproducibility |
+| `/learn-code` | Interactive script walkthrough for teaching coding, organization, and analytical reasoning |
 | `/security-setup` | Configure and manage Claude Code security protections for sensitive files and credentials |
 | `/quarto-book-setup` | Initialize a new Quarto book with GitHub Pages |
 | `/quarto-publish` | Commit and publish a Quarto project to GitHub Pages |

@@ -5,6 +5,14 @@ Format: date-based entries (this isn't versioned software).
 
 ---
 
+## 2026-03-13 (v1.5.1)
+
+### Fixed
+- Hook: `protect-sensitive-reads.sh` — added `.pem` to blocked filenames (was already present in `protect-sensitive-writes.sh`)
+
+### Security
+- Bumped SECURITY_VERSION to 4 — users with personal hooks should re-run `/security-setup`
+
 ## 2026-03-12 (v1.5.0)
 
 ### Added

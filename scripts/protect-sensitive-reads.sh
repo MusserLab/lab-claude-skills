@@ -112,7 +112,7 @@ fi
 
 # --- Always-blocked filename patterns ---
 BASENAME=$(basename "$FILE_PATH")
-BLOCKED_FILENAMES=(".env" ".env." ".keychain-db" "credentials.json" "service-account" "id_rsa" "id_ed25519" "id_ecdsa" "id_dsa" ".git-credentials" ".netrc" ".npmrc" ".pypirc")
+BLOCKED_FILENAMES=(".env" ".env." ".keychain-db" "credentials.json" "service-account" "id_rsa" "id_ed25519" "id_ecdsa" "id_dsa" ".pem" ".git-credentials" ".netrc" ".npmrc" ".pypirc")
 
 for pattern in "${BLOCKED_FILENAMES[@]}"; do
   if [[ "$BASENAME" == *"$pattern"* ]]; then

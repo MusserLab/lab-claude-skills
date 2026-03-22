@@ -21,6 +21,17 @@ If no field exists, infer: `renv.lock`, `outs/`, or numbered `XX_*.qmd` scripts 
 
 ---
 
+## 0b. Load Project Extensions
+
+Check if `.claude/done_extensions.md` exists in the project root. If it does, read it
+and incorporate its steps into the wrap-up at the points it specifies (e.g., "run after
+Step 2" or "run before Step 4"). Extension steps are additional — they never replace
+core steps.
+
+If no extension file exists, skip silently.
+
+---
+
 ## 1. Summarize Work and Decisions
 
 Briefly list what was completed this session:
@@ -28,6 +39,34 @@ Briefly list what was completed this session:
 - Data files created or modified
 - Documentation changes
 - Key analytical or design decisions made
+
+---
+
+## 1b. Update Session Log in Project CLAUDE.md
+
+Append a new entry to the **Session Log** section at the bottom of the project's `.claude/CLAUDE.md`. This is a rolling log of the last 5 sessions — it's the primary place future sessions look for "what to do next."
+
+### Format
+
+```markdown
+## Session Log
+<!-- Maintained by /done. Most recent first. Keep last 5 entries. -->
+
+### YYYY-MM-DD — Short title
+- **Plans:** [plan name(s) worked on, or "None"]
+- **Work:** [1-2 sentences on what was done]
+- **Next:** [bullet list of follow-up items for future sessions]
+```
+
+### Rules
+
+- **Most recent first** — new entry goes at the top of the list
+- **Same-day updates** — if an entry for today's date already exists (from an earlier `/done` run in this session), **replace it** rather than adding a duplicate. Merge the work descriptions and update the Next items. This allows `/done` to be run multiple times per session without cluttering the log.
+- **Trim to 5 entries** — delete the oldest entry if there are more than 5
+- **Short title** should disambiguate from parallel sessions (e.g., "Metadata exploration", "WGCNA figures", "Environment setup")
+- **Plans line** — list which planning documents were worked on (e.g., "`figure_plan.md`"). Write "None" if no plans were involved. This helps track work that falls outside of plans.
+- **Next items** — these are the main value. Be specific and actionable. They accumulate across sessions until actually done — don't repeat items already listed in a recent entry unless context changed.
+- If the Session Log section doesn't exist yet, create it at the bottom of the file (before any closing comments).
 
 ---
 
@@ -94,6 +133,7 @@ If the project has a `CHANGELOG.md` in its root directory:
 Run `git status` to check for uncommitted changes.
 
 If there are changes:
+- **CRITICAL: Always stage specific files by name (`git add file1 file2`), NEVER use `git add .` or `git add -A` for the project repo** — broad staging will pick up changes from parallel Claude Code sessions
 - **CRITICAL: Only include files actually created or modified during THIS session**
 - **Identifying session files** — use multiple sources, not just git diff:
   1. **Conversation context** is the primary record of what you did — including
@@ -108,6 +148,7 @@ If there are changes:
 - Files already in initial gitStatus should NOT be included unless you worked on them
 - Show the user session-relevant files and suggest a commit message
 - If approved, commit only those files
+- After committing, offer to push to remote (check `git remote -v` to confirm a remote exists)
 
 ### User config (`~/.claude`)
 
@@ -119,7 +160,10 @@ git -C ~/.claude status --short
 If there are changes (skills, CLAUDE.md, etc.):
 - Show what changed
 - Ask if user wants to commit and push
-- If yes: `git -C ~/.claude add -A && git -C ~/.claude commit -m "message" && git -C ~/.claude push`
+- If yes, run these as separate sequential Bash calls (do NOT chain with `&&`):
+  1. `git -C ~/.claude add -A`
+  2. `git -C ~/.claude commit -m "Title" -m "Co-Authored-By: Claude <noreply@anthropic.com>"` (use multiple `-m` flags, NOT heredocs)
+  3. `git -C ~/.claude push`
 
 **Skill registration check:** If new skills were created in `~/.claude/skills/` this session, verify each appears in the Available Skills table in `~/.claude/CLAUDE.md`. If any are missing, add them before committing.
 

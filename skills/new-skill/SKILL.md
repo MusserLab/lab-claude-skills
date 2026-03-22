@@ -121,7 +121,32 @@ Keep it focused. A skill should cover one coherent topic, not be a grab-bag.
 ## 6. File Workflow
 
 1. Create/edit in `~/.claude/skills/{name}/SKILL.md`
-2. Use generic paths (e.g., `~/miniconda3`, not `/Users/username/miniconda3`) so skills are portable across machines
+2. Use generic paths (e.g., `~/miniconda3`, not `/Users/<username>/miniconda3`) so skills are portable
+3. Do **not** automatically copy to the lab repo — skills are published through a separate sync workflow
+
+### Skills with Bundled Resources
+
+For skills that generate scripts (code-generating pipelines), use the Anthropic skill-creator
+convention for bundled resources:
+
+```
+skill-name/
+├── SKILL.md              # <500 lines — workflow, decision points
+├── scripts/              # Helper code deployed to project python/ or R/
+│   └── my_helpers.py
+└── references/           # Detailed docs loaded as needed
+    └── method_notes.md
+```
+
+**Helper deployment convention:** When the skill runs:
+1. Check if `python/` or `R/` dir exists in the project, create if needed
+2. Check if the helper file already exists in the project
+3. If it exists and differs, warn the user and ask whether to overwrite
+4. If it doesn't exist, copy from the skill's `scripts/` directory
+5. The generated `.qmd` imports from the project-level location
+
+This keeps helper code as real, testable files rather than code blocks in SKILL.md.
+SKILL.md references the helpers and describes how the generated script uses them.
 
 ---
 

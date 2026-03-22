@@ -75,6 +75,22 @@ project/
 
 Each section has its own script numbering (starting at `01_`). Sections may have one or more planning documents in `.claude/`.
 
+### Cluster Projects
+
+Projects that submit SLURM jobs on the HPC cluster add two directories:
+
+```
+project/
+  batch/                        # SLURM batch scripts (.sh)
+  logs/                         # SLURM output files (slurm-*.out)
+  scripts/
+  data/
+  outs/
+```
+
+Both `batch/` and `logs/` must be in `.gitignore` — they are ephemeral and machine-specific.
+See the `hpc` skill for batch script conventions and job resource templates.
+
 ### Choosing a Subdirectory
 
 When creating a new script in a sectioned project:
@@ -109,6 +125,26 @@ Scripts are numbered per-section (`01_`, `02_`, etc.) so `ls` shows them in a se
 - Assign the next available number when adding a script
 - Never renumber existing scripts when one is archived or deleted
 - In sectioned projects, numbering restarts at `01_` in each section
+
+### Letter Suffixes (a, b, c)
+
+Use letter suffixes when a **single topic** requires multiple scripts. Common reasons:
+
+- **User review needed between steps** (e.g., threshold selection → module detection)
+- **Different output types** (e.g., main analysis `.qmd` + plotting companion `.R`)
+- **Language split** when R and Python steps cannot share a `.qmd` (see Cross-Language rule below)
+
+Rules for lettered scripts:
+
+1. **Same topic, same number.** A new topic gets a new number, not a new letter.
+2. **Shared output directory.** All scripts in a lettered set write to `outs/XX_topic_name/` — NOT `outs/XXa_name/`, `outs/XXb_name/`. The output dir uses the number without a letter.
+3. **The `a` script runs first.** Letters imply execution order within the set.
+4. **Name the set consistently.** `15a_wgcna_threshold.qmd`, `15b_wgcna_modules.qmd`, `15c_wgcna_plots.R` — all share `outs/15_wgcna_platynereis/`.
+5. **Companion scripts** (`.R` or `.py` alongside `.qmd`) are acceptable for lightweight tasks (plotting, utilities). Main analysis should be `.qmd`.
+
+**When to use a new number vs a letter:**
+- New number: different analytical question, different input data, different topic
+- Letter suffix: same topic split across steps, same conceptual analysis
 
 ---
 
@@ -175,6 +211,65 @@ Reading the top of any script shows exactly what it depends on and which upstrea
 ---
 
 ## Provenance
+
+### Archive Before Overwrite
+
+When a script re-renders, it should archive existing outputs before writing new ones.
+This prevents stale files from previous runs from lingering in `outs/` and provides
+a history of previous outputs.
+
+**Convention:** At the start of each script (after creating `out_dir`), move all
+existing files into `out_dir/_archive/<timestamp>/`. The timestamp comes from the
+previous `BUILD_INFO.txt` mtime (reflecting when those outputs were actually produced),
+falling back to the newest file mtime if `BUILD_INFO.txt` doesn't exist.
+
+**Python:**
+
+```python
+import shutil
+from datetime import datetime
+
+existing_items = [f for f in out_dir.iterdir() if f.name != "_archive"]
+if existing_items:
+    build_info = out_dir / "BUILD_INFO.txt"
+    if build_info.exists():
+        orig_time = datetime.fromtimestamp(build_info.stat().st_mtime)
+    else:
+        all_files = [f for f in out_dir.rglob("*") if f.is_file() and "_archive" not in str(f)]
+        orig_time = datetime.fromtimestamp(max(f.stat().st_mtime for f in all_files)) if all_files else datetime.now()
+
+    archive_dir = out_dir / "_archive" / orig_time.strftime("%Y-%m-%d_%H%M%S")
+    archive_dir.mkdir(parents=True, exist_ok=True)
+    for item in existing_items:
+        shutil.move(str(item), str(archive_dir / item.name))
+    print(f"Archived {len(existing_items)} items → {archive_dir.name}")
+```
+
+**R:**
+
+```r
+existing_files <- list.files(out_dir, full.names = TRUE)
+existing_files <- existing_files[!file.info(existing_files)$isdir]
+if (length(existing_files) > 0) {
+  build_info <- file.path(out_dir, "BUILD_INFO.txt")
+  if (file.exists(build_info)) {
+    orig_time <- file.info(build_info)$mtime
+  } else {
+    orig_time <- max(file.info(existing_files)$mtime)
+  }
+  archive_dir <- file.path(out_dir, "_archive", format(orig_time, "%Y-%m-%d_%H%M%S"))
+  dir.create(archive_dir, recursive = TRUE, showWarnings = FALSE)
+  file.rename(existing_files, file.path(archive_dir, basename(existing_files)))
+  message("Archived ", length(existing_files), " previous outputs → ", basename(archive_dir))
+}
+```
+
+**Notes:**
+- Only files are archived, not subdirectories (so `_archive/` itself is never moved)
+- The `_archive/` directory accumulates over time; periodically clean old archives
+- This pattern applies to all script types (`.qmd`, `.py`, `.R`)
+
+---
 
 ### Git Hash
 
@@ -248,4 +343,8 @@ When data produced by an R script will be read by a Python script (or vice versa
 
 Avoid `.rds` (R-only) or `.pkl` (Python-only) for data that crosses the language boundary. Within a single language, native formats (`.rds` for R) are fine.
 
-**Do not mix R and Python chunks in a single `.qmd`.** Each script uses one language. Scripts communicate through files in `outs/`, not shared memory.
+### Cross-Language Scripts
+
+**Prefer single-language `.qmd` files.** When a script needs both R and Python, split into lettered scripts (e.g., `XXa_` in Python, `XXb_` in R) that communicate through files in `outs/XX_topic/`.
+
+**Exception:** A single mixed-language `.qmd` is acceptable when both languages operate on the same data in a tight pipeline (e.g., Python reads h5ad → saves TSV → R builds a tree in the next chunk). In this case, data passes via files on disk, not shared memory — do not rely on `reticulate` object passing.

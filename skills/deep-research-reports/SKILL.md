@@ -1,11 +1,13 @@
 ---
 name: deep-research-reports
 description: >
-  Process deep research report outputs for scRNAseq cell type annotation.
-  Use when the user invokes /process-deep-research or asks to clean, convert to PDF/HTML,
-  parse, or compile deep research reports from ChatGPT or Claude. Handles artifact removal,
-  PDF/HTML generation, YAML header extraction, and summary table maintenance.
-  Companion to the deep-research-genelist skill which generates the prompts.
+  Process deep research report outputs for scRNAseq cell type annotation and non-metazoan
+  gene characterization. Use when the user invokes /process-deep-research or asks to clean,
+  convert to PDF/HTML, parse, or compile deep research reports from ChatGPT or Claude.
+  Handles artifact removal, PDF/HTML generation, YAML header extraction, and summary table
+  maintenance. Supports two report types: cell-type-annotation (from deep-research-genelist
+  skill) and nonmetazoan characterization (from PROST analysis prompts). Detects report type
+  automatically from query.report_type field.
 user-invocable: true
 ---
 
@@ -116,9 +118,13 @@ Claude deep research outputs have no known artifacts (verified: zero PUA chars, 
 
 Report: "Claude report — no artifacts detected. Renamed to {base}_clean.md."
 
-### Step 3: Validate YAML Header
+### Step 3: Detect Report Type and Validate YAML Header
 
 Parse the YAML front matter from the clean file using Python `yaml.safe_load()`.
+
+**Report type detection:** Check `query.report_type` to determine which parser to use:
+- `"cluster"` or `"family"` (or absent) → **cell-type-annotation** parser (existing)
+- `"nonmetazoan_characterization"` → **nonmetazoan** parser (see Step 3b below)
 
 **ChatGPT YAML indentation fix:** ChatGPT inconsistently outputs YAML with 1-space or 2-space indentation across runs. 1-space indent is valid YAML for simple key-value mappings, but breaks for two specific constructs:
 
@@ -203,6 +209,38 @@ Validate required fields:
 
 If validation fails, report which fields are missing and ask whether to proceed.
 
+### Step 3b: Nonmetazoan Report Validation
+
+When `query.report_type == "nonmetazoan_characterization"`, use this validation instead:
+
+**Detect template variant** from which classification fields are present:
+- Has `classification.n_candidate_hgt` → **prokaryote variant** (Bacteria, Archaea, combined)
+- Has `classification.n_database_bias` → **eukaryote variant** (Fungi, Viridiplantae, etc.)
+- Has both or neither → warn and proceed with best guess
+
+**Required fields (both variants):**
+- `query.kingdom`, `query.organism`, `query.n_genes`, `query.n_expressed`
+- `classification.assessment_confidence`
+- At least one entry in `functional_categories`
+
+**Prokaryote-specific required:**
+- `classification.n_symbiont_transcript`, `classification.n_candidate_hgt`, `classification.n_conserved`, `classification.n_ambiguous` (can be 0)
+
+**Eukaryote-specific required:**
+- `classification.n_database_bias`, `classification.n_conserved`, `classification.n_symbiont_transcript`, `classification.n_lateral_transfer`, `classification.n_ambiguous` (can be 0)
+
+**Optional but checked:**
+- `hgt_candidates` — warn if absent for prokaryote reports
+- `expression_patterns.cell_type_enriched_genes` — warn if empty
+- `biology.symbiosis_relevant` — prokaryote only
+- `biology.evolutionary_insight` — eukaryote only
+
+**Canonical base name for nonmetazoan reports:**
+Pattern: `YYMMDD_platform_kingdom` (e.g., `260315_chatgpt_prokaryote`, `260315_claude_fungi`)
+- `kingdom` from `query.kingdom`, lowercased, spaces replaced with underscores
+
+**Directory:** Reports go in `outs/deep_research/nonmetazoan/{kingdom}/` (note: under `deep_research/nonmetazoan/`, not the script-04 `outs/scmicrobiome/` directory — the processed reports live alongside cell-type-annotation reports).
+
 ### Step 4: Ask Output Format
 
 Use `AskUserQuestion`:
@@ -214,11 +252,13 @@ Use `AskUserQuestion`:
 
 Create a temporary `_report_for_render.md` from `{base}_clean.md`:
 
-1. **Strip the data YAML header** — the large `query:`/`annotation:`/`markers:` block is for programmatic parsing only, not for display
-2. **Insert a pandoc formatting YAML:**
+1. **Strip the data YAML header** — the large `query:`/`annotation:`/`markers:` (or `classification:`/`functional_categories:`) block is for programmatic parsing only, not for display
+2. **Insert a pandoc formatting YAML.** The title format depends on report type:
+   - Cell-type annotation: `"Gene Module Interpretation: *{organism}* {module_id}"`
+   - Nonmetazoan: `"Non-Metazoan Gene Characterization: *{organism}* — {kingdom}"`
    ```yaml
    ---
-   title: "Gene Module Interpretation: *{organism}* {module_id}"
+   title: "<title per report type>"
    subtitle: "Deep Research Report — {Platform} ({date_generated})"
    geometry: margin=1in
    fontsize: 11pt
@@ -348,8 +388,51 @@ Extract fields from validated YAML and update `outs/deep_research/annotation_sum
 
 Fields may be absent in older reports — default to empty string.
 
+### Step 6b: Nonmetazoan Summary Table
+
+For nonmetazoan reports (`report_type == "nonmetazoan_characterization"`), update a **separate** summary table at `outs/deep_research/nonmetazoan_summary.tsv`. Do NOT mix with `annotation_summary.tsv` — the column semantics are fundamentally different.
+
+**Composite key:** `kingdom + platform + date_generated`
+
+**Columns:**
+
+| Column | Source | Format |
+|--------|--------|--------|
+| `kingdom` | `query.kingdom` | verbatim |
+| `phylum` | `query.phylum` | verbatim |
+| `organism` | `query.organism` | verbatim |
+| `common_name` | `query.common_name` | verbatim |
+| `n_genes` | `query.n_genes` | int |
+| `n_expressed` | `query.n_expressed` | int |
+| `template_variant` | detected from fields | "prokaryote" or "eukaryote" |
+| `n_symbiont_transcript` | `classification.n_symbiont_transcript` | int; 0 if absent |
+| `n_candidate_hgt` | `classification.n_candidate_hgt` | int; 0 if absent |
+| `n_database_bias` | `classification.n_database_bias` | int; 0 if absent |
+| `n_lateral_transfer` | `classification.n_lateral_transfer` | int; 0 if absent |
+| `n_conserved` | `classification.n_conserved` | int |
+| `n_ambiguous` | `classification.n_ambiguous` | int |
+| `assessment_confidence` | `classification.assessment_confidence` | str |
+| `confidence_rationale` | `classification.confidence_rationale` | str |
+| `n_functional_categories` | len(`functional_categories`) | int |
+| `top_categories` | top 5 category names by n_genes | join "; " |
+| `top_category_origins` | matching likely_origin for top 5 | join "; " |
+| `symbiosis_relevant` | `biology.symbiosis_relevant` | bool; empty for eukaryote |
+| `evolutionary_insight` | `biology.evolutionary_insight` | str; empty for prokaryote |
+| `key_functions` | `biology.key_functions` | join "; " |
+| `recommended_followup` | `biology.recommended_followup` | join "; " |
+| `n_hgt_candidates` | len(`hgt_candidates.top_candidates`) | int; 0 for eukaryote |
+| `top_hgt_genes` | top 3 candidate gene_ids | join "; " |
+| `n_cell_type_enriched` | len(`expression_patterns.cell_type_enriched_genes`) | int |
+| `top_enriched_genes` | top 5 gene_id values | join "; " |
+| `notable_associations` | `expression_patterns.notable_associations` | join "; " |
+| `date_generated` | `query.date_generated` | str |
+| `platform` | detected | "chatgpt" or "claude" |
+| `report_file` | computed path | str |
+| `date_processed` | current date | YYYY-MM-DD |
+
 ### Step 7: Report Results
 
+**Cell-type-annotation reports:**
 ```
 Processed: clade6sub25_annotation_report.md
   Platform: Claude
@@ -361,6 +444,22 @@ Processed: clade6sub25_annotation_report.md
   Annotation: "hemocyte-like immune/scavenger cells (GCM+ phagocytes)"
   Confidence: medium
   Cell type family: immune/scavenger (hemocyte-like)
+```
+
+**Nonmetazoan characterization reports:**
+```
+Processed: deep-research-report (24).md
+  Platform: ChatGPT
+  Report type: nonmetazoan_characterization (prokaryote variant)
+  Cleaned: prokaryote/260315_chatgpt_prokaryote_clean.md
+  PDF: prokaryote/260315_chatgpt_prokaryote_report.pdf
+  HTML: prokaryote/260315_chatgpt_prokaryote_report.html
+  Summary: nonmetazoan_summary.tsv (new row added)
+
+  Kingdom: Prokaryote (369 genes, 178 expressed)
+  Classification: 310 symbiont, 12 HGT, 25 conserved, 22 ambiguous
+  Confidence: low
+  Top HGT candidates: c102759-g4 (Protein-ADP-ribose hydrolase), c101192-g1 (Deubiquitinase)
 ```
 
 ---

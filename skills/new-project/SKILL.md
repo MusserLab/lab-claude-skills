@@ -38,6 +38,12 @@ Use AskUserQuestion to collect:
 
 If sectioned, ask for section names (e.g., `phosphoproteomics`, `transcriptomics`).
 
+#### Question 5: Cluster
+- **Yes** — This project will submit SLURM jobs on the YCRC HPC cluster
+- **No** (Default) — Local analysis only
+
+If yes, adds `batch/` and `logs/` directories (gitignored). See `hpc` skill.
+
 ### For General projects, also ask:
 
 #### Question 3: Languages
@@ -79,6 +85,14 @@ mkdir -p R python scripts/exploratory data outs/exploratory .claude
 # Per section:
 mkdir -p scripts/{section} data/{section} outs/{section}
 ```
+
+#### Cluster directories (if cluster = yes)
+
+```bash
+mkdir -p batch logs
+```
+
+These are gitignored (see `.gitignore` section below) — they hold ephemeral SLURM scripts and log output.
 
 #### Create placeholder files
 
@@ -281,6 +295,14 @@ Thumbs.db
 credentials.json
 ```
 
+If cluster project, also add:
+
+```
+# HPC cluster — batch scripts and SLURM logs
+batch/
+logs/
+```
+
 **Note on `data/`**: Whether to gitignore `data/` depends on file sizes. Small data files (< a few MB) can be committed. Large files should be gitignored with a `data/README.md` documenting sources. Ask the user.
 
 ### General .gitignore
@@ -430,6 +452,16 @@ See user-level skills for detailed conventions:
 | Document | Topic |
 |----------|-------|
 | [CLAUDE.md](.claude/CLAUDE.md) | Project conventions, environment, pipelines |
+
+---
+
+## Session Log
+<!-- Maintained by /done. Most recent first. Keep last 5 entries. -->
+
+### {today's date} — Initial project setup
+- **Plans:** None
+- **Work:** Scaffolded project with /new-project
+- **Next:** Add data files, create first analysis script
 ````
 
 If `~/lib/R/` or `~/lib/python/` exist, add to the Conventions section:
@@ -502,6 +534,16 @@ Shared helper functions are available at:
 | Document | Topic |
 |----------|-------|
 | [CLAUDE.md](.claude/CLAUDE.md) | Project conventions |
+
+---
+
+## Session Log
+<!-- Maintained by /done. Most recent first. Keep last 5 entries. -->
+
+### {today's date} — Initial project setup
+- **Plans:** None
+- **Work:** Scaffolded project with /new-project
+- **Next:** Start adding code and documentation
 ````
 
 ### Project reminders file

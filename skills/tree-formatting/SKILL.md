@@ -39,6 +39,71 @@ Ask the user which backend to use based on their needs:
 
 ---
 
+## Step 0b: Validate Newick Tree File
+
+Before rendering, validate the tree file. Tree-formatting scripts should include a
+validation step early on.
+
+### What to check
+
+- **File exists and is non-empty**
+- **Valid Newick syntax** — parseable by `ape::read.tree()` (R) or `ete3.Tree()` (Python)
+- **Tip count** — report number; flag if unexpectedly low (< 3) or very high (> 5000)
+- **Rooted vs unrooted** — report rooting status (`ape::is.rooted()`)
+- **Zero-length branches** — warn if present (can cause rendering issues with phylograms)
+- **Polytomies** — report if multifurcations exist (`ape::is.binary()`)
+- **Tip label format** — check for `|` characters (breaks iTOL), spaces, unusual characters
+
+### R validation chunk (ggtree scripts)
+
+```r
+#| label: validate-tree
+
+library(ape)
+
+tree_path <- here("data/phylogenetics/tree.treefile")
+stopifnot("Tree file not found" = file.exists(tree_path))
+
+tree <- read.tree(tree_path)
+cat("Tips:", Ntip(tree), "\n")
+cat("Rooted:", is.rooted(tree), "\n")
+cat("Binary:", is.binary(tree), "\n")
+
+# Zero-length branches
+if (!is.null(tree$edge.length)) {
+  n_zero <- sum(tree$edge.length == 0)
+  if (n_zero > 0) cat("WARNING:", n_zero, "zero-length branches\n")
+}
+
+# Tip label issues (pipe breaks iTOL)
+has_pipe <- grepl("\\|", tree$tip.label)
+if (any(has_pipe)) {
+  cat("WARNING:", sum(has_pipe), "tips contain '|' — will break iTOL annotations\n")
+}
+```
+
+### Python validation chunk (iTOL upload scripts)
+
+```python
+#| label: validate-tree
+
+from ete3 import Tree
+
+tree_path = PROJECT_ROOT / "data/phylogenetics/tree.treefile"
+assert tree_path.exists(), f"Tree file not found: {tree_path}"
+
+tree = Tree(str(tree_path))
+tips = tree.get_leaf_names()
+print(f"Tips: {len(tips)}")
+
+# Check for pipe characters
+pipe_tips = [t for t in tips if "|" in t]
+if pipe_tips:
+    print(f"WARNING: {len(pipe_tips)} tips contain '|' — must relabel before iTOL")
+```
+
+---
+
 ## Step 1: Choose the Tree Type
 
 Help the user select the right visualization. Ask about **purpose** and **tree size**,

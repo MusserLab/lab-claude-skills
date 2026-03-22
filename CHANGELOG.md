@@ -5,6 +5,26 @@ Format: date-based entries (this isn't versioned software).
 
 ---
 
+## 2026-03-21 (v1.6.0)
+
+### Added
+- `/cleanup-scripts` skill — session-scoped script cleanup: consolidate scratch files, check conventions
+- `expression-report` skill — single-cell expression reports: barplots, heatmaps, cross-analysis (Python/scanpy)
+- `hpc` skill — Yale YCRC HPC/SLURM reference for batch scripts, job resources, cluster storage, and YCGA partition
+
+### Changed
+- `audit`: added interactive planning document review, STATUS_SUMMARY.md rebuild, session log health checks, script convention compliance checking
+- `data-handling`: added compressed file handling section (.gz/.tar.gz/.zip), "show your work" communication directive, common data pitfalls (column collisions, namespace masking, join key verification)
+- `deep-research-reports`: added nonmetazoan characterization report type with prokaryote/eukaryote variants, separate summary table
+- `done`: added Session Log (rolling 5-entry log in project CLAUDE.md), done_extensions.md support, staging safety warning (`git add` by name only), push offer after commit, sequential bash for `~/.claude` commits
+- `new-project`: added cluster/SLURM question and directories (batch/, logs/), Session Log template in scaffolded CLAUDE.md
+- `new-skill`: added bundled resources convention for code-generating skills (scripts/ and references/ subdirectories)
+- `protein-phylogeny`: added comprehensive FASTA validation chunk (duplicates, empty seqs, non-standard chars, internal stops) and IQ-TREE tier 1.5 (Q.pfam+F+R6 for batch screening)
+- `quarto-book-setup`: added Session Log section reference in generated CLAUDE.md
+- `quarto-docs`: added archive previous outputs code chunks for R and Python (moves existing files to _archive/ before re-render)
+- `script-organization`: added cluster projects section (batch/logs/), letter suffix rules (shared output dirs, execution order), archive before overwrite convention, relaxed cross-language script rule (exception for tight pipelines)
+- `tree-formatting`: added Newick tree file validation step with R (ape) and Python (ete3) code chunks
+
 ## 2026-03-13 (v1.5.1)
 
 ### Fixed

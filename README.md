@@ -176,6 +176,7 @@ Invoke these directly to run a workflow.
 | `/quarto-publish` | Commit and publish a Quarto project to GitHub Pages |
 | `/gene-list-deep-research` | Generate deep research prompts from scRNAseq marker gene lists for cell type annotation |
 | `/process-deep-research` | Process deep research report outputs — clean artifacts, generate PDF/HTML, parse YAML headers |
+| `/cleanup-scripts` | Session-scoped script cleanup — consolidate scratch files, check conventions |
 
 ### Data science conventions
 
@@ -188,6 +189,7 @@ For analysis projects with numbered scripts, `data/`+`outs/` directories.
 | `quarto-docs` | QMD analysis scripts with status fields and reproducibility metadata |
 | `r-plotting-style` | ggplot2 theme and conventions |
 | `figure-export` | PDF/PNG/SVG export for publication and Inkscape editing |
+| `expression-report` | Single-cell expression reports — barplots, heatmaps, cross-analysis |
 | `r-renv` | R package management with renv |
 
 ### General conventions
@@ -200,6 +202,7 @@ For all project types.
 | `file-safety` | Rules for not overwriting important files |
 | `conda-env` | Conda activation patterns for Python commands |
 | `debugging-before-patching` | Diagnose before fixing — never blind-patch |
+| `hpc` | Yale YCRC HPC/SLURM reference — batch scripts, job resources, cluster storage |
 | `new-skill` | Create a new skill with proper structure |
 
 ### Domain skills

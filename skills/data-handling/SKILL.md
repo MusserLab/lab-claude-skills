@@ -283,7 +283,138 @@ result.head()
 - `warnings.warn()` — warnings that surface in rendering output
 - `df.info()` / `df.head()` / `df.describe()` — data summaries, keep visible
 
+## 7. Compressed File Handling
+
+Guidance for working with `.gz`, `.tar.gz`, `.zip`, and other compressed input files.
+
+### Prefer reading in-place over decompressing
+
+Most tools can read compressed files directly — avoid unnecessary decompression.
+
+**R:**
+```r
+# readr handles .gz transparently — just use the .gz path
+data <- read_tsv(here("data/counts.tsv.gz"))
+
+# Base R also works with gzfile()
+data <- read.csv(gzfile(here("data/counts.csv.gz")))
+
+# For .zip files, use unz()
+data <- read_tsv(unz(here("data/archive.zip"), "counts.tsv"))
+```
+
+**Python:**
+```python
+# pandas handles .gz transparently
+data = pd.read_csv(PROJECT_ROOT / "data/counts.tsv.gz", sep="\t")
+
+# For explicit gzip handling
+import gzip
+with gzip.open(PROJECT_ROOT / "data/sequences.fasta.gz", "rt") as f:
+    content = f.read()
+
+# BioPython handles .gz FASTA/FASTQ
+from Bio import SeqIO
+import gzip
+with gzip.open("data/sequences.fasta.gz", "rt") as f:
+    records = list(SeqIO.parse(f, "fasta"))
+```
+
+### When you must decompress
+
+Some tools require uncompressed files (e.g., certain bioinformatics tools that need
+random access). In that case:
+
+- **Never decompress into `data/`** — `data/` is read-only
+- Decompress to `outs/<script>/` — the script's output directory
+- Document the decompression step and original source
+
+```python
+import gzip
+import shutil
+
+gz_path = PROJECT_ROOT / "data/reference.fasta.gz"
+decompressed = out_dir / "reference.fasta"
+
+if not decompressed.exists():
+    with gzip.open(gz_path, "rb") as f_in:
+        with open(decompressed, "wb") as f_out:
+            shutil.copyfileobj(f_in, f_out)
+    print(f"Decompressed {gz_path.name} -> {decompressed.name}")
+```
+
+### .tar.gz archives
+
+For multi-file archives, extract to `outs/`:
+
+```python
+import tarfile
+
+archive = PROJECT_ROOT / "data/reference_files.tar.gz"
+extract_dir = out_dir / "reference_files"
+
+if not extract_dir.exists():
+    with tarfile.open(archive, "r:gz") as tar:
+        tar.extractall(path=extract_dir)
+    print(f"Extracted {len(list(extract_dir.rglob('*')))} files to {extract_dir.name}/")
+```
+
+### Key rules
+
+- **Read directly when possible** — R's `readr` and Python's `pandas` handle `.gz` natively
+- **Never decompress into `data/`** — always decompress to `outs/<script>/`
+- **Document the original compressed source** in the inputs section of the script
+- **Don't commit decompressed files** — they can be regenerated from the compressed source
+
+---
+
 ## Claude Code Behavior
+
+### Show Your Work — Communicate During Coding
+
+When writing analysis code interactively, **do not just write code and move on**. The user is a scientist who needs to stay informed about what's happening to the data. Treat coding as a conversation, not a monologue.
+
+**After every significant data operation, report to the user:**
+- Dimensions: "Loaded 39,562 genes × 18 samples"
+- Coverage: "29,753 genes matched (75%), 9,809 unmatched"
+- Join results: "Left join added annotations; 18,943 with real names, 20,619 with Trinity ID fallback"
+- Filter impact: "After quality filter: 5,335 of 7,943 genes retained (67%)"
+
+**Before writing a join, verify key format on both sides:**
+- Don't just check column names — inspect actual values: `head()`, `sample()`, `nchar()`, `grepl()`
+- `head()` alone can be misleading if early rows are unrepresentative (e.g., unannotated genes first). Use `sample_n()` or check the distribution.
+- Confirm the key columns have the same format (e.g., hyphen vs underscore, bare ID vs annotated name)
+- Report what you find: "Join key `Geneid` has format 'c12345-g1' for 30k genes but 'c12345-g1 Annotation...' for 10k — these won't match `Trinity_geneID`"
+
+**When something doesn't match expectations, stop and say so:**
+- "I expected ~18,000 annotated genes but only see 3,940 — let me investigate"
+- "This join dropped 50 rows — that's more than I expected. Should I check why?"
+- "The `seurat_name` column has mostly bare Trinity IDs (25k) and only 4k with annotation — does that seem right?"
+
+**This is not optional.** Silently writing code that produces plausible-looking output is how bugs like column collisions and wrong join keys survive into production.
+
+### Prevent Common Data Pitfalls
+
+**Column collisions from multiple joins:**
+When joining the same annotation table at multiple points in a script, check whether earlier joins already added columns that will collide. Example: joining `gene_names[, c("id", "name", "label")]` in Section 3 and again in Section 8 creates `label.x`/`label.y`. Fix: only join the columns you need at each point, or join once and carry the result forward.
+
+**Namespace masking (R/Bioconductor):**
+Loading Bioconductor packages (DESeq2, edgeR, AnnotationDbi) imports S4 generics that mask dplyr functions. Common victims: `rename()`, `select()`, `filter()`, `count()`, `slice()`. Always use `dplyr::rename()`, `dplyr::select()` etc. when Bioconductor packages are loaded in the same session.
+
+**Join key format verification:**
+Before any join, verify the key column values (not just names) match on both sides:
+```r
+# R: Check format on both sides before joining
+head(table_a$key, 5)
+head(table_b$key, 5)
+sum(table_a$key %in% table_b$key)  # how many will match?
+```
+```python
+# Python: Check format on both sides before joining
+print(table_a["key"].head())
+print(table_b["key"].head())
+print(table_a["key"].isin(table_b["key"]).sum())  # how many will match?
+```
 
 ### Surface Analysis Decisions — Never Resolve Ambiguities Silently
 

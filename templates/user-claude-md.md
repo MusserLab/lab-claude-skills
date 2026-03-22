@@ -90,6 +90,7 @@ Skills are categorized by scope. **General** skills apply to all projects. **Dat
 | Skill | Purpose |
 |-------|---------|
 | `debugging-before-patching` | Diagnose before fixing; never blind-patch |
+| `hpc` | Yale YCRC HPC/SLURM reference — batch scripts, job resources, cluster storage |
 | `git-conventions` | Git commit practices |
 | `conda-env` | Conda activation patterns |
 | `file-safety` | Rules for not overwriting important files |
@@ -108,6 +109,7 @@ Skills are categorized by scope. **General** skills apply to all projects. **Dat
 | `/quarto-publish` | Commit and publish Quarto projects to GitHub Pages |
 | `/gene-list-deep-research` | Generate deep research prompts from scRNAseq marker gene lists for cell type annotation |
 | `/process-deep-research` | Process deep research report outputs: clean artifacts, generate PDF/HTML, parse YAML headers |
+| `/cleanup-scripts` | Session-scoped script cleanup: consolidate scratch files, check conventions |
 
 ### Data Science (analysis projects with data/outs/scripts/ layout)
 
@@ -120,4 +122,5 @@ These auto-load only in data science projects. They assume numbered scripts, `da
 | `quarto-docs` | QMD analysis scripts with status fields, git hash, BUILD_INFO.txt |
 | `r-renv` | R package management with renv |
 | `r-plotting-style` | ggplot2 theme and conventions |
+| `expression-report` | Single-cell expression reports: barplots, heatmaps, cross-analysis (Python/scanpy) |
 | `figure-export` | Saving PDF/PNG/SVG for Inkscape editing (svglite, ggrastr, cairo_pdf) |

@@ -91,6 +91,7 @@ Create `.claude/CLAUDE.md` with:
 - Book structure
 - Publish workflow (`/publish`)
 - Any project-specific notes
+- A **Session Log** section at the bottom (maintained by `/done` — see that skill for format)
 
 ## Final Output
 

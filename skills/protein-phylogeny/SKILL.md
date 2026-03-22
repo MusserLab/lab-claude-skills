@@ -46,9 +46,21 @@ recommendation logic below to guide the conversation.
 
 ### 1. Input validation
 
-- Input: protein FASTA file
-- If sequences look like nucleotides (only A/T/G/C/N), confirm with user
-- Report basic stats: number of sequences, median length, min/max length
+Validate the FASTA file before proceeding. The generated script includes a validation
+chunk (see Phase 2) that runs these checks automatically, but also inspect the file
+during the discussion phase to inform algorithm/model recommendations.
+
+- **File exists and is valid FASTA** — parseable by BioPython, non-empty
+- **Sequences are protein** — check alphabet. If >90% of characters are A/T/G/C/N,
+  warn the user: "These look like nucleotide sequences, not protein. Confirm?"
+- **Basic stats** — sequence count, median length, min/max length, length distribution
+- **Duplicate IDs** — flag any duplicate sequence headers (MAFFT will silently use only
+  the last occurrence)
+- **Empty sequences** — flag sequences with length 0
+- **Non-standard characters** — report any characters outside the standard amino acid
+  alphabet (ACDEFGHIKLMNPQRSTVWY) plus common extras (X, U, B, Z, J, O, *). A few X's
+  are normal; many suggest quality issues
+- **Stop codons** — if `*` appears mid-sequence (not just at the end), warn the user
 
 ### 2. Minimum length cutoff
 
@@ -93,10 +105,15 @@ columns.
 | Tier | Model | When to use | Approximate time (166 seq) |
 |------|-------|-------------|---------------------------|
 | **1** | MFP (ModelFinder) | Quick exploration, screening | ~15-30 min |
+| **1.5** | Q.pfam+F+R6 | Fast gene trees, batch screening — skip model search | ~10-20 min |
 | **2** | ELM+C60+G PMSF (default) | Deep eukaryotic phylogenies | ~3-8 hours |
 | **2 alt** | LG+C60+F+R PMSF | Non-eukaryotic or for comparison | ~3-8 hours |
 | **3** | PhyloBayes CAT+GTR | Maximum rigor, < 200 seq | Hours to days |
 
+- **Q.pfam**: empirical protein model trained on Pfam alignments — solid general-purpose
+  choice when model selection overhead isn't justified. +F uses empirical amino acid
+  frequencies, +R6 uses 6 free-rate categories. Good for batch phylogenetics on the
+  cluster where you're building many trees and don't need per-dataset model optimization.
 - **ELM** (Eukaryotic Linked Mixture): better than LG with profile mixtures for
   eukaryotic data (Banos et al. 2024, MBE)
 - C60: 60-class amino acid profile mixture
@@ -134,7 +151,7 @@ Generate a Python `.qmd` with these sections in order:
 2. Setup chunk (PROJECT_ROOT, out_dir, git_hash, imports)
 3. **Configuration chunk** — all user decisions as named variables
 4. Inputs chunk (FASTA path, clearly labeled)
-5. Input validation chunk (sequence stats, length filtering)
+5. Input validation chunk (FASTA validation + sequence stats + length filtering)
 6. [Optional] CD-HIT chunk (controlled by config flag)
 7. Alignment chunk (MAFFT via subprocess)
 8. [Optional] Trimming chunk (controlled by config flag)
@@ -164,10 +181,80 @@ MAFFT_THREADS = 8                # Parallel threads for MAFFT alignment
 RUN_TRIMMING = False
 TRIMMING_TOOL = "clipkit"        # "clipkit" | "bmge"
 
-IQTREE_TIER = 2                  # 1 = quick MFP, 2 = ELM+C60+G PMSF, 3 = PhyloBayes
+IQTREE_TIER = 2                  # 1 = MFP, 1.5 = Q.pfam+F+R6, 2 = ELM+C60+G PMSF, 3 = PhyloBayes
 IQTREE_MATRIX = "ELM"           # "ELM" | "LG" (Tier 2 only)
 IQTREE_THREADS = 8              # Fixed thread count (AUTO crashes with PMSF in v3.0.1)
 BOOTSTRAP_REPS = 1000
+```
+
+**FASTA validation chunk** — runs before any analysis:
+
+```python
+#| label: validate-input
+
+from Bio import SeqIO
+from collections import Counter
+
+VALID_AA = set("ACDEFGHIKLMNPQRSTVWY")
+EXTENDED_AA = set("XUBZJO*")
+
+fasta_path = INPUT_FASTA
+assert fasta_path.exists(), f"FASTA file not found: {fasta_path}"
+
+records = list(SeqIO.parse(fasta_path, "fasta"))
+assert len(records) > 0, "FASTA file is empty or not valid FASTA format"
+
+# Basic stats
+lengths = [len(r.seq) for r in records]
+median_len = sorted(lengths)[len(lengths) // 2]
+print(f"Sequences: {len(records)}")
+print(f"Length: median {median_len}, min {min(lengths)}, max {max(lengths)}")
+
+# Duplicate IDs
+ids = [r.id for r in records]
+dupes = [id for id, count in Counter(ids).items() if count > 1]
+if dupes:
+    print(f"WARNING: {len(dupes)} duplicate IDs — MAFFT keeps only last: {dupes[:5]}")
+
+# Empty sequences
+empty = [r.id for r in records if len(r.seq) == 0]
+if empty:
+    print(f"WARNING: {len(empty)} empty sequences: {empty[:5]}")
+
+# Alphabet check — nucleotide vs protein
+all_chars = Counter()
+for r in records:
+    all_chars.update(str(r.seq).upper())
+total_chars = sum(all_chars.values())
+nuc_chars = sum(all_chars.get(c, 0) for c in "ATGCN")
+if total_chars > 0 and nuc_chars / total_chars > 0.9:
+    print(f"WARNING: {nuc_chars/total_chars:.0%} nucleotide chars — may not be protein")
+
+# Non-standard characters
+nonstandard = {c: n for c, n in all_chars.items()
+               if c not in VALID_AA and c not in EXTENDED_AA and c != "-"}
+if nonstandard:
+    print(f"WARNING: Non-standard characters: {nonstandard}")
+
+# Stop codons mid-sequence
+for r in records:
+    seq = str(r.seq)
+    if "*" in seq[:-1]:  # ignore terminal stop
+        print(f"WARNING: Internal stop codon (*) in {r.id}")
+
+# Short sequence filter
+short_cutoff = median_len * MIN_LENGTH_FRACTION
+short = [r.id for r in records if len(r.seq) < short_cutoff]
+if short:
+    print(f"\n{len(short)} sequences < {short_cutoff:.0f} aa "
+          f"({MIN_LENGTH_FRACTION:.0%} of median)")
+    records = [r for r in records if len(r.seq) >= short_cutoff]
+    print(f"Retained {len(records)} sequences after length filter")
+    filtered_fasta = out_dir / "input_filtered.fasta"
+    SeqIO.write(records, filtered_fasta, "fasta")
+else:
+    print(f"\nAll sequences >= {short_cutoff:.0f} aa — no filtering needed")
+    filtered_fasta = fasta_path
 ```
 
 **Caching pattern** — skip expensive steps if output exists:
@@ -211,6 +298,17 @@ MAFFT_FLAGS = {
 cmd = [
     "iqtree3", "-s", str(input_aln),
     "-m", "MFP",
+    "-B", str(BOOTSTRAP_REPS), "-alrt", str(BOOTSTRAP_REPS),
+    "-nstop", "50", "-T", "AUTO",
+    "-pre", str(out_dir / "tree")
+]
+```
+
+**Tier 1.5 — Fast fixed model (batch screening, no model search):**
+```python
+cmd = [
+    "iqtree3", "-s", str(input_aln),
+    "-m", "Q.pfam+F+R6",
     "-B", str(BOOTSTRAP_REPS), "-alrt", str(BOOTSTRAP_REPS),
     "-nstop", "50", "-T", "AUTO",
     "-pre", str(out_dir / "tree")

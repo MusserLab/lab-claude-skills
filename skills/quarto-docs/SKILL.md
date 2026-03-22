@@ -203,6 +203,25 @@ set.seed(42)
 
 git_hash <- system("git rev-parse --short HEAD", intern = TRUE)
 cat("Rendered from commit:", git_hash, "\n")
+
+# ---- Archive previous outputs ----
+out_dir <- here("outs/XX_script_name")
+dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
+
+existing_files <- list.files(out_dir, full.names = TRUE)
+existing_files <- existing_files[!file.info(existing_files)$isdir]
+if (length(existing_files) > 0) {
+  build_info <- file.path(out_dir, "BUILD_INFO.txt")
+  if (file.exists(build_info)) {
+    orig_time <- file.info(build_info)$mtime
+  } else {
+    orig_time <- max(file.info(existing_files)$mtime)
+  }
+  archive_dir <- file.path(out_dir, "_archive", format(orig_time, "%Y-%m-%d_%H%M%S"))
+  dir.create(archive_dir, recursive = TRUE, showWarnings = FALSE)
+  file.rename(existing_files, file.path(archive_dir, basename(existing_files)))
+  message("Archived ", length(existing_files), " previous outputs -> ", basename(archive_dir))
+}
 ```
 ````
 
@@ -275,6 +294,23 @@ out_dir.mkdir(parents=True, exist_ok=True)
 
 git_hash = subprocess.check_output(["git", "rev-parse", "--short", "HEAD"]).decode().strip()
 print(f"Rendered from commit: {git_hash}")
+
+# ---- Archive previous outputs ----
+import shutil
+
+existing_files = [f for f in out_dir.iterdir() if f.is_file()]
+if existing_files:
+    build_info = out_dir / "BUILD_INFO.txt"
+    if build_info.exists():
+        orig_time = datetime.fromtimestamp(build_info.stat().st_mtime)
+    else:
+        orig_time = datetime.fromtimestamp(max(f.stat().st_mtime for f in existing_files))
+
+    archive_dir = out_dir / "_archive" / orig_time.strftime("%Y-%m-%d_%H%M%S")
+    archive_dir.mkdir(parents=True, exist_ok=True)
+    for f in existing_files:
+        shutil.move(str(f), str(archive_dir / f.name))
+    print(f"Archived {len(existing_files)} previous outputs → {archive_dir.name}")
 ```
 ````
 

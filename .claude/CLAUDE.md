@@ -46,6 +46,13 @@ lab-claude-skills/
 ## Session Log
 <!-- Maintained by /done. Most recent first. Keep last 5 entries. -->
 
+### 2026-03-21 — Sync plugin v1.6.0
+- **Plans:** None
+- **Work:** Synced 14 changes to lab repo: 3 new skills (cleanup-scripts, expression-report, hpc), 11 updated skills (audit, data-handling, deep-research-reports, done, new-project, new-skill, protein-phylogeny, quarto-book-setup, quarto-docs, script-organization, tree-formatting). Selective merges for done (Session Log, staging safety, extensions — without Slack/STATUS_SUMMARY) and new-project (cluster/SLURM, Session Log — without Slack). Updated README, user-claude-md template, CHANGELOG, plugin.json. Posted to #code.
+- **Next:**
+  - Publish cell-type-families, cell-type-tree, wgcna-cell-type when fine-tuning complete
+  - prost-gene-naming remains PI-only (held back for improvement)
+
 ### 2026-03-12 — Sync plugin v1.5.0
 - **Plans:** None
 - **Work:** Synced 4 changes to lab repo: new `audit-script` and `learn-code` skills, updated `deep-research-genelist` (family-aware mode) and `deep-research-reports` (family-aware support). Updated README, user-claude-md template, CHANGELOG, plugin.json. Posted to #code.

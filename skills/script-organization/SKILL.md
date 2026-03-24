@@ -91,6 +91,15 @@ project/
 Both `batch/` and `logs/` must be in `.gitignore` — they are ephemeral and machine-specific.
 See the `hpc` skill for batch script conventions and job resource templates.
 
+**Script format on the cluster:** Use `.py` scripts, not `.qmd`. Quarto has NFS cleanup
+issues and requires extra Jupyter dependencies that may not be installed in every conda env.
+`.py` scripts run anywhere with a Python interpreter and produce the same outputs (plots
+saved to files, BUILD_INFO.txt, summary stats printed to stdout).
+
+`.qmd` remains available for **locally rendered reports** — interactive exploration,
+publication figures with narrative, or when inline HTML output is valuable. But `.py` is
+the default for analysis scripts in cluster projects.
+
 ### Choosing a Subdirectory
 
 When creating a new script in a sectioned project:
@@ -150,7 +159,10 @@ Rules for lettered scripts:
 
 ## Script Lifecycle
 
-Every `.qmd` script includes a `status` field in its YAML frontmatter:
+Every analysis script declares its status:
+
+- **`.qmd`** — `status` field in YAML frontmatter
+- **`.py`** — `Status: development` line in the module docstring
 
 | Status | Meaning | Location |
 |--------|---------|----------|
@@ -158,14 +170,9 @@ Every `.qmd` script includes a `status` field in its YAML frontmatter:
 | `finalized` | Outputs are publication-ready; modify only with deliberate re-validation | `scripts/` |
 | `deprecated` | Superseded; kept for reference | `scripts/old/` or `scripts/<section>/old/` |
 
-When deprecating a script, add a `deprecated_by` field:
+When deprecating, note the replacement in the frontmatter (`.qmd`) or docstring (`.py`).
 
-```yaml
-status: deprecated
-deprecated_by: 05_improved_analysis.qmd
-```
-
-Planning documents remain the authoritative tracker of script status across the project. The YAML `status` field makes the status visible when opening the file itself.
+Planning documents remain the authoritative tracker of script status across the project.
 
 ---
 
@@ -283,9 +290,21 @@ Every script writes a `BUILD_INFO.txt` to its output folder as its last action:
 script: 01_analysis.qmd
 commit: a1b2c3d
 date: 2026-02-14 15:30:00
+slurm_job_id: 6380027
 ```
 
-This answers: "When was this output folder last regenerated, and from what version of the code?" If downstream plots look wrong, check the upstream folder's BUILD_INFO.txt to see whether it was generated from current code or something stale.
+The `slurm_job_id` line is written only when the script runs via SLURM (i.e., `$SLURM_JOB_ID`
+is set). This links the output folder to its log file (`logs/slurm-*-<job_id>.out`), which
+is essential when reruns produce multiple log files. In Python:
+
+```python
+slurm_job_id = os.environ.get("SLURM_JOB_ID", "")
+# ... in BUILD_INFO write block:
+if slurm_job_id:
+    f.write(f"slurm_job_id: {slurm_job_id}\n")
+```
+
+This answers: "When was this output folder last regenerated, from what code, and which log file has the details?" If downstream plots look wrong, check the upstream folder's BUILD_INFO.txt to see whether it was generated from current code or something stale.
 
 BUILD_INFO.txt lives in `outs/` and is not tracked by git (since `outs/` is in `.gitignore`).
 
@@ -294,6 +313,115 @@ BUILD_INFO.txt lives in `outs/` and is not tracked by git (since `outs/` is in `
 Rendered `.html` output goes into `outs/<script_name>/` alongside data outputs, keeping `scripts/` clean.
 
 See the `quarto-docs` skill for complete QMD templates with git hash and BUILD_INFO.txt chunks.
+
+### `.py` Analysis Script Template
+
+For cluster projects, `.py` is the default analysis script format. The template carries
+over the same reproducibility features as `.qmd` (git hash, BUILD_INFO.txt, structured
+inputs, archive-before-overwrite) without requiring Quarto.
+
+```python
+#!/usr/bin/env python3
+"""Short description of what this script does.
+
+Input:  data/... (external), outs/.../file.tsv (from script XX)
+Output: outs/section/XX_script_name/
+
+Status: development
+"""
+
+import os
+import subprocess
+import sys
+from datetime import datetime
+from pathlib import Path
+
+import matplotlib
+matplotlib.use("Agg")  # headless — saves to files, no display
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+
+# ── Setup ─────────────────────────────────────────────────────────────────────
+
+PROJECT_ROOT = Path(
+    subprocess.check_output(["git", "rev-parse", "--show-toplevel"], text=True).strip()
+)
+sys.path.insert(0, str(PROJECT_ROOT / "python"))
+
+GIT_HASH = subprocess.check_output(
+    ["git", "rev-parse", "--short", "HEAD"], text=True
+).strip()
+print(f"Git hash: {GIT_HASH}")
+
+OUT_DIR = PROJECT_ROOT / "outs" / "section" / "XX_script_name"
+OUT_DIR.mkdir(parents=True, exist_ok=True)
+
+# ── Archive previous outputs ─────────────────────────────────────────────────
+
+import shutil
+
+existing_items = [f for f in OUT_DIR.iterdir() if f.name != "_archive"]
+if existing_items:
+    build_info = OUT_DIR / "BUILD_INFO.txt"
+    if build_info.exists():
+        orig_time = datetime.fromtimestamp(build_info.stat().st_mtime)
+    else:
+        all_files = [
+            f for f in OUT_DIR.rglob("*")
+            if f.is_file() and "_archive" not in str(f)
+        ]
+        orig_time = (
+            datetime.fromtimestamp(max(f.stat().st_mtime for f in all_files))
+            if all_files else datetime.now()
+        )
+    archive_dir = OUT_DIR / "_archive" / orig_time.strftime("%Y-%m-%d_%H%M%S")
+    archive_dir.mkdir(parents=True, exist_ok=True)
+    for item in existing_items:
+        shutil.move(str(item), str(archive_dir / item.name))
+    print(f"Archived {len(existing_items)} items -> {archive_dir.name}")
+
+# ── Inputs ────────────────────────────────────────────────────────────────────
+
+# --- Inputs (from other scripts) ---
+# upstream = pd.read_csv(PROJECT_ROOT / "outs/.../file.tsv", sep="\t")
+
+# --- Inputs (external data) ---
+# raw_data = pd.read_csv(PROJECT_ROOT / "data/.../file.tsv", sep="\t")
+
+# ── Analysis step 1 ───────────────────────────────────────────────────────────
+#
+# Describe WHAT this step does and WHY — the analytical reasoning, not just
+# code mechanics. What question does this step answer? What should the reader
+# look for in the output? This replaces the markdown narrative from .qmd files.
+#
+# Each major section should have a block comment like this. Not every line
+# needs a comment, but every analytical step needs context. Also annotate:
+# - Critical lines (thresholds, assumptions, non-obvious logic)
+# - Tricky or surprising code that would confuse a reader
+
+# ... analysis code, plots saved to OUT_DIR ...
+
+# ── BUILD_INFO ────────────────────────────────────────────────────────────────
+
+slurm_job_id = os.environ.get("SLURM_JOB_ID", "")
+with open(OUT_DIR / "BUILD_INFO.txt", "w") as f:
+    f.write(f"script: scripts/section/XX_script_name.py\n")
+    f.write(f"commit: {GIT_HASH}\n")
+    f.write(f"date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+    if slurm_job_id:
+        f.write(f"slurm_job_id: {slurm_job_id}\n")
+print("BUILD_INFO.txt written")
+```
+
+**Key features:**
+- `matplotlib.use("Agg")` for headless rendering (no display server needed)
+- Git hash captured at start, printed to stdout, written to BUILD_INFO.txt
+- Archive-before-overwrite preserves previous outputs
+- Docstring with status, inputs, outputs serves as the script's documentation
+- All output goes to `outs/`, all reads from `data/` or upstream `outs/`
+- `PROJECT_ROOT` from git, not hardcoded paths
+- Stdout serves as the execution log (redirect with `python script.py | tee log.txt`)
 
 ---
 

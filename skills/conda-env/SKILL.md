@@ -10,16 +10,28 @@ Claude Code runs in a non-interactive shell where conda isn't automatically init
 
 ## Activation Pattern
 
+The activation command depends on the environment:
+
+**Local (macOS):**
 ```bash
 source ~/miniconda3/etc/profile.d/conda.sh && conda activate ENV_NAME && YOUR_COMMAND
 ```
 
-Or for miniforge3:
+**Cluster (HPC — Bouchet/McCleary):**
 ```bash
-source ~/miniforge3/etc/profile.d/conda.sh && conda activate ENV_NAME && YOUR_COMMAND
+module load miniconda && source $(conda info --base)/etc/profile.d/conda.sh && conda activate ENV_NAME && YOUR_COMMAND
 ```
 
-> **Customize**: Replace `~/miniconda3` or `~/miniforge3` with your actual conda installation path. Find it with `conda info --base`.
+**How to detect which to use:** Check if the `module` command exists:
+```bash
+type module &>/dev/null && echo "cluster" || echo "local"
+```
+
+On the cluster, conda is provided via `module load miniconda` — there is no `~/miniconda3`.
+On local macOS, `module` doesn't exist.
+
+> **Customize**: On macOS, replace `~/miniconda3` with your actual conda installation path
+> if different (e.g., `~/miniforge3`). Find it with `conda info --base`.
 
 ## Before Running Commands
 
@@ -77,7 +89,13 @@ Always use `--from-history` for portable environment files:
 conda env export --from-history > environment.yml
 ```
 
-This records only explicitly installed packages (not platform-specific transitive dependencies), making the file portable across OS and architectures.
+This records only explicitly installed packages (not platform-specific transitive
+dependencies), making the file portable across OS and architectures.
+
+**Post-export hygiene** — always clean up the exported file:
+- **Remove `prefix:` line** — machine-specific absolute path, not portable
+- **Remove `defaults` from channels** — conflicts with bioconda strict channel priority
+- Verify `conda-forge` is listed as a channel
 
 ## Shared Environments
 
@@ -111,5 +129,5 @@ All general-type projects (documentation sites, infrastructure tools, Quarto boo
 
 ## Shell Environment
 
-- **Shell**: zsh (macOS default)
-- **Conda base**: Typically `~/miniconda3` or `~/miniforge3` — customize to match your installation
+- **Local (macOS):** Shell is zsh. Conda base is typically `~/miniconda3` or `~/miniforge3`.
+- **Cluster (HPC):** Shell is bash. Conda is loaded via `module load miniconda` — no local install.

@@ -5,6 +5,18 @@ Format: date-based entries (this isn't versioned software).
 
 ---
 
+## 2026-03-23 (v1.7.0)
+
+### Changed
+- `audit-script`: added domain verification phase (researches tools, file formats, and methods before auditing code), domain assumptions checklist in audit reports, `.claude/audit_reports/` save location, "verify domain assumptions" and "track uncertainty" principles, subagent prohibition
+- `conda-env`: added cluster (HPC) activation patterns with auto-detection, post-export hygiene (remove prefix line, remove defaults channel)
+- `done`: added same-day session numbering, sync-canonical reminder, conda environment export with post-export hygiene
+- `hpc`: full content sync — added transfer node warnings, dual-environment project conventions, provenance block in batch template, modules vs conda hybrid rule, tools environment, interactive command conventions, PROST benchmarks, job array mail-type guidance
+- `script-organization`: added cluster `.py` script format guidance, full `.py` analysis script template with BUILD_INFO.txt and archive-before-overwrite, `slurm_job_id` in BUILD_INFO, `.py` status in module docstrings
+
+### Fixed
+- README: `/quarto-publish` → `/publish` (matching actual skill name)
+
 ## 2026-03-21 (v1.6.0)
 
 ### Added

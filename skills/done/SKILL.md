@@ -64,6 +64,7 @@ Append a new entry to the **Session Log** section at the bottom of the project's
 - **Same-day updates** — if an entry for today's date already exists (from an earlier `/done` run in this session), **replace it** rather than adding a duplicate. Merge the work descriptions and update the Next items. This allows `/done` to be run multiple times per session without cluttering the log.
 - **Trim to 5 entries** — delete the oldest entry if there are more than 5
 - **Short title** should disambiguate from parallel sessions (e.g., "Metadata exploration", "WGCNA figures", "Environment setup")
+- **Same-day session numbering** — when multiple sessions occur on the same date, number them: `### 2026-03-22 (session 1) — Title`, `### 2026-03-22 (session 2) — Title`, etc. This makes the log scannable when intensive work produces multiple sessions per day. The number reflects chronological order within that day.
 - **Plans line** — list which planning documents were worked on (e.g., "`figure_plan.md`"). Write "None" if no plans were involved. This helps track work that falls outside of plans.
 - **Next items** — these are the main value. Be specific and actionable. They accumulate across sessions until actually done — don't repeat items already listed in a recent entry unless context changed.
 - If the Session Log section doesn't exist yet, create it at the bottom of the file (before any closing comments).
@@ -166,6 +167,35 @@ If there are changes (skills, CLAUDE.md, etc.):
   3. `git -C ~/.claude push`
 
 **Skill registration check:** If new skills were created in `~/.claude/skills/` this session, verify each appears in the Available Skills table in `~/.claude/CLAUDE.md`. If any are missing, add them before committing.
+
+**Sync reminder:** After committing, check if `~/.claude/.sync-canonical/` exists (indicates a two-repo sync setup). If it does, compare the cluster repo HEAD against the canonical staging HEAD. If they differ:
+> "You have changes in `~/.claude` that haven't been synced to canonical. Run `/sync-cluster` now to review and push them."
+If on the cluster, offer to run it immediately. If on macOS (canonical machine), remind the user to run `/sync-cluster` on the cluster next time they're there — macOS mode only pulls, it can't push cluster changes to canonical.
+Do NOT run `/sync-cluster` automatically — it's an interactive skill that requires decisions about what to push/modify/skip.
+
+### Conditional: Conda environment export [Data Science only]
+
+Only if conda packages were installed or updated during this session:
+
+1. Check if the active conda env matches `environment.yml`:
+   ```bash
+   conda env export --from-history
+   ```
+2. Compare against the current `environment.yml`. If they differ (new packages, removed
+   packages, version changes), ask: "Conda environment has changed. Export to
+   environment.yml?"
+3. If yes, export and clean up:
+   ```bash
+   conda env export --from-history > environment.yml
+   ```
+4. **Post-export hygiene** — automatically fix these in the exported file:
+   - **Remove `prefix:` line** — machine-specific absolute path, not portable
+   - **Remove `defaults` from channels** — conflicts with bioconda strict channel priority
+   - Verify `conda-forge` is listed as a channel
+5. Include updated `environment.yml` in the commit.
+
+Use `--from-history` (not bare `conda env export`) so only explicitly installed packages
+are recorded, not platform-specific transitive dependencies.
 
 ### Conditional: renv snapshot [Data Science only]
 

@@ -173,7 +173,7 @@ Invoke these directly to run a workflow.
 | `/learn-code` | Interactive script walkthrough for teaching coding, organization, and analytical reasoning |
 | `/security-setup` | Configure and manage Claude Code security protections for sensitive files and credentials |
 | `/quarto-book-setup` | Initialize a new Quarto book with GitHub Pages |
-| `/quarto-publish` | Commit and publish a Quarto project to GitHub Pages |
+| `/publish` | Commit and publish a Quarto project to GitHub Pages |
 | `/gene-list-deep-research` | Generate deep research prompts from scRNAseq marker gene lists for cell type annotation |
 | `/process-deep-research` | Process deep research report outputs — clean artifacts, generate PDF/HTML, parse YAML headers |
 | `/cleanup-scripts` | Session-scoped script cleanup — consolidate scratch files, check conventions |
@@ -185,7 +185,7 @@ For analysis projects with numbered scripts, `data/`+`outs/` directories.
 | Skill | Description |
 |-------|-------------|
 | `data-handling` | Data validation, summaries, surfacing analytical decisions |
-| `script-organization` | Directory structure, numbering, lifecycle, provenance |
+| `script-organization` | Directory structure, numbering, lifecycle, provenance, cluster .py templates |
 | `quarto-docs` | QMD analysis scripts with status fields and reproducibility metadata |
 | `r-plotting-style` | ggplot2 theme and conventions |
 | `figure-export` | PDF/PNG/SVG export for publication and Inkscape editing |
@@ -200,9 +200,9 @@ For all project types.
 |-------|-------------|
 | `git-conventions` | Commit practices and conventions |
 | `file-safety` | Rules for not overwriting important files |
-| `conda-env` | Conda activation patterns for Python commands |
+| `conda-env` | Conda environment activation for Python commands (local and HPC) |
 | `debugging-before-patching` | Diagnose before fixing — never blind-patch |
-| `hpc` | Yale YCRC HPC/SLURM reference — batch scripts, job resources, cluster storage |
+| `hpc` | Yale YCRC HPC cluster reference — batch scripts, job resources, storage, Snakemake |
 | `new-skill` | Create a new skill with proper structure |
 
 ### Domain skills

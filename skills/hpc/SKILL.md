@@ -103,6 +103,14 @@ Max 4 interactive app instances per user simultaneously. Yale VPN required off-c
 
 Everything else must be submitted as a SLURM job.
 
+### Transfer nodes
+
+Transfer nodes (e.g., `transfer1.bouchet`) are for data transfer only (rsync, Globus,
+scp). **Do not use them to run tools** — they often have older CPUs that cause
+"Illegal instruction" errors with compiled binaries. If you need to run `module load`,
+`prefetch`, `fasterq-dump`, or any analysis tool, use an interactive compute node instead
+(see Interactive jobs below).
+
 ---
 
 ## 3. Storage
@@ -136,17 +144,37 @@ Everything else must be submitted as a SLURM job.
 Mirror the local project structure in PI storage or project space:
 
 ```
-/vast/palmer/pi/musser/<project_name>/
-  data/              # External/immutable inputs only (same as local)
+/nfs/roberts/project/pi_jm284/<project_name>/
+  .git/              # Same repo as local — sync via git push/pull
+  .claude/           # Project docs, plans, findings
+  batch/             # SLURM batch scripts (tracked in git)
+  logs/              # SLURM output files (tracked in git)
   scripts/           # Analysis scripts
-  outs/              # All script-produced outputs (same as local)
-  batch/             # SLURM batch scripts (gitignored)
-  logs/              # SLURM output files (gitignored)
+  data/              # External/immutable inputs (gitignored, sync via Globus)
+  outs/              # Script-produced outputs (gitignored)
   environment.yml    # Conda environment specification
 ```
 
-Use scratch for large intermediate files (alignments, temporary indices, sort buffers)
-that can be regenerated.
+Use scratch only for large temporary files (sort buffers, intermediate alignments) that
+can be regenerated. Never store the project itself on scratch — use PI storage.
+
+### Dual-environment projects (local + cluster)
+
+When a project is worked on both locally and on the cluster, the **same git repo** is
+cloned in both places. Conventions:
+
+- **Git syncs scripts, docs, logs, and batch files.** Always `git pull` before starting
+  work in either environment.
+- **Data syncs via Globus.** Large files (`data/`, tool outputs) are gitignored and
+  transferred manually. Not all data exists in both places.
+- **Batch scripts use `BASEDIR=$(git rev-parse --show-toplevel)`** — no hardcoded paths.
+  This makes scripts work regardless of where the repo is cloned.
+- **Logs are tracked in git.** The cluster session commits logs after jobs complete; pull
+  locally to review results.
+- **Cluster-only directories** (e.g., `cellranger_refs/`, raw FASTQ staging directories)
+  are added to `.gitignore` on a per-project basis.
+- **The project CLAUDE.md documents the dual-environment setup**, including the cluster
+  path and which directories are cluster-only.
 
 ---
 
@@ -166,20 +194,60 @@ Every batch script starts from these defaults. Override per-job as needed.
 #SBATCH --cpus-per-task=8
 #SBATCH --mem-per-cpu=5G
 #SBATCH --output=logs/slurm-%j.out
-#SBATCH --mail-type=FAIL
+#SBATCH --mail-type=BEGIN,END,FAIL
 #SBATCH --mail-user=<netid>@yale.edu
 
+# ── Provenance ────────────────────────────────────────
+BASEDIR=$(git rev-parse --show-toplevel)
+cd "$BASEDIR"
+
+echo "=== PROVENANCE ==="
+echo "Job ID:      $SLURM_JOB_ID"
+echo "Script:      $0"
+echo "Git hash:    $(git rev-parse HEAD)"
+echo "Git dirty:   $(git status --porcelain | head -5)"
+echo "Date:        $(date -Iseconds)"
+echo "Node:        $(hostname)"
+
+# Modules (cluster-only tools — always pin versions)
 module purge
+module load Tool/1.2.3
+
+module list 2>&1
+
+# Conda (project environment)
 module load miniconda
 conda activate myenv
+echo "Conda env:   $CONDA_DEFAULT_ENV"
 
+# Log versions of key tools used in this script
+echo "tool:        $(tool --version | head -1)"
+echo "=== END PROVENANCE ==="
+# ──────────────────────────────────────────────────────
+
+# ── Main ──────────────────────────────────────────────
 # Your commands here
 ```
+
+The provenance block prints to stdout, which SLURM captures in the log file. Since logs
+are tracked in git, the full record (script version, tool versions, environment state) is
+version-controlled alongside the code that produced the results.
+
+**Provenance block requirements:**
+- `BASEDIR` + `cd` — ensures git commands and relative paths work
+- `git rev-parse HEAD` — which version of the code ran
+- `git status --porcelain` — catches uncommitted changes (scripts called by the batch job
+  are covered by the git hash only if the tree is clean)
+- `module list` — all loaded modules and their exact versions
+- `conda activate` + env name — which conda environment was used
+- Tool version lines — one per tool actually invoked in the script
 
 **File organization:**
 - Batch scripts → `batch/` subdirectory
 - Log files → `logs/` subdirectory (create with `mkdir -p logs` before first submit)
-- Both `batch/` and `logs/` should be in `.gitignore`
+- `batch/` is tracked in git (scripts are code)
+- `logs/` is tracked in git (logs are the reproducibility record — commit after jobs
+  complete so provenance is preserved)
 
 **Critical**: No space between `#` and `SBATCH` — otherwise the directive is ignored.
 
@@ -196,7 +264,7 @@ conda activate myenv
 | `--gpus` | `-G` | 0 | GPU count (must be explicit) |
 | `--output` | `-o` | `logs/slurm-%j.out` | Combined stdout+stderr |
 | `--error` | `-e` | (not set) | Separate stderr file (use when debugging with split output) |
-| `--mail-type` | — | `FAIL` | Notifications (see below) |
+| `--mail-type` | — | `BEGIN,END,FAIL` | Notifications (see below) |
 | `--mail-user` | — | `<netid>@yale.edu` | Notification email |
 | `--nodes` | `-N` | 1 | Compute nodes (rarely >1 except MPI) |
 | `--ntasks` | `-n` | 1 | MPI task count |
@@ -205,11 +273,12 @@ conda activate myenv
 
 | `--mail-type` value | When to use |
 |---------------------|-------------|
-| `FAIL` | **Lab default.** Most jobs — you only care if something breaks |
-| `END` | Long jobs (>4 hours) where you want to know when to check results |
-| `FAIL,END` | Long jobs + failure alerts |
-| `ALL` | Debugging — notifies on start, end, and failure |
-| `NONE` | Job arrays or high-volume submissions to avoid email flood |
+| `BEGIN,END,FAIL` | **Lab default** for single jobs |
+| `BEGIN,END,FAIL,ARRAY_TASKS` | **Lab default** for array jobs — sends per-task emails so individual failures are visible |
+| `FAIL` | Very high-volume array jobs (hundreds of tasks) to reduce email flood |
+
+For array jobs, always include `ARRAY_TASKS`. Without it, individual task failures within
+a running array don't trigger emails — you only find out when the whole array finishes.
 
 ### GPU jobs
 
@@ -263,6 +332,8 @@ submissions per hour**.
 #SBATCH --cpus-per-task=4
 #SBATCH --mem-per-cpu=4G
 #SBATCH --output=logs/slurm-%A_%a.out
+#SBATCH --mail-type=BEGIN,END,FAIL,ARRAY_TASKS
+#SBATCH --mail-user=<netid>@yale.edu
 
 SAMPLE=$(sed -n "${SLURM_ARRAY_TASK_ID}p" samples.txt)
 # Process $SAMPLE
@@ -317,9 +388,13 @@ SAMPLE=$(sed -n "${SLURM_ARRAY_TASK_ID}p" samples.txt)
 
 ## 6. Tool Resource Profiles
 
-SLURM resource recommendations only. Tool-specific skills (e.g., `protein-phylogeny`,
-`expression-report`) handle how to invoke each tool; this table handles how much to
+SLURM resource recommendations only. Tool-specific skills handle how to invoke each
+tool, generate batch scripts, and interpret output. This table just covers how much to
 request from SLURM. **Always check `jobstats` after initial runs and adjust.**
+
+**Tools with dedicated skills:** `eggnog-mapper` (eggNOG-mapper), `prost-annotation`
+(PROST), `protein-phylogeny` (IQ-TREE, MAFFT), `expression-report` (scanpy/matplotlib).
+Use those skills for batch script generation — this table is a quick resource reference.
 
 | Tool | CPUs | Memory | Time | Partition | GPU | Notes |
 |------|------|--------|------|-----------|-----|-------|
@@ -331,7 +406,7 @@ request from SLURM. **Always check `jobstats` after initial runs and adjust.**
 | **Cell Ranger** | 16 | 64G total | 12h | day | — | Use `--mem=64G` |
 | **STARsolo** | 16 | 64G total | 8h | day | — | Use `--mem=64G` |
 | **DIAMOND** | 16 | 4G/cpu | 4h | day | — | Scales well with threads |
-| **PROST** | 4 | 128G total | 4h | gpu | 1 | Per proteome (≤50K proteins) |
+| **PROST** | 4 | 32G total | 4h | gpu | 1 | 22 min for 25K proteins (RTX 5000 Ada). Actual RAM ~6.5G. |
 | **TransDecoder** | 4 | 4G/cpu | 2h | day | — | |
 | **BUSCO** | 8 | 4G/cpu | 4h | day | — | Varies with lineage DB |
 | **EggNOG-mapper** | 8 | 4G/cpu | 4h | day | — | |
@@ -340,6 +415,24 @@ request from SLURM. **Always check `jobstats` after initial runs and adjust.**
 ---
 
 ## 7. Environment Management
+
+### Modules vs conda: the hybrid rule
+
+For any given tool, use **one or the other** — never both. If a tool is available via both
+module and conda, choose one and stick with it. Having the same tool in both creates PATH
+conflicts where the activation order silently determines which version runs.
+
+| Use **conda** (project env) for | Use **modules** for |
+|--------------------------------|---------------------|
+| Tools used in both local and cluster environments | Cluster-only heavy tools unlikely to run locally |
+| Python/R packages | Tools with complex cluster-specific dependencies |
+| Lightweight bioinformatics (samtools, MAFFT, DIAMOND) | Cell Ranger, STAR, PROST, EggNOG-mapper |
+| Anything tracked in `environment.yml` | GPU-dependent tools requiring CUDA |
+
+**Always pin module versions** — use `module load CellRanger/9.0.1`, never bare
+`module load CellRanger`. Unpinned modules silently change when the cluster updates
+defaults. The provenance block in the batch template logs loaded versions, but pinning
+prevents the drift in the first place.
 
 ### Conda (Python + bioinformatics tools)
 
@@ -360,6 +453,19 @@ conda activate myenv
 - Use **conda-forge** as the primary channel, add **bioconda** for bioinformatics tools
 - **Store environments in PI storage or home** — never in scratch (60-day purge)
 - Use `pip` only as a fallback when a package is not available in conda-forge
+
+### Tools environment (recommended)
+
+A shared `tools` conda env for general-purpose cluster utilities (not project-specific):
+
+```bash
+conda create -n tools -c conda-forge gh git
+conda activate tools
+gh auth login   # one-time setup: authenticate with GitHub
+```
+
+Activate `tools` at the start of sessions that need `gh`, `git`, or other general CLI
+tools. Project-specific envs (Python analysis, bioinformatics pipelines) remain separate.
 
 ### R (rig + renv)
 
@@ -561,7 +667,48 @@ Eligible users: Yale PIs using YCGA for sequencing and their authorized lab memb
 
 ---
 
-## 11. Job Script Generation
+## 11. Interactive Command Conventions
+
+When giving the user commands to run on the cluster (not batch scripts), follow these
+conventions:
+
+### Always background long-running commands
+
+Append `&` to any command that will take more than a few seconds:
+
+```bash
+pigz -p 8 *.fastq &
+fasterq-dump --split-files --threads 8 SRR123456 &
+```
+
+This lets the user keep working in the same shell. Mention `jobs` and `fg` for checking
+or re-attaching.
+
+### Prefer parallel tools
+
+| Slow tool | Fast alternative | Notes |
+|-----------|-----------------|-------|
+| `gzip` | `pigz -p N` | `module load pigz`. N = number of cores |
+| `bzip2` | `pbzip2 -p N` | |
+| `samtools sort` | `samtools sort -@ N` | Built-in threading |
+| `samtools index` | `samtools index -@ N` | Built-in threading |
+
+### Parallel processing of many files
+
+When operating on many independent files, use `xargs -P`:
+
+```bash
+ls *.fastq | xargs -P 8 -I {} gzip {} &
+```
+
+### Always show full paths or clear context
+
+Commands should be unambiguous — include `cd` to the working directory or use absolute
+paths so the user can copy-paste without guessing context.
+
+---
+
+## 12. Job Script Generation
 
 When asked to create a SLURM job, Claude operates in one of two modes depending on where
 it is running.
@@ -586,18 +733,22 @@ it is running.
 
 ### Script generation rules
 
-- Use the tool resource templates from Section 6 as starting points
+- Use the lab default batch script template from Section 4, including the provenance block
+- Use the tool resource templates from Section 6 for SLURM directives
 - Always include: `--job-name`, `--partition`, `--time`, `--cpus-per-task`, memory, `--output`
 - Always `module purge` before loading modules
-- Set `--mail-type=FAIL` by default (override if user prefers)
+- Always pin module versions (e.g., `module load CellRanger/9.0.1`, never bare `module load CellRanger`)
+- Follow the hybrid rule from Section 7: conda for portable tools, modules for cluster-only tools — never both for the same tool
+- Always set `--mail-type=BEGIN,END,FAIL` and `--mail-user=<netid>@yale.edu`
 - Log files go to `logs/` subdirectory
 - For YCGA data analysis on McCleary, use `--partition=ycga`
 - Add comments explaining non-obvious resource choices (e.g., "128G needed for PROST structure DB")
+- Log version strings for every tool actually invoked in the script (in the provenance block)
 - If unsure about resources, start conservative and note "check with jobstats after first run"
 
 ---
 
-## 12. Policies
+## 13. Policies
 
 - **Scratch purge**: Files older than 60 days are automatically deleted. Email notification
   one week before. Do not artificially modify timestamps to circumvent.

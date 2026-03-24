@@ -2,11 +2,13 @@
 name: audit-script
 description: >
   Systematic audit of data analysis scripts for bugs, analytical reasoning, data handling, style,
-  and reproducibility. Use when auditing a script, reviewing code for correctness, checking for
-  bugs, preparing a script for publication, or when the user says "audit this script", "review
-  this code", "check this for bugs", or "is this script correct". Three modes: thorough
-  (collaborative section-by-section), fast (Claude-driven with discussion), and report-only.
-  Do NOT load for quick one-off questions about a single line or function.
+  and reproducibility. Includes domain verification phase that researches tools, file formats, and
+  methods to catch domain-specific errors (not just code bugs). Use when auditing a script,
+  reviewing code for correctness, checking for bugs, preparing a script for publication, or when
+  the user says "audit this script", "review this code", "check this for bugs", or "is this
+  script correct". Three modes: thorough (collaborative section-by-section), fast (Claude-driven
+  with discussion), and report-only. Do NOT load for quick one-off questions about a single line
+  or function.
 user-invocable: true
 ---
 
@@ -52,6 +54,124 @@ Use AskUserQuestion:
 
 This lets the user flag known weak points, steer attention to a specific category, or provide
 context about what the script is supposed to do.
+
+---
+
+## Domain Verification Phase
+
+**This phase runs in all modes** (thorough, fast, report-only) before the code audit begins.
+Its purpose is to close the gap between code-level review and domain-specific correctness by
+researching the actual tools, file formats, and analytical methods the script uses — then
+auditing the code against that verified knowledge rather than relying on background familiarity.
+
+### Why This Matters
+
+The most dangerous bugs in bioinformatics and data science aren't code bugs — they're
+**misunderstandings of what the tools and data actually do.** A script can be syntactically
+correct, logically clean, and still produce wrong results because the author (or reviewer)
+didn't know that:
+- BAM files store each alignment as a separate record (naive iteration overcounts multimappers)
+- Cell Ranger uses MAPQ 255 for unique mapping (non-standard; SAM spec uses ≤60)
+- `inner_join` silently drops unmatched rows
+- GFF3 coordinates are 1-based inclusive, BED is 0-based half-open
+
+These are **domain assumptions** — facts about tools, formats, and methods that the code
+depends on but doesn't state. The domain verification phase makes them explicit and checks them.
+
+### How It Works
+
+#### 1. Inventory Tools, Formats, and Methods
+
+After reading the script, identify every external dependency the code relies on:
+
+- **File formats** being read or written (BAM/SAM, BED, GFF3, VCF, FASTA, CSV, H5AD, etc.)
+- **Bioinformatics tools** called via subprocess or library (minimap2, STAR, Cell Ranger,
+  BLAST, samtools, pysam, scanpy, Seurat, etc.)
+- **Statistical methods** or analytical approaches (normalization, clustering, differential
+  expression, multiple testing correction, etc.)
+- **Library-specific behaviors** (how pysam iterates BAM records, how pandas handles NAs in
+  groupby, how ggplot2 drops NAs in aesthetics, etc.)
+
+#### 2. Research Critical Assumptions
+
+For each tool/format/method, use **WebSearch and WebFetch** to pull the relevant documentation
+and identify the critical behaviors the code must handle correctly. Focus on:
+
+- **Record structure:** What does one "row" or "record" represent? (A read? An alignment?
+  A gene? A transcript?)
+- **Coordinate systems:** 0-based vs 1-based? Half-open vs closed? Does the code convert
+  correctly?
+- **Default behaviors:** What does the tool do silently? (Drop unmapped reads? Merge
+  overlapping features? Sort output?)
+- **Flag/field semantics:** What do specific values mean? (MAPQ 255, SAM flags, GFF3
+  attribute encoding)
+- **Edge cases:** What happens with empty input, missing values, duplicate keys, very long
+  sequences, special characters?
+- **Known gotchas:** What do people commonly get wrong with this tool/format? (Community
+  forums, GitHub issues, tool FAQs)
+
+Produce a **Domain Assumptions Checklist** — a concrete list of facts that the code depends on,
+each verified against documentation. Format:
+
+```
+DOMAIN ASSUMPTIONS CHECKLIST
+─────────────────────────────
+Tool/Format: pysam + BAM
+  ✓ Each multimapped read appears as multiple records (primary + secondary)
+  ✓ Iterating bam.fetch() yields alignments, not reads — must deduplicate by query_name
+  ✓ MAPQ 255 = uniquely mapped (Cell Ranger convention; standard SAM caps at 60)
+  ✓ is_secondary (flag 0x100) vs is_supplementary (flag 0x800) are different categories
+  ? PCR duplicate marking in Cell Ranger BAMs — need to verify
+
+Tool/Format: BED
+  ✓ 0-based, half-open coordinates (start inclusive, end exclusive)
+  ✓ Converting from GFF3 (1-based inclusive): subtract 1 from start, keep end as-is
+
+Method: minimap2 cross-species mapping
+  ✓ -k 10 appropriate for short ncRNAs (default k=15 misses tRNAs)
+  ✓ --secondary=yes needed for multi-copy genes (rRNA arrays)
+  ? Alignment quality thresholds for cross-species mapping — worth checking
+```
+
+Mark each assumption: ✓ (verified against docs), ✗ (contradicted by docs — potential BUG),
+? (couldn't verify — flag for manual review).
+
+#### 3. Audit Code Against Checklist
+
+With the checklist in hand, trace through the code and verify that each assumption is handled
+correctly. This is where domain verification feeds into the standard audit:
+
+- An assumption marked ✗ becomes a **BUG** or **CONCERN** finding
+- An assumption marked ? becomes a **WARNING** with "needs manual domain review"
+- An assumption marked ✓ that the code handles incorrectly becomes a **BUG**
+- An assumption marked ✓ that the code handles correctly is noted as a **Good Practice**
+
+#### 4. Recommend Assumption Blocks
+
+After the audit, recommend that the script include an explicit **ASSUMPTIONS block** documenting
+the critical domain assumptions the code depends on. This makes future audits faster and helps
+students understand what the code takes for granted:
+
+```python
+# ASSUMPTIONS (verified against Cell Ranger 9.0 docs, SAM spec v1.6):
+# - BAM iteration yields alignments, not reads; we deduplicate via seen_reads set
+# - MAPQ 255 = uniquely mapped (Cell Ranger convention, not standard SAM)
+# - PCR duplicates are NOT marked in possorted_genome_bam.bam
+# - is_secondary and is_supplementary alignments are skipped (primary only)
+# - GFF3 coordinates are 1-based inclusive; converted to 0-based for pysam fetch
+```
+
+### Depth Scaling
+
+The depth of domain verification scales with audit mode and script complexity:
+
+- **Report-only:** Quick checklist from background knowledge + targeted web searches for
+  unfamiliar tools. Flag unknowns as ? rather than spending time researching deeply.
+- **Fast:** Full research phase with web searches. Produce verified checklist. Flag remaining
+  unknowns for discussion.
+- **Thorough:** Full research phase, then walk through the checklist with the user before
+  starting the code audit. The user adds domain knowledge ("we verified this threshold
+  experimentally"), resolves ? items, and may flag additional assumptions the checklist missed.
 
 ---
 
@@ -126,7 +246,18 @@ Read the script and present:
 Ask: "Does this match your understanding of what this script should do?" Mismatches between
 intent and implementation are a finding category.
 
-### 2. Section-by-Section Audit
+### 2. Domain Verification (collaborative)
+
+Run the full Domain Verification Phase (see above). In thorough mode:
+- Research tools and formats, produce the Domain Assumptions Checklist
+- Present the checklist to the user before starting the code walk-through
+- Walk through each assumption: "I found that Cell Ranger uses MAPQ 255 for unique mapping —
+  does that match your understanding?"
+- The user adds domain knowledge, resolves ? items, and may flag assumptions the checklist missed
+- This step builds shared understanding of what the code *should* do before examining whether
+  it actually does
+
+### 3. Section-by-Section Audit
 
 For each logical section:
 
@@ -185,7 +316,7 @@ concerns ("this threshold was chosen because of the experimental design") or rai
 
 **e. Document findings** — tag with category, severity, lines, and recommendation.
 
-### 3. Cross-Section Analysis
+### 4. Cross-Section Analysis
 
 After all individual sections:
 - Trace data flow across the full script together
@@ -194,9 +325,10 @@ After all individual sections:
 - Verify the overall analytical argument holds together
 - Look for things the script should be doing but isn't (missing validation, missing checks)
 
-### 4. Produce Audit Report
+### 5. Produce and Save Audit Report
 
 Compile findings documented throughout into the structured report format (see below).
+Save the report to `.claude/audit_reports/` (see "Audit Report Format" for details).
 
 ### Pacing
 
@@ -212,7 +344,15 @@ Claude works through the script independently, then discusses findings with the 
 
 Read the entire script.
 
-### 2. Systematic Analysis
+### 2. Domain Verification
+
+Run the full Domain Verification Phase (see above). In fast mode:
+- Research tools and formats via web searches
+- Produce verified Domain Assumptions Checklist
+- Flag remaining unknowns (?) for discussion with the user
+- Audit code against the checklist as part of the systematic analysis
+
+### 3. Systematic Analysis
 
 Apply the 5-category checklist across all sections:
 - Trace data flow from input to output
@@ -220,15 +360,18 @@ Apply the 5-category checklist across all sections:
 - Look for silent data loss, unvalidated joins, missing checks
 - Evaluate style, organization, and reproducibility
 - Run diagnostics where possible (dimension checks, NA counts, join validation)
+- **Check code against the Domain Assumptions Checklist** — verify each assumption is handled
 
-### 3. Produce Audit Report
+### 4. Produce and Save Audit Report
 
-Full structured report with all findings.
+Full structured report with all findings, including Domain Assumptions Checklist.
+Save the report to `.claude/audit_reports/` (see "Audit Report Format" for details).
 
-### 4. Collaborative Review of Findings
+### 5. Collaborative Review of Findings
 
 Present findings to the user, ordered by severity (BUG first):
 - For each finding: show the code, explain the issue, discuss implications
+- **Present unresolved domain assumptions (? items)** for the user's domain input
 - User adds context, agrees/disagrees, reclassifies severity
 - Together decide: fix now, defer, mark as acceptable
 - New issues can surface during discussion
@@ -238,8 +381,11 @@ Present findings to the user, ordered by severity (BUG first):
 
 ## Report-Only Mode
 
-Same as fast mode steps 1-3. No collaborative review. Produces the report and saves it.
-Findings are marked as "Unreviewed" in the status column.
+Same as fast mode steps 1-4. No collaborative review. Produces the report and saves it
+to `.claude/audit_reports/`. Findings are marked as "Unreviewed" in the status column.
+
+In report-only mode, domain verification uses background knowledge + targeted web searches.
+Unknown assumptions are flagged as ? in the checklist for the user to review independently.
 
 Best for: batch auditing multiple scripts, quick quality snapshots, or when the user will
 review the report in a separate session.
@@ -276,6 +422,12 @@ When auditing, Claude should actively run diagnostics (in Claude-driven modes) o
 - **By severity:** {N} BUG, {N} CONCERN, {N} WARNING, {N} NOTE
 - **By category:** {N} Correctness, {N} Analytical, {N} Data Handling, {N} Style, {N} Reproducibility
 - **Overall assessment:** {1-2 sentence summary of script quality and most critical issues}
+
+## Domain Assumptions Checklist
+
+| Tool/Format | Assumption | Verified? | Code Handles? | Finding |
+|-------------|-----------|:---------:|:-------------:|---------|
+| {tool} | {assumption} | ✓ / ✗ / ? | Yes / No / N/A | {ref or "OK"} |
 
 ## Findings
 
@@ -318,7 +470,9 @@ When auditing, Claude should actively run diagnostics (in Claude-driven modes) o
 | 2 | CONCERN-1 | Investigate | {name} |
 ```
 
-Save as `{script_name}_audit_report.md` alongside the script or in `outs/`.
+**Always save the report** to `.claude/audit_reports/{script_name}_audit_report.md` in the
+project root. Create the `.claude/audit_reports/` directory if it doesn't exist. Every audit
+must produce a saved report file — this is not optional.
 
 ---
 
@@ -331,6 +485,7 @@ Save as `{script_name}_audit_report.md` alongside the script or in `outs/`.
 5. **Be specific.** "This join might lose rows" is not helpful. "This inner_join on line 47 drops 23 rows because gene_names has entries not in mdata" is actionable.
 6. **Run diagnostics, don't guess.** When something looks suspicious, actually run the code to verify before reporting it as a finding.
 7. **Credit good practices.** Note when the script does something well — especially defensive coding, good documentation, or thoughtful analytical choices.
+8. **Verify domain assumptions, don't assume.** When the code depends on tool/format behavior, look it up rather than relying on background knowledge. A verified assumption is worth ten educated guesses.
 
 ---
 
@@ -346,3 +501,4 @@ When this skill is active:
 - **Track uncertainty.** If you're not sure whether something is a bug or intentional, say so. "This might be intentional, but if not, it would cause..." is better than a false positive or a missed bug.
 - **In thorough mode: don't pre-digest.** Let the user read and run the code first. Ask questions, don't give answers. The user finding issues themselves is the point.
 - **In fast mode: be comprehensive.** You're working alone — don't skip sections or categories. The user is counting on your thoroughness because they're not reading every line.
+- **Do not use subagents for audits.** Run the audit directly in the current conversation. Subagents may lack tool permissions and cannot reliably save reports or verify scripts. For independent audits, use a separate Claude Code session instead.

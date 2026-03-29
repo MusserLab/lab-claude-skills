@@ -63,12 +63,31 @@ These apply in projects with `project-type: data-science`:
 
 ---
 
+## Cluster-Specific Conventions (YCRC HPC)
+
+This section applies on Yale YCRC HPC clusters (Bouchet, McCleary, Milgram). It supplements the core principles above.
+
+### Script format: `.py` on the cluster
+
+Use `.py` scripts for all analysis work on the cluster. Do not use `.qmd` — Quarto has NFS cleanup issues and requires extra Jupyter dependencies (`nbformat`, `nbclient`, `ipykernel`, `pyyaml`) that may not be in every conda env.
+
+- **`.py`** — Default for cluster analysis scripts. Use `matplotlib.use("Agg")` for headless plotting. Include a docstring with `Status:`, inputs, and outputs. See the `.py` template in the `script-organization` skill.
+- **`.qmd`** — For locally rendered reports only (interactive exploration, publication figures with narrative). Render on the local machine, not the cluster.
+- **`python/`** — Reusable utilities imported by analysis scripts (e.g., FASTA parsers).
+
+### Write scripts, don't run inline
+
+When performing analysis interactively in a Claude Code session, write the code as a `.py` script first, then execute it. Do not run analysis as inline Python in the conversation — that code is not recoverable or reproducible. The script is the record.
+
+---
+
 ## Troubleshooting
 
 > Customize this section for your machine.
 
 ### "Command not found" for conda tools
-> Source conda before activating: `source ~/miniconda3/etc/profile.d/conda.sh`
+> **Local (macOS):** `source ~/miniconda3/etc/profile.d/conda.sh`
+> **Cluster (Bouchet):** `module load miniconda && source $(conda info --base)/etc/profile.d/conda.sh`
 
 ### "The project is out-of-sync" (renv)
 > This is a warning, not an error. Run `renv::status()` to see details, `renv::restore()` to sync

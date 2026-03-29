@@ -91,9 +91,19 @@ If you used the plugin install and don't have the repo cloned, download template
 
 ### 1. Copy the settings template
 
+**On your local machine (macOS/Linux desktop):**
+
 ```bash
 cp templates/settings-example.json ~/.claude/settings.json
 ```
+
+**On an HPC cluster (Bouchet, McCleary, etc.):**
+
+```bash
+cp templates/settings-cluster.json ~/.claude/settings.json
+```
+
+The cluster template includes glob-based deny rules for Linux, blanket `Bash(*)` permissions (hooks handle safety), extra protections for shared filesystems (`rm -rf /nfs*`, process killing), and disables telemetry. It also has a YCRC cluster quick reference in the comments.
 
 If you already have a `settings.json`, merge in the entries you want manually.
 
@@ -105,9 +115,19 @@ This file includes:
 
 ### 2. Copy the user instructions template (optional)
 
+**On your local machine:**
+
 ```bash
 cp templates/user-claude-md.md ~/.claude/CLAUDE.md
 ```
+
+**On an HPC cluster:**
+
+```bash
+cp templates/user-claude-md-cluster.md ~/.claude/CLAUDE.md
+```
+
+The cluster template adds conventions for HPC work — `.py` scripts instead of `.qmd`, headless matplotlib, module-based conda activation.
 
 This gives Claude context about lab conventions across all your projects. Customize the troubleshooting section for your machine.
 
@@ -153,6 +173,8 @@ Claude Code is an AI agent that can read any file on your machine and run any sh
 | **Deny rules** | Settings-level blocks that work even if a hook has a bug | Copy `settings-example.json` |
 | **Bash scoping** | Only pre-approved commands run without prompting; unlisted commands require approval | Copy `settings-example.json` |
 
+**HPC clusters:** `/security-setup` auto-detects cluster environments and applies cluster-appropriate defaults — glob-based deny rules, no bash scoping, and extra protections against filesystem destruction and process killing.
+
 For the full security guide — what's protected, platform differences, allowlist vs blocklist modes, and how to update protections — see **[SECURITY.md](SECURITY.md)**.
 
 ---
@@ -168,10 +190,11 @@ Invoke these directly to run a workflow.
 | `/done` | End-of-session wrap-up — summarize work, update docs, and commit |
 | `/new-project` | Scaffold a new project (data science, docs, or general) |
 | `/new-plan` | Create a planning document for multi-session work |
-| `/audit` | Project health check — cross-check docs, prune conventions, find drift |
+| `/audit-project` | Project health check — cross-check docs, prune conventions, find drift |
+| `/audit-skills` | Audit skills for bloat, trigger accuracy, structural quality, redundancy, and pruning opportunities |
 | `/audit-script` | Systematic audit of data analysis scripts for bugs, analytical reasoning, data handling, style, and reproducibility |
 | `/learn-code` | Interactive script walkthrough for teaching coding, organization, and analytical reasoning |
-| `/security-setup` | Configure and manage Claude Code security protections for sensitive files and credentials |
+| `/security-setup` | Configure and manage Claude Code security protections for sensitive files, credentials, and data |
 | `/quarto-book-setup` | Initialize a new Quarto book with GitHub Pages |
 | `/publish` | Commit and publish a Quarto project to GitHub Pages |
 | `/gene-list-deep-research` | Generate deep research prompts from scRNAseq marker gene lists for cell type annotation |
@@ -184,11 +207,11 @@ For analysis projects with numbered scripts, `data/`+`outs/` directories.
 
 | Skill | Description |
 |-------|-------------|
-| `data-handling` | Data validation, summaries, surfacing analytical decisions |
+| `data-handling` | Data handling best practices for R and Python data science analysis scripts |
 | `script-organization` | Directory structure, numbering, lifecycle, provenance, cluster .py templates |
 | `quarto-docs` | QMD analysis scripts with status fields and reproducibility metadata |
 | `r-plotting-style` | ggplot2 theme and conventions |
-| `figure-export` | PDF/PNG/SVG export for publication and Inkscape editing |
+| `figure-export` | Figure export conventions for publication-quality R figures (PDF/PNG/SVG) |
 | `expression-report` | Single-cell expression reports — barplots, heatmaps, cross-analysis |
 | `r-renv` | R package management with renv |
 
@@ -199,9 +222,9 @@ For all project types.
 | Skill | Description |
 |-------|-------------|
 | `git-conventions` | Commit practices and conventions |
-| `file-safety` | Rules for not overwriting important files |
-| `conda-env` | Conda environment activation for Python commands (local and HPC) |
-| `debugging-before-patching` | Diagnose before fixing — never blind-patch |
+| `file-safety` | File modification rules to prevent overwriting important files |
+| `conda-env` | Conda environment activation for Python commands |
+| `debugging-before-patching` | Systematic debugging and error diagnosis |
 | `hpc` | Yale YCRC HPC cluster reference — batch scripts, job resources, storage, Snakemake |
 | `new-skill` | Create a new skill with proper structure |
 
@@ -211,7 +234,7 @@ For specific research tasks.
 
 | Skill | Description |
 |-------|-------------|
-| `protein-phylogeny` | Phylogeny inference: alignment, trimming, tree building |
+| `protein-phylogeny` | Protein phylogeny inference pipeline — alignment, trimming, tree building |
 | `gene-lookup` | Look up gene/protein info from database IDs (UniProt, Ensembl, FlyBase, etc.) |
 | `tree-formatting` | Phylogenetic tree visualization with ggtree or iTOL |
 

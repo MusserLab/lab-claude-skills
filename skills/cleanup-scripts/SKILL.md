@@ -13,7 +13,7 @@ user-invocable: true
 # Script Cleanup (Session Scope)
 
 Check and consolidate working scripts from the current session. This skill focuses
-on the **current session's work** — for project-wide script health, use `/audit`.
+on the **current session's work** — for project-wide script health, use `/audit-project`.
 
 ---
 
@@ -73,7 +73,7 @@ Summarize:
 
 ## Important Notes
 
-- **This is session-scoped.** It uses conversation context to understand what files belong where. For project-wide structural audits, use `/audit`.
+- **This is session-scoped.** It uses conversation context to understand what files belong where. For project-wide structural audits, use `/audit-project`.
 - **Never delete without asking.** Always show what will be moved/deleted and get user confirmation.
 - **Respect legacy scripts.** Unnumbered `.Rmd` files in `scripts/` are legacy — do not flag them as violations.
 - **The hook should prevent most violations.** The `enforce-qmd-scripts.sh` hook blocks creation of numbered non-`.qmd` files. This skill catches anything that slipped through or pre-dates the hook.

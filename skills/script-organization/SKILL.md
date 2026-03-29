@@ -81,14 +81,15 @@ Projects that submit SLURM jobs on the HPC cluster add two directories:
 
 ```
 project/
-  batch/                        # SLURM batch scripts (.sh)
-  logs/                         # SLURM output files (slurm-*.out)
+  batch/                        # SLURM batch scripts (.sh) — tracked in git
+  logs/                         # SLURM output files (slurm-*.out) — tracked in git
   scripts/
   data/
   outs/
 ```
 
-Both `batch/` and `logs/` must be in `.gitignore` — they are ephemeral and machine-specific.
+Both `batch/` and `logs/` are **tracked in git**: batch scripts are code, and logs are the
+reproducibility record (they capture provenance, tool versions, and runtime diagnostics).
 See the `hpc` skill for batch script conventions and job resource templates.
 
 **Script format on the cluster:** Use `.py` scripts, not `.qmd`. Quarto has NFS cleanup
@@ -99,6 +100,35 @@ saved to files, BUILD_INFO.txt, summary stats printed to stdout).
 `.qmd` remains available for **locally rendered reports** — interactive exploration,
 publication figures with narrative, or when inline HTML output is valuable. But `.py` is
 the default for analysis scripts in cluster projects.
+
+#### The `.py` + `.sh` Pairing Convention
+
+Analysis logic and SLURM job configuration are always **separate files**:
+
+- **`.py` script** in `scripts/<section>/` — contains all analysis logic, reads inputs,
+  writes outputs, produces plots. Self-contained: can be run interactively, locally, or
+  via SLURM. Uses `PROJECT_ROOT` from git, not hardcoded paths.
+- **`.sh` batch script** in `batch/` — thin SLURM wrapper that sets resource requests,
+  activates the conda environment, and calls `python scripts/<section>/XX_script.py`.
+  Contains no analysis logic.
+
+This separation means:
+- The `.py` script can be run directly (`python scripts/annotation/05_mapping.py`) for
+  debugging, interactive development, or local execution
+- SLURM resources can be adjusted without touching analysis code
+- The `.sh` script is short and templated (see `hpc` skill for the template)
+
+**Numbering:** `.py` scripts are numbered per-section as usual (`05a_`, `05b_`, etc.).
+Batch scripts in `batch/` use their own numbering sequence (e.g., `11a_`, `11b_`), since
+`batch/` is flat and shared across all sections. The batch script name should make the
+connection clear (e.g., `batch/11a_trinity_genome_mapping.sh` calls
+`scripts/annotation/05a_trinity_genome_mapping.py`).
+
+**Commit before execute:** Always commit scripts before executing them — whether submitting
+a batch job on the cluster (`sbatch`) or rendering a `.qmd` locally (`quarto render`). The
+git hash recorded in BUILD_INFO.txt must reflect the code that actually ran. If the script
+was modified but not committed, the hash points to stale code and the provenance record is
+broken. See also the `hpc` skill for the cluster-specific convention.
 
 ### Choosing a Subdirectory
 
@@ -149,7 +179,7 @@ Rules for lettered scripts:
 2. **Shared output directory.** All scripts in a lettered set write to `outs/XX_topic_name/` — NOT `outs/XXa_name/`, `outs/XXb_name/`. The output dir uses the number without a letter.
 3. **The `a` script runs first.** Letters imply execution order within the set.
 4. **Name the set consistently.** `15a_wgcna_threshold.qmd`, `15b_wgcna_modules.qmd`, `15c_wgcna_plots.R` — all share `outs/15_wgcna_platynereis/`.
-5. **Companion scripts** (`.R` or `.py` alongside `.qmd`) are acceptable for lightweight tasks (plotting, utilities). Main analysis should be `.qmd`.
+5. **Companion scripts** (`.R` or `.py` alongside `.qmd`) are acceptable for lightweight tasks (plotting, utilities).
 
 **When to use a new number vs a letter:**
 - New number: different analytical question, different input data, different topic
@@ -330,7 +360,6 @@ Output: outs/section/XX_script_name/
 Status: development
 """
 
-import os
 import subprocess
 import sys
 from datetime import datetime

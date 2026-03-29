@@ -400,6 +400,20 @@ session_info.show()
 
 ## Troubleshooting Quarto Rendering
 
+### Python QMD: No IPython magic (`!command`) in cells
+**Cause:** Quarto renders Python cells with a standard Python kernel, not IPython.
+Shell magic like `!git rev-parse HEAD` raises `SyntaxError`.
+**Fix:** Always use `subprocess` for shell commands in Python `.qmd` cells:
+
+```python
+# CORRECT — works in Quarto
+import subprocess
+git_hash = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
+
+# WRONG — IPython magic, fails in Quarto
+git_hash = !git rev-parse HEAD
+```
+
 ### Python QMD: `__file__` is not defined
 **Cause:** Quarto runs Python QMDs via Jupyter, where `__file__` doesn't exist.
 **Fix:** Use `git rev-parse --show-toplevel` for PROJECT_ROOT (already in the template above). Never use `Path(__file__)` in QMD files.

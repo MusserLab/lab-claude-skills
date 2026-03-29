@@ -23,6 +23,26 @@ Unlike `/learn-code` (which teaches students to understand code), this skill is 
 evaluation** — finding what's wrong, fragile, or misleading. The user is a collaborator, not a
 student. The tone is direct and analytical.
 
+### Core Philosophy: Simplicity First
+
+**The goal of an audit is NOT to make scripts handle every possible edge case.** Data science
+scripts should be simple, clean, easy to read, and well-annotated. Adding defensive code for
+hypothetical problems makes scripts harder to read, which is the opposite of what we want.
+
+The audit should:
+- **Flag real bugs** that produce wrong results in the script's actual use case
+- **Flag analytical decisions** that affect interpretation (undocumented, questionable, or missing)
+- **Flag clarity problems** — code that's hard to follow, poorly annotated, or unnecessarily complex
+- **Note theoretical issues as awareness items**, not action items — "be aware that `get(load(f))`
+  is fragile if files contain multiple objects" is useful context; "rewrite to use `new.env()`"
+  is over-engineering a one-time script
+- **Actively flag over-engineering** — unnecessary validation, defensive code for impossible cases,
+  and abstraction-for-its-own-sake are style findings, not good practices
+
+**Context matters.** A one-time conversion script that processes a known, fixed dataset needs
+different treatment than a reusable pipeline that will see unknown inputs. The audit must
+calibrate its recommendations to the script's actual role.
+
 ---
 
 ## Entry Flow
@@ -211,6 +231,8 @@ its category and severity.
 - Function decomposition (repeated code that should be a function)
 - Script flow (is the order logical?)
 - Magic numbers without explanation
+- **Over-engineering** — unnecessary defensive code, validation for impossible cases,
+  abstractions that add complexity without benefit. Simple, readable code is a feature.
 
 ### 5. Reproducibility
 - Hardcoded paths or values
@@ -224,10 +246,24 @@ its category and severity.
 
 ## Severity Levels
 
-- **BUG** — Incorrect behavior; produces wrong results. Must fix.
+- **BUG** — Incorrect behavior; produces wrong results *in the script's actual use case*. Must fix.
 - **CONCERN** — Analytically questionable; may produce misleading results. Should investigate.
 - **WARNING** — Not wrong, but fragile or risky. Should address.
 - **NOTE** — Style, clarity, or minor improvement. Nice to fix.
+- **FYI** — A pattern or assumption worth being aware of, but not something to change. Used for
+  theoretical fragilities that don't apply to the script's actual context (e.g., a function that
+  would break with different input, but the input is known and fixed). These are informational —
+  the author should understand them but not act on them.
+
+### Severity Calibration
+
+Before assigning severity, consider:
+- **Is this a real problem or a theoretical one?** If the script processes a known, fixed dataset
+  and the "issue" only manifests with different input, it's FYI, not BUG.
+- **Would the fix make the script simpler or more complex?** If more complex, the cure may be
+  worse than the disease. Defensive code that handles impossible cases is a style problem.
+- **Is this a one-time script or a reusable pipeline?** One-time scripts should be simple and
+  correct for their specific task. Reusable pipelines need more robustness.
 
 ---
 
@@ -419,7 +455,7 @@ When auditing, Claude should actively run diagnostics (in Claude-driven modes) o
 ## Summary
 
 - **Total findings:** {N}
-- **By severity:** {N} BUG, {N} CONCERN, {N} WARNING, {N} NOTE
+- **By severity:** {N} BUG, {N} CONCERN, {N} WARNING, {N} NOTE, {N} FYI
 - **By category:** {N} Correctness, {N} Analytical, {N} Data Handling, {N} Style, {N} Reproducibility
 - **Overall assessment:** {1-2 sentence summary of script quality and most critical issues}
 
@@ -448,6 +484,12 @@ When auditing, Claude should actively run diagnostics (in Claude-driven modes) o
 
 ### NOTE-1: {Short description}
 ...
+
+### FYI-1: {Short description}
+- **Category:** {category}
+- **Lines:** {line range}
+- **Description:** {What the pattern is and why it's worth knowing about}
+- **Why not an action item:** {Why this doesn't need to change in this script's context}
 
 ## Sections Reviewed
 
@@ -484,8 +526,10 @@ must produce a saved report file — this is not optional.
 4. **Severity is about impact, not aesthetics.** A confusing variable name is a NOTE. A confusing variable name that leads someone to use the wrong column is a BUG.
 5. **Be specific.** "This join might lose rows" is not helpful. "This inner_join on line 47 drops 23 rows because gene_names has entries not in mdata" is actionable.
 6. **Run diagnostics, don't guess.** When something looks suspicious, actually run the code to verify before reporting it as a finding.
-7. **Credit good practices.** Note when the script does something well — especially defensive coding, good documentation, or thoughtful analytical choices.
+7. **Credit good practices.** Note when the script does something well — especially clean structure, good documentation, or thoughtful analytical choices.
 8. **Verify domain assumptions, don't assume.** When the code depends on tool/format behavior, look it up rather than relying on background knowledge. A verified assumption is worth ten educated guesses.
+9. **Simplicity is a virtue, not a gap.** A script that does its job cleanly without handling every edge case is well-written, not incomplete. Recommend adding code only when it solves a real problem. If a finding's recommended fix would make the script longer and harder to read, reconsider whether it's worth reporting as an action item — it may be better as an FYI.
+10. **Calibrate to the script's role.** A one-time conversion script on a known dataset needs different rigor than a reusable pipeline. Don't treat every script as if it will be rerun on unknown inputs.
 
 ---
 
@@ -497,6 +541,7 @@ When this skill is active:
 - **Show evidence.** When flagging an issue, show the specific code and explain exactly what goes wrong. Run diagnostics where possible.
 - **Distinguish fact from opinion.** "This uses an inner join that drops rows" (fact) vs. "I think a left join would be better here" (opinion/recommendation). Both are valid but should be clearly distinguished.
 - **Don't over-report.** Not every line needs a finding. If a section is clean, say so and move on. Audit fatigue from low-severity noise degrades the value of real findings.
+- **Protect simplicity.** The audit should never push scripts toward unnecessary complexity. If a recommendation would make the code longer and harder to read to handle a theoretical edge case, use FYI severity instead. Actively flag existing over-engineering as a style finding — unnecessary defensive code is clutter.
 - **Respect the author's context.** In collaborative mode, the author may have reasons for choices that aren't documented. Ask before assuming something is wrong.
 - **Track uncertainty.** If you're not sure whether something is a bug or intentional, say so. "This might be intentional, but if not, it would cause..." is better than a false positive or a missed bug.
 - **In thorough mode: don't pre-digest.** Let the user read and run the code first. Ask questions, don't give answers. The user finding issues themselves is the point.

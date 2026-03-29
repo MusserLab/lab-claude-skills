@@ -1,6 +1,8 @@
 ---
 name: done
-description: End of session wrap-up - summarize work, update docs, and commit
+description: >
+  Use when ending a session, wrapping up work, or when the user says "done", "wrap up",
+  "let's commit", or "end of session". Summarizes work, updates docs, and commits.
 user-invocable: true
 ---
 

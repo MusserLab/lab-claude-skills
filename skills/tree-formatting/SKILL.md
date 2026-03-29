@@ -381,6 +381,13 @@ These are hard-won lessons — do not skip:
     to intelligently define ortholog groups, only collapse by taxonomic group.
     Gene families within a tree are the object of study, not noise to be hidden.
 
+12. **Accession filtering for collapse labels** — When building collapse triangle
+    labels from tip names, use an `is_gene_symbol()` helper that excludes UniProt
+    accession patterns (A0A..., P12345, Q-prefixed, etc.). Only sp| Swiss-Prot
+    entries produce real gene symbols; tr| TrEMBL entries produce accessions that
+    are not informative as labels. Filter these out so collapsed triangles show
+    gene names, not accession numbers.
+
 ---
 
 ## Key iTOL Gotchas

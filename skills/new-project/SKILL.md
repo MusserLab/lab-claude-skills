@@ -1,6 +1,9 @@
 ---
 name: new-project
-description: Scaffold a new project with directory structure, environments, git, and Claude Code configuration. Supports data science, documentation, and general project types.
+description: >
+  Use when creating a new project, setting up a project from scratch, or when the user
+  invokes /new-project. Scaffolds directory structure, environments, git, and Claude Code
+  configuration. Supports data science, documentation, and general project types.
 user-invocable: true
 ---
 
@@ -39,10 +42,17 @@ Use AskUserQuestion to collect:
 If sectioned, ask for section names (e.g., `phosphoproteomics`, `transcriptomics`).
 
 #### Question 5: Cluster
-- **Yes** — This project will submit SLURM jobs on the YCRC HPC cluster
+- **Yes** — This project will also live on the YCRC HPC cluster (dual-environment)
 - **No** (Default) — Local analysis only
 
-If yes, adds `batch/` and `logs/` directories (gitignored). See `hpc` skill.
+If yes:
+- Adds `batch/` directory (tracked in git — SLURM batch scripts)
+- Adds `logs/` directory (tracked in git — SLURM output for review in both environments)
+- Adds a "Dual Environment: Local + Cluster" section to CLAUDE.md (see template below)
+- Asks for the **cluster path** (default: `/nfs/roberts/project/<pi_netid>/<project_name>/`)
+- Notes in CLAUDE.md which directories are cluster-only (gitignored)
+- Batch scripts use `BASEDIR=$(git rev-parse --show-toplevel)` — no hardcoded paths
+- See `hpc` skill for full dual-environment conventions
 
 ### For General projects, also ask:
 
@@ -349,120 +359,11 @@ Omit language-specific sections if that language isn't used.
 
 ### Data Science template
 
-Use this template, filling in project-specific details:
-
-````markdown
-<!-- project-type: data-science -->
-# {Project Name}
-
-{Brief description from step 1}
-
----
-
-## Environment
-
-{Include only the sections relevant to the chosen languages}
-
-- **Python/Conda**: `{project_name}` environment
-  ```bash
-  source ~/miniconda3/etc/profile.d/conda.sh && conda activate {project_name}
-  ```
-  Packages: Python 3.11, pandas, numpy, matplotlib, ipykernel
-
-- **R packages**: Managed with renv (see user CLAUDE.md for general renv instructions)
-  - R version: {version} (pinned in `.positron/settings.json`)
-
----
-
-## Repository Layout
-
-```
-{project_name}/
-  R/                          # Shared R helpers
-  python/                     # Shared Python helpers
-  scripts/
-    {section dirs or flat}
-    exploratory/              # One-off analyses
-  data/                       # External inputs only — scripts never write here
-  outs/                       # All script outputs
-    {section dirs or flat}
-    exploratory/
-  .claude/
-    CLAUDE.md                 # This file
-```
-
-Scripts use `here::here()` (R) or `PROJECT_ROOT` (Python) — run from repository root.
-
----
-
-## Script Conventions
-
-This project follows the conventions in the user-level `script-organization` and `quarto-docs` skills:
-- Numbered with `XX_` prefix, matching `outs/XX_script_name/` folder
-- Include `status: development` in YAML frontmatter
-- Git hash in setup chunk, BUILD_INFO.txt at end
-- Inputs grouped at top with comments (external vs project outputs)
-- Use `source(here("R/..."))` (R) or `sys.path.insert` (Python) for shared helpers
-- `.qmd` format for all data science scripts (both R and Python)
-- `.py` files only for standalone utilities or CLI tools
-
----
-
-## Key Files
-
-(Add important files here as the project develops)
-
----
-
-## Workflows
-
-(Document how to run the analysis as it develops)
-
----
-
-## Conventions
-
-See user-level skills for detailed conventions:
-- `script-organization` — directory structure, numbering, lifecycle, provenance
-- `quarto-docs` — QMD templates (R and Python), rendering
-- `data-handling` — data validation, analytical decisions
-- `r-plotting-style` — ggplot2 theme
-- `conda-env` — conda activation patterns
-- `r-renv` — R package management
-- `file-safety` — output ownership, data/ protection
-
----
-
-## Project Document Registry
-
-### Planning Documents
-
-| Document | Topic | Has status table? |
-|----------|-------|:-:|
-| (add planning documents as work develops) | | |
-
-### Data Documents
-
-| Document | Topic |
-|----------|-------|
-| (add data documents as datasets are documented) | |
-
-### Convention/Reference
-
-| Document | Topic |
-|----------|-------|
-| [CLAUDE.md](.claude/CLAUDE.md) | Project conventions, environment, pipelines |
-
----
-
-## Session Log
-<!-- Maintained by /done. Most recent first. Keep last 5 entries. -->
-
-### {today's date} — Initial project setup
-- **Plans:** None
-- **Work:** Scaffolded project with /new-project
-- **Next:** Add data files, create first analysis script
-````
+Read `templates/claude_md_data_science.md` and fill in project-specific details:
+- Replace all `{placeholders}` with actual values from the discussion
+- Include only language sections relevant to the chosen languages
+- Include the "Dual Environment" section only if cluster = Yes
+- Remove `<!-- IF CLUSTER -->` comment markers after deciding
 
 If `~/lib/R/` or `~/lib/python/` exist, add to the Conventions section:
 
@@ -476,75 +377,8 @@ Shared helper functions are available at:
 
 ### General project template
 
-````markdown
-<!-- project-type: general -->
-# {Project Name}
-
-{Brief description from step 1}
-
----
-
-## Environment
-
-- **Python/Conda**: Shared `lab-general` environment
-  ```bash
-  source ~/miniconda3/etc/profile.d/conda.sh && conda activate lab-general
-  ```
-
-> **Customize**: Replace `~/miniconda3` with your actual conda installation path.
-
-{If project-specific environment was chosen instead, replace the above with:}
-- **Python/Conda**: `{project_name}` environment
-  ```bash
-  source ~/miniconda3/etc/profile.d/conda.sh && conda activate {project_name}
-  ```
-
----
-
-## Repository Layout
-
-```
-{Describe the actual directory structure as it develops}
-```
-
----
-
-## Key Files
-
-(Add important files here as the project develops)
-
----
-
-## Workflows
-
-(Document how to run things as the project develops)
-
----
-
-## Project Document Registry
-
-### Planning Documents
-
-| Document | Topic | Has status table? |
-|----------|-------|:-:|
-| (add as work develops) | | |
-
-### Convention/Reference
-
-| Document | Topic |
-|----------|-------|
-| [CLAUDE.md](.claude/CLAUDE.md) | Project conventions |
-
----
-
-## Session Log
-<!-- Maintained by /done. Most recent first. Keep last 5 entries. -->
-
-### {today's date} — Initial project setup
-- **Plans:** None
-- **Work:** Scaffolded project with /new-project
-- **Next:** Start adding code and documentation
-````
+Read `templates/claude_md_general.md` and fill in project-specific details.
+Same placeholder and cluster section rules as the data science template.
 
 ### Project reminders file
 

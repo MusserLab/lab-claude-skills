@@ -5,6 +5,28 @@ Format: date-based entries (this isn't versioned software).
 
 ---
 
+## 2026-03-29 (v1.8.0)
+
+### Added
+- `audit-skills` skill — audit skills for bloat, trigger accuracy, structural quality, redundancy, and pruning opportunities
+- Cluster config templates: `templates/settings-cluster.json` and `templates/user-claude-md-cluster.md` for HPC cluster setup
+- `hpc` reference files: partitions.md, snakemake.md, tool_profiles.md
+- `expression-report` bundled resources: report_template.py, helpers.py, species_notes.md
+- `new-project` externalized CLAUDE.md templates: claude_md_data_science.md, claude_md_general.md
+
+### Changed
+- `audit` → `audit-project`: renamed, description updated to exclude skill auditing (use `/audit-skills`)
+- `audit-script`: added "Simplicity First" philosophy, FYI severity level, calibration guidelines
+- `done`: updated description triggers (selective merge — no Slack/STATUS_SUMMARY)
+- `expression-report`: bundled templates and helpers, simplified configuration, species notes check
+- `hpc`: genericized PI paths, added reference files for partitions, Snakemake, tool profiles
+- `new-project`: expanded cluster/SLURM support, dual-environment setup, externalized templates (selective merge — no Slack)
+- `quarto-docs`: added IPython magic troubleshooting entry
+- `script-organization`: batch/logs now tracked in git, added .py+.sh pairing convention
+- `security-setup`: HPC cluster auto-detection, cluster template selection, cluster-specific deny rules, skip bash scoping on HPC
+- `tree-formatting`: added accession filtering for collapse labels (UniProt sp|/tr| patterns)
+- README: added cluster template setup instructions, HPC auto-detection note in Security section
+
 ## 2026-03-23 (v1.7.0)
 
 ### Changed

@@ -1,12 +1,15 @@
 ---
-name: audit
-description: Periodic project health check - cross-check docs, prune conventions, find drift. Use when project documentation feels stale, before milestones, or when CLAUDE.md is getting long.
+name: audit-project
+description: >
+  Periodic project health check - cross-check docs, prune conventions, find drift. Use when
+  project documentation feels stale, before milestones, or when CLAUDE.md is getting long.
+  Do NOT load for auditing skills (use /audit-skills) or data analysis scripts (use /audit-script).
 user-invocable: true
 ---
 
 # Project Audit
 
-When the user invokes `/audit`, perform a thorough health check of project documentation and conventions. This is a periodic maintenance task — not needed every session, but valuable before milestones, after intensive work periods, or when things feel out of sync.
+When the user invokes `/audit-project`, perform a thorough health check of project documentation and conventions. This is a periodic maintenance task — not needed every session, but valuable before milestones, after intensive work periods, or when things feel out of sync.
 
 ---
 
@@ -192,12 +195,7 @@ Quick checks on user-level configuration (lightweight — skip silently if every
 
 1. **MEMORY.md size** — Check `~/.claude/projects/*/memory/MEMORY.md` for the current project. If over 200 lines, flag for pruning.
 2. **User CLAUDE.md size** — Check `~/.claude/CLAUDE.md` line count. If over 150 lines, suggest extracting content into skills.
-3. **Skills scan** — For each skill in `~/.claude/skills/`:
-   - **Path drift**: Grep for absolute user paths (e.g., `/Users/<username>/`) that should be `~/`. This is the most common skill issue — paths leak in during in-session edits.
-   - **Lab repo sync**: Compare each personal skill against the lab skills repo (if one exists). Flag files that differ. Path differences (absolute vs `~/`) count as sync issues.
-   - **Description accuracy**: Read the `description:` frontmatter — does it still match the skill's actual scope? Flag overly broad or narrow triggers.
-   - **Stale references**: Spot-check any file paths, column names, or package names mentioned in skills against the current project state. Only check references relevant to the current project.
-   - Report only actual issues found. Skip this step's output entirely if all skills are healthy.
+3. **Skills audit** — For a deep review of skill quality, structure, and redundancy, run `/audit-skills`. Skip skill-level checks here.
 
 ---
 

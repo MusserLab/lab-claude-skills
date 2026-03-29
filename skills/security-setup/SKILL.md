@@ -60,6 +60,29 @@ If this succeeds, hooks are viable. If it fails, skip hook generation and note t
 
 Use the detected platform to select the appropriate scan paths in Step 2 and determine whether to generate hooks (Step 6).
 
+**Detect HPC cluster environment (Linux only):**
+
+If Linux is detected, also check for HPC cluster indicators:
+```bash
+command -v module >/dev/null 2>&1   # Environment modules (HPC)
+command -v squeue >/dev/null 2>&1   # SLURM scheduler
+ls -d /nfs/ 2>/dev/null             # NFS mounts (common on HPC)
+hostname -f 2>/dev/null             # Check for *.ycrc.yale.edu
+```
+
+**HPC detection criteria** — if 2 or more of these are true, the environment is an HPC cluster:
+- `module` command is available
+- `squeue` command is available
+- `/nfs/` directory exists
+- Hostname matches `*.ycrc.yale.edu`
+
+If HPC is detected, note the cluster identity for use in Step 7:
+- Hostname contains `bouchet` → Bouchet cluster
+- Hostname contains `mccleary` → McCleary cluster
+- Otherwise → generic HPC cluster
+
+Store the HPC detection result — it affects template selection (Step 7) and bash scoping decisions.
+
 ### Step 2: Comprehensive Scan
 
 Run discovery commands to check which sensitive locations exist on the user's machine. Use `ls -d` with `2>/dev/null` for each path. **Only scan paths relevant to the detected platform.** Organize results by category:
@@ -255,7 +278,24 @@ Make them executable with `chmod +x`.
 
 Read `~/.claude/settings.json`. Make these changes:
 
+**Select base template based on platform (first-time setup only):**
+- **HPC cluster detected** (Step 1b): Tell the user that `templates/settings-cluster.json` from the lab plugin provides cluster-appropriate defaults — glob-based deny rules, blanket `Bash(*)`, `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC`, YCRC WebFetch domains, and extra protections against filesystem destruction and process killing. Suggest using it as the starting point.
+- **macOS detected**: The existing `templates/settings-example.json` is appropriate — scoped bash permissions, macOS-specific deny paths.
+- **Linux (non-HPC)**: Use the local template patterns but with Linux paths (already handled by the platform-aware deny rule examples below).
+
 **Add deny rules** (defense-in-depth) for critical paths found in the scan. Only add deny rules for paths that actually exist. Use the user's actual home directory path (not `$HOME`).
+
+**HPC cluster deny rules:** On HPC clusters, prefer glob patterns (`**/.ssh/**`) over absolute paths, and include cluster-specific protections for shared filesystems and multi-user systems:
+```json
+"Bash(rm -rf /*)",
+"Bash(rm -rf /nfs*)",
+"Bash(rm -rf ~*)",
+"Bash(kill -9 *)",
+"Bash(killall *)",
+"Bash(pkill *)",
+"Bash(su *)",
+"Bash(mkfs *)"
+```
 
 macOS example:
 ```json
@@ -295,7 +335,11 @@ WSL — include both Linux and Windows-side paths:
 ```
 Add the bash hook to the existing Bash matcher's hooks array.
 
-**Ask about Bash scoping**: "The current setting allows all bash commands (`Bash(*)`). Would you like to replace this with a specific allowlist of commands (more secure but you'll be prompted for unlisted commands)?"
+**Ask about Bash scoping** (skip on HPC clusters — keep `Bash(*)`):
+
+On HPC clusters, `module load`, SLURM commands, and cluster-specific tools are too numerous and variable to scope individually. Keep `Bash(*)` and rely on hooks and deny rules for safety. Do not prompt the user about bash scoping on HPC.
+
+On macOS/Linux desktops: "The current setting allows all bash commands (`Bash(*)`). Would you like to replace this with a specific allowlist of commands (more secure but you'll be prompted for unlisted commands)?"
 
 If yes, replace `Bash(*)` with scoped commands. Collect what tools they commonly use and suggest a starting list:
 ```

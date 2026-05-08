@@ -90,7 +90,7 @@ Skills are categorized by scope. **General** skills apply to all projects. **Dat
 | Skill | Purpose |
 |-------|---------|
 | `debugging-before-patching` | Diagnose before fixing; never blind-patch |
-| `hpc` | Yale YCRC HPC/SLURM reference — batch scripts, job resources, cluster storage |
+| `hpc` | Yale YCRC HPC/SLURM reference — batch scripts, job resources, cluster storage, Positron Remote SSH |
 | `git-conventions` | Git commit practices |
 | `conda-env` | Conda activation patterns |
 | `file-safety` | Rules for not overwriting important files |

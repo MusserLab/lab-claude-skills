@@ -458,6 +458,12 @@ When auditing, Claude should actively run diagnostics (in Claude-driven modes) o
 - **By severity:** {N} BUG, {N} CONCERN, {N} WARNING, {N} NOTE, {N} FYI
 - **By category:** {N} Correctness, {N} Analytical, {N} Data Handling, {N} Style, {N} Reproducibility
 - **Overall assessment:** {1-2 sentence summary of script quality and most critical issues}
+- **Outputs trustworthy?** {Yes / Yes with caveats / No — must rerun after fixes}
+  {1-2 sentences explaining why. For "Yes with caveats", state which outputs are affected
+  and whether the impact is minor (e.g., cosmetic label error) or could change
+  interpretation. For "No", identify which bugs invalidate the outputs.
+  For scripts that don't produce analytical outputs (utilities, migration scripts, etc.),
+  state "N/A — script does not produce analytical outputs."}
 
 ## Domain Assumptions Checklist
 

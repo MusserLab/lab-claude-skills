@@ -5,9 +5,10 @@ description: >
   gene characterization. Use when the user invokes /process-deep-research or asks to clean,
   convert to PDF/HTML, parse, or compile deep research reports from ChatGPT or Claude.
   Handles artifact removal, PDF/HTML generation, YAML header extraction, and summary table
-  maintenance. Supports two report types: cell-type-annotation (from deep-research-genelist
-  skill) and nonmetazoan characterization (from PROST analysis prompts). Detects report type
-  automatically from query.report_type field.
+  maintenance. Supports three report types: cluster-level cell-type-annotation, family-level
+  cell-type-annotation (WGCNA-module-organized), and nonmetazoan characterization. Detects
+  report type automatically from query.report_type field. Works on both local macOS and
+  HPC cluster (auto-detects quarto path and LaTeX availability).
 user-invocable: true
 ---
 
@@ -23,10 +24,10 @@ Processes deep research reports (from ChatGPT, Claude, or other platforms) gener
 
 Accept one of:
 - **A specific file path** provided by the user
-- **"all"** — glob `outs/deep_research/**/*report*.md`, skip files ending in `_clean.md` or `_raw.md`
-- **"new"** — find report files that don't yet have a corresponding `_clean.md`
+- **"all"** — glob `outs/deep_research*/**/*.md` (note the `*` after `deep_research` — catches `deep_research/`, `deep_research_platynereis/`, etc.), skip files ending in `_clean.md`, `_raw.md`, or `_prompt.md`
+- **"new"** — glob `outs/deep_research*/**/*.md`, same exclusions, then keep only files that don't yet have a corresponding `_clean.md`
 
-If no `outs/deep_research/` directory exists, tell the user and stop.
+If no `outs/deep_research*/` directories exist, tell the user and stop.
 
 #### Directory structure
 
@@ -56,11 +57,17 @@ Read the file as raw bytes. Detect the platform from artifact signatures:
 
 | Signal | Platform |
 |--------|----------|
-| PUA chars (U+E000–U+F8FF) present | `chatgpt` |
-| `entity[` or `citeturn` in text after PUA stripping | `chatgpt` |
-| None of the above | `claude` |
+| PUA chars (U+E000–U+F8FF) present | `chatgpt` (Deep Research mode) |
+| `entity[` or `citeturn` in text after PUA stripping | `chatgpt` (Deep Research mode) |
+| None of the above | **Ask user** (see below) |
 
-Report detection to user: "Detected {platform} report."
+**Artifact-free reports** (no PUA, no entity tags) could be from Claude OR ChatGPT Pro (extended thinking). These two platforms produce clean output with no artifacts. When no artifacts are detected, **ask the user** which platform generated the report using `AskUserQuestion`:
+- `chatgpt_pro` — ChatGPT Pro / extended thinking / o-series models
+- `claude` — Claude (Anthropic)
+
+This matters for the canonical filename (`260330_chatgpt_pro_family_C` vs `260330_claude_family_C`) and for the summary table `platform` column.
+
+Report detection to user: "Detected {platform} report." (or "No artifacts detected — asking platform.")
 
 #### Parse YAML header first
 
@@ -68,13 +75,17 @@ Before cleaning, extract the YAML front matter (between first `---` line and nex
 
 #### Construct canonical base name
 
-Pattern: `YYMMDD_platform_moduleID`
+Pattern depends on report type:
+- Cluster reports: `YYMMDD_platform_moduleID` (e.g., `260304_chatgpt_clade6sub25`)
+- Family reports: `YYMMDD_platform_family_FAMILYID` (e.g., `260330_claude_family_C`)
+- Nonmetazoan: `YYMMDD_platform_kingdom` (e.g., `260315_chatgpt_prokaryote`)
 
+Components:
 - `YYMMDD` from `query.date_generated` (format: YYYY-MM-DD → YYMMDD). Fall back to today's date.
-- `platform`: `chatgpt` or `claude` (lowercase)
-- `moduleID`: from `query.module_id`
-
-Example: `260304_chatgpt_clade6sub25`
+- `platform`: `chatgpt`, `chatgpt_pro`, or `claude` (lowercase)
+- `moduleID`: from `query.module_id` (cluster reports)
+- `FAMILYID`: from `query.family` (family reports — note: NOT `query.module_id`)
+- `kingdom`: from `query.kingdom` (nonmetazoan reports)
 
 #### Platform-specific cleaning
 
@@ -123,7 +134,8 @@ Report: "Claude report — no artifacts detected. Renamed to {base}_clean.md."
 Parse the YAML front matter from the clean file using Python `yaml.safe_load()`.
 
 **Report type detection:** Check `query.report_type` to determine which parser to use:
-- `"cluster"` or `"family"` (or absent) → **cell-type-annotation** parser (existing)
+- `"cluster"` (or absent) → **cluster cell-type-annotation** parser
+- `"family"` → **family cell-type-annotation** parser (see Step 3c below)
 - `"nonmetazoan_characterization"` → **nonmetazoan** parser (see Step 3b below)
 
 **ChatGPT YAML indentation fix:** ChatGPT inconsistently outputs YAML with 1-space or 2-space indentation across runs. 1-space indent is valid YAML for simple key-value mappings, but breaks for two specific constructs:
@@ -133,7 +145,127 @@ Parse the YAML front matter from the clean file using Python `yaml.safe_load()`.
 
 **Important:** Do NOT "double all indentation" — this breaks normal mapping keys by making children indent past their siblings. Instead, apply a **targeted fix** that only touches the two broken patterns:
 
-The fix: **try `yaml.safe_load()` first**. If it fails, apply a line-by-line fixer that:
+The fix: **try `yaml.safe_load()` first**. If it fails, apply `fix_flat_yaml()` (for zero-indent ChatGPT Pro output), then `fix_chatgpt_yaml()` (for 1-space indent issues), then retry.
+
+#### `fix_flat_yaml` — zero-indent ChatGPT Pro / extended thinking output
+
+ChatGPT Pro with extended thinking outputs YAML with ALL keys at column 0 (zero indent under section headers). This fixer detects and corrects this pattern before the existing `fix_chatgpt_yaml` runs.
+
+```python
+def fix_flat_yaml(yaml_text):
+    """Fix YAML where all keys are at column 0 (ChatGPT Pro / extended thinking).
+
+    Detects this pattern: top-level section keys (query:, annotation:, markers:)
+    followed by child keys at the same indent level. Adds proper indent to all
+    child keys under each section. Distinguishes mapping list items ("- key: val"
+    → continuations get 6-space indent) from simple list items ('- "value"' →
+    next sibling key resets to 2-space).
+    """
+    lines = yaml_text.split('\n')
+    # Quick check: if we see 'query:' at col 0 followed by 'organism:' at col 0,
+    # this is a flat YAML that needs fixing
+    has_flat_pattern = False
+    for i, line in enumerate(lines):
+        if line.strip() == 'query:' and i + 1 < len(lines):
+            next_line = lines[i + 1]
+            if next_line and not next_line.startswith(' ') and ':' in next_line:
+                has_flat_pattern = True
+                break
+    
+    if not has_flat_pattern:
+        return yaml_text  # Already properly indented
+    
+    fixed = []
+    section = None
+    section_keys = {'query', 'annotation', 'markers', 'classification',
+                    'functional_categories', 'hgt_candidates', 'expression_patterns',
+                    'biology'}
+    in_block_scalar = False
+    in_mapping_list = False  # inside "- key: val" list item (continuations need 6-space)
+    in_simple_list = False   # inside "- value" list (next sibling key resets to 2-space)
+
+    for line in lines:
+        stripped = line.strip()
+        n_spaces = len(line) - len(line.lstrip())
+
+        if not stripped:
+            in_block_scalar = False
+            in_mapping_list = False
+            in_simple_list = False
+            fixed.append('')
+            continue
+
+        # Block scalar continuation
+        if in_block_scalar and n_spaces == 0 and not any(
+            stripped.startswith(k + ':') for k in section_keys
+        ):
+            fixed.append('    ' + stripped)
+            continue
+        elif in_block_scalar:
+            in_block_scalar = False
+
+        # Top-level section key
+        key_candidate = stripped.split(':')[0].strip()
+        if n_spaces == 0 and key_candidate in section_keys and stripped.endswith(':'):
+            section = key_candidate
+            in_mapping_list = False
+            in_simple_list = False
+            fixed.append(line)
+            continue
+
+        # Detect block scalar start
+        if stripped.endswith(': >') or stripped.endswith(': |'):
+            in_block_scalar = True
+
+        # Child content under a section at col 0
+        if section and n_spaces == 0:
+            if stripped.startswith('---'):
+                section = None
+                in_mapping_list = False
+                in_simple_list = False
+                fixed.append(line)
+                continue
+            if key_candidate in section_keys:
+                section = key_candidate
+                in_mapping_list = False
+                in_simple_list = False
+                fixed.append(line)
+                continue
+            # List items
+            if stripped.startswith('- '):
+                after_dash = stripped[2:].strip()
+                if re.match(r'[\w_-]+\s*:', after_dash):
+                    in_mapping_list = True
+                    in_simple_list = False
+                else:
+                    in_simple_list = True
+                    in_mapping_list = False
+                fixed.append('    ' + stripped)
+                continue
+            # Continuation key inside a mapping list item
+            if in_mapping_list and re.match(r'[\w_-]+\s*:', stripped):
+                fixed.append('      ' + stripped)
+                continue
+            # Regular key (not inside a list, or after simple list ended)
+            in_mapping_list = False
+            in_simple_list = False
+            fixed.append('  ' + stripped)
+            continue
+
+        # Already indented — add 2 more spaces for section nesting
+        if section and n_spaces > 0:
+            fixed.append('  ' + line)
+            continue
+
+        fixed.append(line)
+
+    
+    return '\n'.join(fixed)
+```
+
+#### `fix_chatgpt_yaml` — 1-space indent issues
+
+This existing fixer handles the two specific constructs broken by 1-space indentation:
 - After a line ending in `: >` or `: |`, adds 1 extra space to continuation lines (non-key, non-blank lines at the same indent) until a blank line or a real key is encountered
 - After a line matching `- key: value` (list item mapping start), adds 2 extra spaces to subsequent non-`-` key lines at the same indent (these are continuation keys inside the mapping)
 - Leaves all other indentation unchanged
@@ -241,6 +373,26 @@ Pattern: `YYMMDD_platform_kingdom` (e.g., `260315_chatgpt_prokaryote`, `260315_c
 
 **Directory:** Reports go in `outs/deep_research/nonmetazoan/{kingdom}/` (note: under `deep_research/nonmetazoan/`, not the script-04 `outs/scmicrobiome/` directory — the processed reports live alongside cell-type-annotation reports).
 
+### Step 3c: Family Report Validation
+
+When `query.report_type == "family"`, use this validation:
+
+**Required:**
+- `query.family`, `query.organism`, `query.n_modules` or `query.n_member_clusters`
+- `annotation.proposed_family_name`, `annotation.confidence`, `annotation.one_line`
+- `annotation.per_cluster` (non-empty list with at least `cluster` and `proposed_name` per entry)
+
+**Optional but checked:**
+- `query.subfamilies` — subfamily structure. Default empty.
+- `annotation.best_matches` — comparative matches. Default empty list.
+- `annotation.family_conservation` — conservation level. Default empty.
+- `markers.family_defining` — family marker list. Warn if empty.
+- `markers.family_specifying_tfs`, `markers.cluster_specifying_tfs` — TF annotations.
+
+**Canonical base name:** `YYMMDD_platform_family_FAMILYID`
+
+**Directory:** Reports go in the same directory as the input file (family reports already live in their own subdirectory, e.g., `outs/deep_research_platynereis/family_C/`).
+
 ### Step 4: Ask Output Format
 
 Use `AskUserQuestion`:
@@ -255,6 +407,7 @@ Create a temporary `_report_for_render.md` from `{base}_clean.md`:
 1. **Strip the data YAML header** — the large `query:`/`annotation:`/`markers:` (or `classification:`/`functional_categories:`) block is for programmatic parsing only, not for display
 2. **Insert a pandoc formatting YAML.** The title format depends on report type:
    - Cell-type annotation: `"Gene Module Interpretation: *{organism}* {module_id}"`
+   - Family annotation: `"Cell Type Family Report: *{organism}* Family {family}"`
    - Nonmetazoan: `"Non-Metazoan Gene Characterization: *{organism}* — {kingdom}"`
    ```yaml
    ---
@@ -276,7 +429,7 @@ Create a temporary `_report_for_render.md` from `{base}_clean.md`:
 
    a. **Remove redundant heading pairs.** ChatGPT often outputs a generic `##` heading immediately followed by the lettered `###` section (e.g., `## Comparative biological analysis` then `### H. Comparative Biological Analysis`). Remove the redundant `##` line:
    ```python
-   body = re.sub(r'^##\s+[^\n]+\n\n(###\s+[A-K]\.)', r'\1', body, flags=re.MULTILINE)
+   body = re.sub(r'^##\s+[^\n]+\n\n(###\s+[A-L]\.)', r'\1', body, flags=re.MULTILINE)
    ```
 
    b. **Shift all headings up one level.** Since the H1 title was removed, the remaining hierarchy is too deep (`##`→`####`). Shift `##`→`#`, `###`→`##`, `####`→`###`, etc. (never shift H1):
@@ -297,18 +450,23 @@ Create a temporary `_report_for_render.md` from `{base}_clean.md`:
    body = re.sub(r'\\(?=[a-zA-Z])', r'\\\\', body)
    ```
 
+**Detect rendering tools:** Find `quarto` on PATH or common locations (`~/.local/bin/quarto`, `/usr/local/bin/quarto`). Check for `xelatex` availability — if not on PATH, try `module load texlive` (HPC cluster). If no LaTeX available, skip PDF and inform user. On cluster, shell commands for PDF rendering must include `module load texlive &&` prefix.
+
+**Important:** When writing the pandoc YAML header from Python, write the LaTeX commands directly to the file (not through Python f-strings). The backslashes in `\renewcommand`, `\arraystretch`, `\usepackage` must appear literally in the markdown file — do NOT double-escape them in Python. Use `f.write()` with raw strings or explicit line writes.
+
 **Generate PDF:**
 ```bash
-/usr/local/bin/quarto pandoc \
+{quarto_path} pandoc \
   "{base}_report_for_render.md" \
   -o "{base}_report.pdf" \
   --pdf-engine=xelatex \
   -V colorlinks=true -V linkcolor=blue -V urlcolor=blue
 ```
+On cluster, prepend `module load texlive &&` before the quarto command.
 
 **Generate HTML:**
 ```bash
-/usr/local/bin/quarto pandoc \
+{quarto_path} pandoc \
   "{base}_report_for_render.md" \
   -o "{base}_report.html" \
   --standalone \
@@ -387,6 +545,17 @@ Extract fields from validated YAML and update `outs/deep_research/annotation_sum
 | `date_processed` | current date | YYYY-MM-DD |
 
 Fields may be absent in older reports — default to empty string.
+
+**Family report field mappings:** For family reports, the summary table uses the same `annotation_summary.tsv` but with these field mappings:
+
+| Summary column | Family YAML source |
+|---|---|
+| `module_id` | `query.family` (prefixed with `family_`, e.g., `family_C`) |
+| `proposed_name` | `annotation.proposed_family_name` |
+| `member_clusters` | `query.member_clusters` joined with `; ` |
+| `n_member_clusters` | `query.n_member_clusters` |
+
+All other columns map the same as cluster reports. The `per_cluster` annotations are NOT added to the summary table row — they are available in the clean markdown file for detailed parsing.
 
 ### Step 6b: Nonmetazoan Summary Table
 

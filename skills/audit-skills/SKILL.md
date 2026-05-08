@@ -3,10 +3,12 @@ name: audit-skills
 description: >
   Audit Claude Code skills for bloat, trigger accuracy, structural quality, redundancy, and
   pruning opportunities. Use when skills feel bloated, before publishing to lab repo, after
-  building several new skills, or when the user says "audit my skills", "review skills",
-  "check skill quality", or invokes /audit-skills. Covers both user-level (~/.claude/skills/)
-  and project-level (.claude/skills/) skills. Do NOT load for auditing data analysis scripts
-  (use /audit-script) or project documentation (use /audit-project).
+  building several new skills, when reviewing a single newly-created skill before publishing,
+  or when the user says "audit my skills", "review skills", "check skill quality", "audit this
+  skill", or invokes /audit-skills. Covers both user-level (~/.claude/skills/) and project-level
+  (.claude/skills/) skills, and supports both full-library scans and single-skill reviews.
+  Do NOT load for auditing data analysis scripts (use /audit-script) or project documentation
+  (use /audit-project).
 user-invocable: true
 ---
 
@@ -27,19 +29,41 @@ This is the skill-level counterpart to `/audit-project` (documentation health) a
 
 Use AskUserQuestion:
 
-- **All skills (Recommended)** — Full user-level (`~/.claude/skills/`) + project-level (`.claude/skills/`) scan
+- **Specific skill(s)** — Ask which skill(s) by name. Common case: reviewing a newly-created skill before publishing.
+- **All skills** — Full user-level (`~/.claude/skills/`) + project-level (`.claude/skills/`) scan. Common case: periodic library health check.
 - **User-level only** — `~/.claude/skills/`
 - **Project-level only** — `.claude/skills/` in current project
-- **Specific skill(s)** — Ask which skill(s) by name
+
+If the user's invocation already names a skill or scope (e.g., "audit just the busco skill"), skip this question and proceed.
 
 ### 2. Ask Focus
 
 "Is there anything specific you're worried about? (e.g., 'my pipeline skills feel too long',
 'I think some skills overlap')" — lets the user steer attention.
 
+### 3. Ask Output Mode
+
+Use AskUserQuestion:
+
+- **Fix directly** — Work through findings interactively and apply fixes in this session
+- **Save report** — Write a markdown audit report for another session to implement (useful when the skill was created in a different chat that has more context)
+- **Both** — Fix what we can here, save a report for anything that needs the other chat's context
+
+This matters because skills are sometimes created in a separate chat session that has deeper
+context (e.g., the reference implementation). Quick fixes (path corrections, description
+tweaks) can be done anywhere, but structural changes (adding code templates, reorganizing
+sections) are better done where the full context lives.
+
+**Default by scope:**
+
+- **Single-skill scope** → recommend "Both" (fix the trivial REFINEs, write a report for anything structural). Single-skill audits are most often run in a chat that doesn't have the implementation context, so a handoff report is valuable even when some fixes can be done in-session.
+- **Full-library scope** → recommend "Fix directly". When auditing the whole library, the user is already in the right context to apply edits.
+
 ---
 
 ## Phase 1: Inventory
+
+**Skip this phase if scope is a single skill** — the inventory table exists to spot patterns across many skills (oversized files, missing accessory dirs, path issues at a glance). With N=1, just go straight to Phase 2 and read the skill thoroughly.
 
 List all skills in scope. For each, report:
 
@@ -134,7 +158,7 @@ every skill — focus on skills that are actively used.
 
 Would this skill work in a different context?
 
-- Absolute paths (`/Users/username/`) instead of `~/` — the #1 skill issue
+- Absolute paths (`/Users/jm284/`) instead of `~/` — the #1 skill issue
 - Project-specific details baked into a user-level skill (should be parameterized or
   moved to project-level)
 - Platform-specific assumptions (macOS paths in a skill that should work on cluster)
@@ -166,6 +190,8 @@ Would this skill work in a different context?
 
 ## Phase 3: Cross-Skill Analysis
 
+**Skip this phase if scope is a single skill.** Cross-skill observations may still surface naturally during Phase 2 (e.g., "this skill defers to `hpc` correctly" or "the description should add a `Do NOT load for X` exclusion mirroring skill Y") — note those inline as findings, but don't run a full library-wide pass.
+
 After reviewing individual skills, step back and look at the full library:
 
 1. **Overlap clusters** — Are there groups of skills covering adjacent territory that could
@@ -189,7 +215,7 @@ RESTRUCTURE, REFINE):
 
 | # | Severity | Skill | Category | Finding | Recommendation |
 |---|----------|-------|----------|---------|----------------|
-| 1 | FIX | hpc | Portability | Absolute path /Users/username/ on line 45 | Replace with ~/ |
+| 1 | FIX | hpc | Portability | Absolute path /Users/jm284/ on line 45 | Replace with ~/ |
 | 2 | PRUNE | expression-report | Size | 969 lines, no bundled resources | Move palette + layout specs to references/ |
 | 3 | RESTRUCTURE | deep-research-genelist | Redundancy | Template format duplicated in deep-research-reports | Consolidate shared format into one reference |
 | 4 | REFINE | conda-env | Triggering | Description doesn't mention "pip" or "pip install" | Add pip to trigger list |
@@ -202,7 +228,9 @@ Then ask: **"Which findings do you want to work through? (all / by severity / sp
 
 ---
 
-## Phase 5: Execute Agreed Changes
+## Phase 5: Execute Changes (adapts to output mode)
+
+### If "Fix directly" or "Both":
 
 For each finding the user wants to act on:
 
@@ -220,6 +248,21 @@ For RESTRUCTURE findings that involve moving content to reference files:
 For PRUNE findings:
 - Show what's being removed and why it's redundant
 - Confirm with user before deleting
+
+### If "Save report" or "Both":
+
+Write a self-contained markdown report to `~/.claude/skills/{skill-name}-audit-report.md`
+that another chat session can use to implement fixes. The report must include:
+
+- **Skill path and line count** for orientation
+- **Each finding** with: severity, line numbers, the problem, the concrete fix, and
+  (for structural changes) pointers to reference implementations or source material
+- **"Not Changed" section** confirming what's good — so the other chat doesn't
+  second-guess working parts
+- **Architecture notes** for any cross-skill design questions that came up
+
+The report is a handoff artifact — tell the user they can delete it after fixes are applied.
+It is NOT a skill or memory file.
 
 ---
 

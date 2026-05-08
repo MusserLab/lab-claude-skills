@@ -225,7 +225,7 @@ For all project types.
 | `file-safety` | File modification rules to prevent overwriting important files |
 | `conda-env` | Conda environment activation for Python commands |
 | `debugging-before-patching` | Systematic debugging and error diagnosis |
-| `hpc` | Yale YCRC HPC cluster reference — batch scripts, job resources, storage, Snakemake |
+| `hpc` | Yale YCRC HPC cluster reference — batch scripts, job resources, storage, Snakemake, Positron/VS Code Remote SSH setup |
 | `new-skill` | Create a new skill with proper structure |
 
 ### Domain skills
@@ -249,8 +249,11 @@ The plugin includes hooks that automatically enforce lab conventions. These acti
 | `protect-sensitive-reads.sh` | PreToolUse (Read) | Blocks reads to sensitive directories (credentials, passwords, browsers, email) |
 | `protect-sensitive-writes.sh` | PreToolUse (Edit/Write) | Blocks writes to sensitive directories (credentials, passwords, shell configs, LaunchAgents) |
 | `protect-sensitive-bash.sh` | PreToolUse (Bash) | Blocks bash commands referencing sensitive paths or using dangerous patterns |
-| `protect-data-dir.sh` | PreToolUse (Edit/Write) | Blocks writes to `data/` directories — outputs go to `outs/` instead |
+| `protect-data-dir.sh` | PreToolUse (Edit/Write) | Blocks writes to `data/`, except `data/processed/` and provenance files (CITATION/README/etc.) — outputs go to `outs/` |
+| `enforce-qmd-scripts.sh` | PreToolUse (Edit/Write) | Blocks numbered non-`.qmd` scripts in `scripts/` on local (auto-skips on cluster). Override with `# allow-py: <reason>` comment |
 | `require-conda.sh` | PreToolUse (Bash) | Blocks bare `pip install` — requires conda env activation first |
+| `commit-before-execute.sh` | PreToolUse (Bash) | Suggests committing changes before `sbatch` or `quarto render` so BUILD_INFO git hash is accurate (suggestion, not block) |
+| `suggest-new-plan.sh` | PreToolUse (EnterPlanMode) | Suggests using `/new-plan` (tracked planning document) over built-in plan mode |
 | `project-reminders.sh` | SessionStart | Injects general and project-specific reminders at session start |
 
 ### Project reminders

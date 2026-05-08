@@ -10,7 +10,7 @@ user-invocable: false
 
 # Quarto Documents
 
-All analysis scripts — both R and Python — are Quarto `.qmd` documents. Use `.py` files only for standalone utilities, CLI tools, and library code (in `python/`), not for data analysis.
+`.qmd` is the default analysis script format on **local** (macOS) data science projects, for both R and Python. On the **cluster** (Bouchet), `.py` is the default instead — see the `script-organization` skill's "Script Format by Environment" section for the full rule and the local override marker. Regardless of environment, use `.py` (or `.R`) files for standalone utilities, CLI tools, and library code (in `python/`/`R/`), not for numbered analysis scripts.
 
 ## Rendering (CRITICAL)
 

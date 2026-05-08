@@ -43,7 +43,7 @@ If `scripts/scratch/` is empty or doesn't exist, report "No scratch files" and m
 
 Scan `scripts/` (not subdirectories) for files that violate conventions:
 
-- **Numbered non-`.qmd` files:** Files matching `[0-9]*_*.R`, `[0-9]*_*.py`, `[0-9]*_*.Rmd` in `scripts/`. These should be `.qmd` (or moved to `R/`/`python/` if they're helpers, or `scripts/old/` if superseded).
+- **Numbered non-`.qmd` files:** Files matching `[0-9]*_*.R`, `[0-9]*_*.py`, `[0-9]*_*.Rmd` in `scripts/`. On local, these should be `.qmd` — unless they carry a `# allow-py: <reason>` override comment in the first 20 lines, in which case `.py` is sanctioned. On the cluster, `.py` is the default and is fine without the override. Helpers belong in `R/`/`python/`; superseded scripts in `scripts/old/`.
 - **Skip these:** `scripts/old/`, `scripts/scratch/`, `scripts/exploratory/`, unnumbered files (legacy).
 
 For each violation:
@@ -76,4 +76,4 @@ Summarize:
 - **This is session-scoped.** It uses conversation context to understand what files belong where. For project-wide structural audits, use `/audit-project`.
 - **Never delete without asking.** Always show what will be moved/deleted and get user confirmation.
 - **Respect legacy scripts.** Unnumbered `.Rmd` files in `scripts/` are legacy — do not flag them as violations.
-- **The hook should prevent most violations.** The `enforce-qmd-scripts.sh` hook blocks creation of numbered non-`.qmd` files. This skill catches anything that slipped through or pre-dates the hook.
+- **The hook should prevent most violations on local.** The `enforce-qmd-scripts.sh` hook blocks creation of numbered non-`.qmd` files unless the file content carries a `# allow-py: <reason>` override comment in its first 20 lines. The hook auto-skips on the cluster (detected by `/nfs/roberts/`), where `.py` is the default. This skill catches anything that slipped through, pre-dates the hook, or used the override.

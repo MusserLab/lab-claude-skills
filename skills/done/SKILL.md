@@ -136,8 +136,8 @@ If the project has a `CHANGELOG.md` in its root directory:
 Run `git status` to check for uncommitted changes.
 
 If there are changes:
-- **CRITICAL: Always stage specific files by name (`git add file1 file2`), NEVER use `git add .` or `git add -A` for the project repo** — broad staging will pick up changes from parallel Claude Code sessions
 - **CRITICAL: Only include files actually created or modified during THIS session**
+- **CRITICAL: Always stage specific files by name (`git add file1 file2`), NEVER use `git add .` or `git add -A` for the project repo** — broad staging will pick up changes from parallel Claude Code sessions
 - **Identifying session files** — use multiple sources, not just git diff:
   1. **Conversation context** is the primary record of what you did — including
      compacted/summarized earlier portions of the conversation
@@ -151,7 +151,7 @@ If there are changes:
 - Files already in initial gitStatus should NOT be included unless you worked on them
 - Show the user session-relevant files and suggest a commit message
 - If approved, commit only those files
-- After committing, offer to push to remote (check `git remote -v` to confirm a remote exists)
+- After committing, push to remote automatically (`git push`). Only ask the user if the push fails (e.g., rejected by remote, no remote configured).
 
 ### User config (`~/.claude`)
 
@@ -162,7 +162,7 @@ git -C ~/.claude status --short
 
 If there are changes (skills, CLAUDE.md, etc.):
 - Show what changed
-- Ask if user wants to commit and push
+- Ask if user wants to commit. Push automatically after — only ask if push fails
 - If yes, run these as separate sequential Bash calls (do NOT chain with `&&`):
   1. `git -C ~/.claude add -A`
   2. `git -C ~/.claude commit -m "Title" -m "Co-Authored-By: Claude <noreply@anthropic.com>"` (use multiple `-m` flags, NOT heredocs)

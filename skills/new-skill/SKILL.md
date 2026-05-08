@@ -121,22 +121,41 @@ Keep it focused. A skill should cover one coherent topic, not be a grab-bag.
 ## 6. File Workflow
 
 1. Create/edit in `~/.claude/skills/{name}/SKILL.md`
-2. Use generic paths (e.g., `~/miniconda3`, not `/Users/<username>/miniconda3`) so skills are portable
-3. Do **not** automatically copy to the lab repo — skills are published through a separate sync workflow
+2. Use generic paths (e.g., `~/miniconda3`, not `/Users/jm284/miniconda3`) so skills are portable
+3. Do **not** automatically copy to the lab repo — the user will run `/sync-skills` when ready to publish
 
 ### Skills with Bundled Resources
 
-For skills that generate scripts (code-generating pipelines), use the Anthropic skill-creator
-convention for bundled resources:
+For skills that generate scripts (code-generating pipelines) or HPC-tool skills
+that deploy SLURM batch jobs, use the Anthropic skill-creator convention for
+bundled resources:
 
 ```
 skill-name/
 ├── SKILL.md              # <500 lines — workflow, decision points
+├── templates/            # Job templates copied into project batch/<area>/
+│   ├── my_array.sh
+│   └── my_samples.tsv
 ├── scripts/              # Helper code deployed to project python/ or R/
 │   └── my_helpers.py
 └── references/           # Detailed docs loaded as needed
     └── method_notes.md
 ```
+
+The three subdirectories are semantically distinct — pick the right one for
+each resource:
+
+| Subdir | What goes there | Where it gets deployed |
+|--------|-----------------|------------------------|
+| `templates/` | Whole batch jobs (SLURM array `.sh`, sample sheet `.tsv` stub, conda env `.yml`, aggregator `.qmd`) | Project's `batch/<area>/` (or `scripts/<area>/` for `.qmd`), edited then run as-is |
+| `scripts/` | Reusable helper functions (parsers, plotters, importable modules) | Project's `python/` or `R/` dir, imported by analysis scripts |
+| `references/` | Long-form reading material (gotcha lists, lookup tables, tool docs) | Not deployed — loaded by Claude on demand from inside the skill |
+
+**Templates deployment convention:** When the skill runs, it copies relevant
+files from `templates/` into the project's `batch/<area>/` directory and tells
+the user which placeholders to edit (`<area>`, `<XX_script_name>`, `--array=1-N`,
+`--mail-user=...`). Templates should be self-documenting via top-of-file comments
+that flag the edit points.
 
 **Helper deployment convention:** When the skill runs:
 1. Check if `python/` or `R/` dir exists in the project, create if needed
@@ -147,6 +166,11 @@ skill-name/
 
 This keeps helper code as real, testable files rather than code blocks in SKILL.md.
 SKILL.md references the helpers and describes how the generated script uses them.
+
+**Examples in the wild:**
+- `busco` uses `templates/` (5 batch files + an aggregator) and `references/` (lineage table + gotchas list) — see `~/.claude/skills/busco/`
+- `hpc`, `expression-report`, and `new-project` use `references/` and/or bundled examples
+- Older HPC-tool skills (`eggnog-mapper`, `prost-annotation`, `fcs-gx`) embed batch scripts as fenced code blocks in SKILL.md — that's the legacy single-file pattern, slated for refactor
 
 ---
 

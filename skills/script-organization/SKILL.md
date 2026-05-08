@@ -15,6 +15,35 @@ Conventions for script numbering, input/output tracking, directory structure, an
 
 ---
 
+## Script Format by Environment
+
+Numbered analysis scripts in `scripts/` follow a different default depending on environment:
+
+| Environment | Detected by | Default | Override |
+|---|---|---|---|
+| Local (macOS) | absence of `/nfs/roberts/` | `.qmd` | `# allow-py: <reason>` comment in the first 20 lines of a numbered `.py` |
+| Cluster (Bouchet) | presence of `/nfs/roberts/` | `.py` | None needed — `.py` is the default |
+
+The `enforce-qmd-scripts.sh` hook enforces this on local; it auto-skips on the cluster. Helpers in `R/`/`python/` and exploratory/scratch files are unaffected by the rule.
+
+**Why `.py` on the cluster:** Quarto has NFS cleanup issues and requires extra Jupyter dependencies (`nbformat`, `nbclient`, `ipykernel`, `pyyaml`) that may not be in every conda env. `.py` scripts run anywhere with a Python interpreter and produce the same outputs (plots saved to files, BUILD_INFO.txt, summary stats printed to stdout).
+
+**When to override on local:** Cases where `.py` is genuinely better suited — e.g., a cluster-bound pipeline being prototyped locally, a long-running headless job, or a script that will only ever be invoked from the command line. Always **ask the user before applying the override marker**, since `.qmd` is the strong local default. Helpers belong in `python/`/`R/` and don't need an override.
+
+**`.qmd` for locally rendered reports** is always available regardless of environment — interactive exploration, publication figures with narrative, or when inline HTML output is valuable.
+
+The override marker is a single comment line in the first 20 lines of the file:
+
+```python
+#!/usr/bin/env python3
+# allow-py: needs to run as a long SLURM job; .qmd Jupyter deps not in target env
+"""..."""
+```
+
+The marker is informational — it documents the justification and silences the hook. Removing it later will cause the hook to block edits, which is intentional (forces re-justification).
+
+---
+
 ## Directory Structure
 
 ### Flat Layout
@@ -92,14 +121,7 @@ Both `batch/` and `logs/` are **tracked in git**: batch scripts are code, and lo
 reproducibility record (they capture provenance, tool versions, and runtime diagnostics).
 See the `hpc` skill for batch script conventions and job resource templates.
 
-**Script format on the cluster:** Use `.py` scripts, not `.qmd`. Quarto has NFS cleanup
-issues and requires extra Jupyter dependencies that may not be installed in every conda env.
-`.py` scripts run anywhere with a Python interpreter and produce the same outputs (plots
-saved to files, BUILD_INFO.txt, summary stats printed to stdout).
-
-`.qmd` remains available for **locally rendered reports** — interactive exploration,
-publication figures with narrative, or when inline HTML output is valuable. But `.py` is
-the default for analysis scripts in cluster projects.
+**Script format on the cluster:** `.py` is the default — see the "Script Format by Environment" section above for the full rule (and the local `.qmd` default + override marker).
 
 #### The `.py` + `.sh` Pairing Convention
 

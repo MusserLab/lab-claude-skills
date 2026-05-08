@@ -46,6 +46,22 @@ lab-claude-skills/
 ## Session Log
 <!-- Maintained by /done. Most recent first. Keep last 5 entries. -->
 
+### 2026-05-07 — Sync plugin v1.9.0
+- **Plans:** None
+- **Work:** Synced 10 updated skills + 1 updated hook + 3 new hooks. Updated skills: audit-script (Outputs trustworthy? assessment), audit-skills (single-skill mode + save-report path), cleanup-scripts (cluster `# allow-py:` override), deep-research-reports (family report type, ChatGPT Pro detection, fix_flat_yaml), done (push automatically — selective merge), hpc (Positron SSH + shared databases + Claude Code session recommendations), new-project (selective merge — no Slack), new-skill (templates/scripts/references roles), quarto-docs (cluster-aware script format), script-organization (Script Format by Environment section). Updated hook: protect-data-dir.sh (data/processed/ + provenance file allowlist). New hooks: enforce-qmd-scripts.sh (blocks numbered non-.qmd in scripts/ on local), commit-before-execute.sh (suggests commit before sbatch/quarto render), suggest-new-plan.sh (recommends /new-plan before plan mode). New EnterPlanMode hook event. New hpc/references/positron-ssh-setup.md. Held back new skills (annotation-pipeline, busco, eggnog-mapper, fcs-gx, handoff, prost-annotation, sync-cluster, sync-project, tabula-muris-gene-survey, tf-list-generation) per user decision.
+- **Next:**
+  - Consider publishing held-back new skills in next sync (HPC pipelines and cross-machine workflow are mature)
+  - cell-type-families, cell-type-tree, wgcna-cell-type still pending fine-tuning
+  - prost-gene-naming remains PI-only
+
+### 2026-03-29 — Sync plugin v1.8.0
+- **Plans:** None
+- **Work:** Synced 1 new skill + 12 updated skills + cluster config templates. New: audit-skills, templates/settings-cluster.json, templates/user-claude-md-cluster.md. Renamed audit → audit-project. Updated: audit-script (simplicity philosophy), done (description only), expression-report (bundled templates/helpers), hpc (genericized + reference files), new-project (cluster/SLURM expansion, externalized templates), quarto-docs (IPython troubleshooting), script-organization (.py+.sh pairing), security-setup (HPC auto-detection), tree-formatting (accession filtering), cleanup-scripts, new-plan. Selective merges for done (no Slack/STATUS_SUMMARY) and new-project (no Slack). Added cluster cross-check step (1b) to sync-plugin. README updated with cluster setup instructions. Posted to #code.
+- **Next:**
+  - Publish cell-type-families, cell-type-tree, wgcna-cell-type when fine-tuning complete
+  - prost-gene-naming remains PI-only (held back for improvement)
+  - tabula-muris-gene-survey and prost-annotation held for next sync
+
 ### 2026-03-23 — Sync plugin v1.7.0
 - **Plans:** None
 - **Work:** Synced 5 updated skills to lab repo: audit-script (domain verification phase), conda-env (cluster activation, post-export hygiene), done (session numbering, sync reminder, conda export), hpc (full content sync — provenance, dual-env, interactive commands), script-organization (cluster .py format + template). Fixed README `/quarto-publish` → `/publish`. Updated README, CHANGELOG, plugin.json. Posted to #code.
@@ -68,17 +84,3 @@ lab-claude-skills/
   - Publish `prost-gene-naming` when ready (held back for improvement)
   - Update sync-plugin skill to use Read+Write instead of cp for cross-directory copies
 
-### 2026-03-06 — Sync plugin v1.4.0
-- **Plans:** None
-- **Work:** Synced 5 skill changes to lab repo: new `deep-research-genelist` and `deep-research-reports` skills, updated `git-conventions` (commit format), `new-plan` (Key Decisions/Working Notes), `quarto-docs` (AI Attribution + Troubleshooting). Removed `scientific-manuscript` (now PI-only). Updated README, templates, CHANGELOG, plugin.json. Diagnosed Bash sandbox behavior (file ops restricted to CWD; use Read/Write tools for cross-directory copies).
-- **Next:**
-  - Publish `prost-gene-naming` when ready (held back for improvement)
-  - Verify marketplace auto-update removes scientific-manuscript for students
-  - Update sync-plugin skill to use Read+Write instead of cp for cross-directory copies
-
-### 2026-03-06 — Settings hardening from colleague comparison
-- **Plans:** None
-- **Work:** Compared colleague's McCleary HPC settings.json with personal config. Researched experimental env vars (agent teams, additional dirs CLAUDE.md, tool search). Added network/system deny rules (ssh, nc, nmap, telnet, crontab, nohup, dd, shutdown, reboot) and CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC env var to personal settings.json.
-- **Next:**
-  - Verify marketplace auto-update actually works for students on next plugin version bump
-  - Consider whether Windows plugin update path (no GUI update button) needs separate documentation

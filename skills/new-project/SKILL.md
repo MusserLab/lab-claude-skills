@@ -49,7 +49,7 @@ If yes:
 - Adds `batch/` directory (tracked in git — SLURM batch scripts)
 - Adds `logs/` directory (tracked in git — SLURM output for review in both environments)
 - Adds a "Dual Environment: Local + Cluster" section to CLAUDE.md (see template below)
-- Asks for the **cluster path** (default: `/nfs/roberts/project/<pi_netid>/<project_name>/`)
+- Asks for the **cluster path** (default: `/nfs/roberts/project/pi_jm284/<project_name>/`)
 - Notes in CLAUDE.md which directories are cluster-only (gitignored)
 - Batch scripts use `BASEDIR=$(git rev-parse --show-toplevel)` — no hardcoded paths
 - See `hpc` skill for full dual-environment conventions
@@ -166,8 +166,6 @@ General projects always get the shared `lab-general` environment by default. Thi
    ```bash
    source ~/miniconda3/etc/profile.d/conda.sh && conda env list | grep lab-general
    ```
-
-   > **Customize**: Replace `~/miniconda3` with your actual conda installation path (see `conda-env` skill).
 
 2. If it does NOT exist, create it:
    ```bash

@@ -113,7 +113,7 @@ Don't chase every reference in rarely-used skills.
 ## 6. Portability
 
 ### Absolute paths
-- [ ] No `/Users/<username>/` — use `~/` instead
+- [ ] No `/Users/jm284/` — use `~/` instead
 - [ ] No `/Library/Frameworks/R.framework/...` without noting it's macOS-specific
 - [ ] No project-specific absolute paths in user-level skills
 

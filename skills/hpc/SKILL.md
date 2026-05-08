@@ -3,9 +3,10 @@ name: hpc
 description: >
   Yale YCRC HPC cluster reference for the Musser Lab. Use when writing SLURM
   batch scripts, configuring job resources, managing cluster storage, running
-  bioinformatics tools on HPC, or setting up Snakemake pipelines. Covers
-  McCleary, Bouchet, and Misha clusters with lab-specific storage paths,
-  partition tables, and tool resource templates.
+  bioinformatics tools on HPC, setting up Snakemake pipelines, or connecting
+  to the cluster remotely (SSH setup, Positron/VS Code Remote SSH, interactive
+  sessions). Covers McCleary, Bouchet, and Misha clusters with lab-specific
+  storage paths, partition tables, and tool resource templates.
 user-invocable: false
 ---
 
@@ -117,11 +118,40 @@ scp). **Do not use them to run tools** — they often have older CPUs that cause
 
 ### Lab storage paths
 
-| Cluster | PI storage | Scratch |
-|---------|-----------|---------|
-| **McCleary** | `/vast/palmer/pi/<pi_netid>` | `/vast/palmer/scratch/<pi_netid>/` |
-| **Bouchet** | `/nfs/roberts/project/<pi_netid>/` | `/nfs/roberts/scratch/<pi_netid>` |
-| **Misha** | `/gpfs/radev/project/<pi_netid>` | `/gpfs/radev/scratch` |
+| Cluster | PI storage (canonical) | Home symlink (lab convention) | Scratch |
+|---------|-----------|-------------------------------|---------|
+| **McCleary** | `/vast/palmer/pi/musser` | — | `/vast/palmer/scratch/musser/` |
+| **Bouchet** | `/nfs/roberts/project/pi_jm284/` | `~/project_pi_jm284/` (= `/home/<netid>/project_pi_jm284/`) | `/nfs/roberts/scratch/pi_jm284` |
+| **Misha** | `/gpfs/radev/project/musser` | — | `/gpfs/radev/scratch` |
+
+On Bouchet, lab members typically work via the home symlink `~/project_pi_jm284/` and
+keep their projects under a per-user subdirectory:
+`~/project_pi_jm284/<netid>/projects/<project_name>/`. This resolves to
+`/nfs/roberts/project/pi_jm284/<netid>/projects/<project_name>/` underneath. Either
+form works; the home-symlink form is more discoverable and matches `cd` history.
+
+### Shared lab databases on Bouchet
+
+Reference databases that are reusable across projects (BUSCO lineages, eggNOG DB,
+DIAMOND-formatted UniProt, sponge mitochondrial reference sets, etc.) live at:
+
+```
+~/project_pi_jm284/shared/databases/
+  busco_lineages/      # BUSCO odb10 datasets (metazoa, eukaryota, etc.)
+  ...                  # other shared DBs as they're added
+```
+
+Resolves to `/nfs/roberts/project/pi_jm284/shared/databases/` under the symlink.
+
+When writing batch or setup scripts that reference these shared DBs, use a parameter
+that defaults to this location and can be overridden via env var:
+
+```bash
+SHARED_DBS="${SHARED_DBS:-$HOME/project_pi_jm284/shared/databases}"
+```
+
+This way the script picks up the lab default automatically but can be redirected
+on a non-Bouchet machine, or to a different location for testing, without editing.
 
 ### Storage policies
 
@@ -144,7 +174,7 @@ scp). **Do not use them to run tools** — they often have older CPUs that cause
 Mirror the local project structure in PI storage or project space:
 
 ```
-/nfs/roberts/project/<pi_netid>/<project_name>/
+/nfs/roberts/project/pi_jm284/<project_name>/
   .git/              # Same repo as local — sync via git push/pull
   .claude/           # Project docs, plans, findings
   batch/             # SLURM batch scripts (tracked in git)
@@ -297,11 +327,27 @@ For GPU jobs, also `module load CUDA` before conda activation.
 ### Interactive jobs
 
 ```bash
-salloc -p devel -t 2:00:00 --mem=8G
+# Quick interactive session (testing, short tasks)
+salloc -p devel -c 4 --mem=16G -t 2:00:00
+
+# Claude Code working session (writing scripts, running them, submitting batch jobs)
+salloc -p day -c 8 --mem=32G -t 6:00:00 --job-name=positron
 ```
 
-Interactive jobs are typically only allowed on `devel` partitions. Add `--x11` for
-graphical forwarding (requires X11 setup).
+**Recommended for Claude Code sessions: 8 CPUs, 32 GB RAM.** Most interactive work
+(writing scripts, parsing TSVs/GFFs, pandas, matplotlib) needs <4 GB, but 32 GB provides
+headroom for occasional spikes (loading large SQLite DBs, sorting big BLAST outputs,
+multi-panel figures). The 8 CPUs help with parallel grep/ripgrep and pigz.
+
+Heavy compute (DIAMOND, Cell Ranger, STAR, BRAKER, eggNOG-mapper, PROST) should always
+be submitted as batch jobs — never run on the interactive node. Rule of thumb: if it takes
+>5 minutes or needs >8 CPUs, write a batch script.
+
+Use `devel` for quick tests (6-hour limit, fast queue). Use `day` for full working
+sessions (up to 24 hours). Add `--x11` for graphical forwarding (requires X11 setup).
+
+For setting up Positron (VS Code) to connect to an interactive session via SSH, see
+`references/positron-ssh-setup.md`.
 
 ### Job monitoring
 
@@ -431,8 +477,8 @@ module avail R
 # (check YCRC docs for current guidance)
 
 # For renv projects, set cache to PI storage to avoid filling home quota:
-export RENV_PATHS_CACHE="/vast/palmer/pi/<pi_netid>/renv_cache"  # McCleary
-# export RENV_PATHS_CACHE="/nfs/roberts/project/<pi_netid>/renv_cache"  # Bouchet
+export RENV_PATHS_CACHE="/vast/palmer/pi/musser/renv_cache"  # McCleary
+# export RENV_PATHS_CACHE="/nfs/roberts/project/pi_jm284/renv_cache"  # Bouchet
 
 # Then restore packages as usual
 Rscript -e 'renv::restore()'
@@ -467,16 +513,16 @@ re-running a stage. The output file itself is the checkpoint — no sentinel fil
 
 ```bash
 # Local to cluster
-rsync -avz --progress local_dir/ <netid>@mccleary.ycrc.yale.edu:/vast/palmer/pi/<pi_netid>/project/
+rsync -avz --progress local_dir/ <netid>@mccleary.ycrc.yale.edu:/vast/palmer/pi/musser/project/
 
 # Cluster to local
-rsync -avz --progress <netid>@mccleary.ycrc.yale.edu:/vast/palmer/pi/<pi_netid>/project/results/ local_results/
+rsync -avz --progress <netid>@mccleary.ycrc.yale.edu:/vast/palmer/pi/musser/project/results/ local_results/
 ```
 
 ### scp (simple single-file transfers)
 
 ```bash
-scp file.fasta <netid>@mccleary.ycrc.yale.edu:/vast/palmer/pi/<pi_netid>/project/data/raw/
+scp file.fasta <netid>@mccleary.ycrc.yale.edu:/vast/palmer/pi/musser/project/data/raw/
 ```
 
 ### Globus (very large datasets)
@@ -586,8 +632,8 @@ it is running.
 2. Show the full script for review
 3. Provide the transfer and submit commands:
    ```bash
-   rsync -avz batch/my_job.sh <netid>@mccleary.ycrc.yale.edu:/vast/palmer/pi/<pi_netid>/project/batch/
-   ssh mccleary "sbatch /vast/palmer/pi/<pi_netid>/project/batch/my_job.sh"
+   rsync -avz batch/my_job.sh <netid>@mccleary.ycrc.yale.edu:/vast/palmer/pi/musser/project/batch/
+   ssh mccleary "sbatch /vast/palmer/pi/musser/project/batch/my_job.sh"
    ```
 4. Also transfer any required input data or scripts referenced by the batch script
 

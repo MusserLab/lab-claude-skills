@@ -5,6 +5,28 @@ Format: date-based entries (this isn't versioned software).
 
 ---
 
+## 2026-05-07 (v1.9.0)
+
+### Added
+- Hook: `enforce-qmd-scripts.sh` — blocks numbered non-`.qmd` scripts in `scripts/` on local (auto-skips on cluster). Override with `# allow-py: <reason>` comment in the first 20 lines
+- Hook: `commit-before-execute.sh` — suggests committing changes before `sbatch` or `quarto render` so BUILD_INFO git hash is accurate (suggestion, not block)
+- Hook: `suggest-new-plan.sh` — prompts to ask the user before entering plan mode; recommends `/new-plan` for tracked planning documents
+- New `EnterPlanMode` hook event matcher in `hooks/hooks.json`
+- `hpc/references/positron-ssh-setup.md` — guide for connecting Positron / VS Code Remote SSH to a cluster interactive session
+
+### Changed
+- `audit-script`: added "Outputs trustworthy?" assessment (Yes / Yes with caveats / No) to audit report summary
+- `audit-skills`: single-skill review mode (skip Phase 1 inventory and Phase 3 cross-skill pass for N=1), output mode question (fix directly / save report / both), save-report path for handoff between chats
+- `cleanup-scripts`: cluster-aware `# allow-py:` override for numbered `.py`/`.R`/`.Rmd` files in `scripts/` (auto-skip on cluster)
+- `deep-research-reports`: family report type support (WGCNA-module-organized), ChatGPT Pro / extended thinking detection, `fix_flat_yaml` for zero-indent YAML, dual quarto-path detection, family field mappings in summary table
+- `done`: push to remote automatically after commit (only ask if push fails)
+- `hpc`: Positron / VS Code Remote SSH setup section, shared lab databases (`~/project_pi_jm284/shared/databases/`), Claude Code interactive session recommendations (8 CPUs / 32 GB)
+- `new-skill`: clarified `templates/` vs `scripts/` vs `references/` subdirectory roles in bundled resources, added "Examples in the wild" pointers
+- `quarto-docs`: cluster-aware script format guidance (`.qmd` local default, `.py` cluster default, override marker for either)
+- `script-organization`: new "Script Format by Environment" section with override marker convention
+- Hook: `protect-data-dir.sh` — allowlist `data/processed/` (sanctioned target for derived analytical stores) and provenance files (CITATION/PROVENANCE/README/MANIFEST/CHANGELOG/LICENSE)
+- README: added 3 new hooks to Hooks table; updated `protect-data-dir.sh` description; updated `hpc` description
+
 ## 2026-03-29 (v1.8.0)
 
 ### Added

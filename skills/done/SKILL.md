@@ -175,29 +175,30 @@ If there are changes (skills, CLAUDE.md, etc.):
 If on the cluster, offer to run it immediately. If on macOS (canonical machine), remind the user to run `/sync-cluster` on the cluster next time they're there — macOS mode only pulls, it can't push cluster changes to canonical.
 Do NOT run `/sync-cluster` automatically — it's an interactive skill that requires decisions about what to push/modify/skip.
 
-### Conditional: Conda environment export [Data Science only]
+### Conditional: Conda environment drift check [Data Science only]
 
-Only if conda packages were installed or updated during this session:
+Only if conda **or pip** packages were installed/updated this session. Do NOT blindly
+overwrite `environment.yml` (it's hand-curated and grouped) — detect drift and reconcile.
 
-1. Check if the active conda env matches `environment.yml`:
+1. List what's actually in the env — **both** conda and pip:
    ```bash
-   conda env export --from-history
+   conda env export --from-history                          # conda (explicit installs)
+   conda list | awk 'NR>3 && $NF=="pypi" {print $1"=="$2}'  # pip-installed (channel = pypi)
    ```
-2. Compare against the current `environment.yml`. If they differ (new packages, removed
-   packages, version changes), ask: "Conda environment has changed. Export to
-   environment.yml?"
-3. If yes, export and clean up:
-   ```bash
-   conda env export --from-history > environment.yml
-   ```
-4. **Post-export hygiene** — automatically fix these in the exported file:
-   - **Remove `prefix:` line** — machine-specific absolute path, not portable
-   - **Remove `defaults` from channels** — conflicts with bioconda strict channel priority
-   - Verify `conda-forge` is listed as a channel
-5. Include updated `environment.yml` in the commit.
+   `--from-history` does **not** include pip packages — that's why the second command is
+   required. Skipping it silently drops pip installs from the spec.
+2. Compare the union against `environment.yml` (its `dependencies:` list **and** its `pip:`
+   subsection). Identify packages in the env but not in the spec (and vice versa).
+3. If drift exists, show the diff and propose the exact lines to add, then ask:
+   "environment.yml is missing these packages — add them?"
+   - conda packages → add under `dependencies:`
+   - pip-only packages → add under a `pip:` subsection (ensure `pip` is a conda dependency)
+4. Apply the agreed edits to the hand-curated file (preserve grouping/comments). Keep out:
+   the `prefix:` line and `defaults` channel; verify `conda-forge` is present.
+5. Include the updated `environment.yml` in the commit.
 
-Use `--from-history` (not bare `conda env export`) so only explicitly installed packages
-are recorded, not platform-specific transitive dependencies.
+Reconcile the curated file rather than replacing it with a full `conda env export`, which
+records pinned, platform-specific build strings that aren't portable.
 
 ### Conditional: renv snapshot [Data Science only]
 

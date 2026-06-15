@@ -67,6 +67,20 @@ On local macOS, `module` doesn't exist.
 
 4. When suggesting install commands to users (e.g., for students or collaborators), always include the conda activation step.
 
+5. **Record pip installs in `environment.yml`.** When you fall back to pip, add the package under a `pip:` subsection (and ensure `pip` is listed as a conda dependency). `conda env export --from-history` does **not** capture pip-installed packages, so they are otherwise silently lost:
+   ```yaml
+   dependencies:
+     - python=3.11
+     - pip                 # required for the pip: section below
+     - numpy
+     - pip:
+         - some-pip-only-package==1.2.3
+   ```
+   Detect what was pip-installed (channel shows as `pypi`):
+   ```bash
+   conda list | awk 'NR>3 && $NF=="pypi" {print $1"=="$2}'
+   ```
+
 ## One-Time Configuration
 
 Run once on a new machine to ensure consistent package resolution:
@@ -83,18 +97,28 @@ conda config --add channels conda-forge
 
 ## Environment Export
 
-Always use `--from-history` for portable environment files:
+`environment.yml` is hand-curated and portable. Use `--from-history` for the conda
+packages — it records only explicitly installed packages, not platform-specific transitive
+deps:
 
 ```bash
-conda env export --from-history > environment.yml
+conda env export --from-history     # conda packages — does NOT include pip installs
 ```
 
-This records only explicitly installed packages (not platform-specific transitive
-dependencies), making the file portable across OS and architectures.
+**`--from-history` silently omits pip-installed packages.** Capture those separately and
+record them under a `pip:` subsection (with `pip` listed as a conda dependency):
 
-**Post-export hygiene** — always clean up the exported file:
-- **Remove `prefix:` line** — machine-specific absolute path, not portable
-- **Remove `defaults` from channels** — conflicts with bioconda strict channel priority
+```bash
+conda list | awk 'NR>3 && $NF=="pypi" {print $1"=="$2}'   # pip-installed packages
+```
+
+Prefer **reconciling** the existing hand-curated `environment.yml` (add new conda packages
+to `dependencies:`, new pip packages to the `pip:` subsection) over overwriting it — a full
+`conda env export` produces pinned, platform-specific build strings that aren't portable.
+
+**Hygiene** — keep out of `environment.yml`:
+- **`prefix:` line** — machine-specific absolute path, not portable
+- **`defaults` channel** — conflicts with bioconda strict channel priority
 - Verify `conda-forge` is listed as a channel
 
 ## Shared Environments

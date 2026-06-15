@@ -5,6 +5,12 @@ Format: date-based entries (this isn't versioned software).
 
 ---
 
+## 2026-06-15 (v1.9.1)
+
+### Changed
+- `conda-env`: record pip-installed packages in `environment.yml` under a `pip:` subsection — `conda env export --from-history` omits them, so they get silently lost. Detect pip installs via `conda list ... pypi`; prefer reconciling the hand-curated file over overwriting it
+- `done`: conda environment **drift check** (renamed from "export") — reconcile `environment.yml` against both conda *and* pip packages instead of blindly overwriting with a full export; show the diff and propose exact lines to add before editing
+
 ## 2026-05-07 (v1.9.0)
 
 ### Added

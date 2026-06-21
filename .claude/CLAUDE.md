@@ -46,6 +46,15 @@ lab-claude-skills/
 ## Session Log
 <!-- Maintained by /done. Most recent first. Keep last 5 entries. -->
 
+### 2026-06-15 — Sync plugin v1.9.1
+- **Plans:** None
+- **Work:** Published 2 skill refinements about `environment.yml` pip handling. `conda-env`: record pip-installed packages under a `pip:` subsection (`--from-history` omits them), detect via `conda list ... pypi`, reconcile rather than overwrite (copied wholesale). `done`: renamed "Conda environment export" → "drift check"; reconcile `environment.yml` against both conda + pip instead of blind overwrite — **selective merge** kept Slack/STATUS_SUMMARY/SLURM-3b content out (PI-only). CHANGELOG + plugin.json (1.9.0→1.9.1). Cluster cross-check passed (cluster just behind on the same edit). Posted to #code. Earlier same session: `/sync-cluster` pushed the same conda-env/done/sync-project + settings.json refinements to canonical `~/.claude`. Deferred per user: all 10 held-back new skills, `presentations` (separate wrap-up pending), `sync-cluster` (PI-specific repos).
+- **Next:**
+  - Held-back new skills still pending publish: annotation-pipeline, busco, eggnog-mapper\*, fcs-gx\*, handoff, hmmer, prost-annotation\*, sync-project, tabula-muris-gene-survey, tf-list-generation (\* = scrub `jacob.musser@yale.edu` → `<your email>` first)
+  - `presentations`: finish its separate chat first, then publish — gitignore its 13 MB `_preview/` scratch dir (generated decks + external `node_modules` symlink)
+  - `sync-cluster`: PI-specific (hardcoded GitHub repos) — likely never publish, or generalize first
+  - cell-type-families/-tree, wgcna-cell-type pending fine-tuning; prost-gene-naming remains PI-only
+
 ### 2026-05-07 — Sync plugin v1.9.0
 - **Plans:** None
 - **Work:** Synced 10 updated skills + 1 updated hook + 3 new hooks. Updated skills: audit-script (Outputs trustworthy? assessment), audit-skills (single-skill mode + save-report path), cleanup-scripts (cluster `# allow-py:` override), deep-research-reports (family report type, ChatGPT Pro detection, fix_flat_yaml), done (push automatically — selective merge), hpc (Positron SSH + shared databases + Claude Code session recommendations), new-project (selective merge — no Slack), new-skill (templates/scripts/references roles), quarto-docs (cluster-aware script format), script-organization (Script Format by Environment section). Updated hook: protect-data-dir.sh (data/processed/ + provenance file allowlist). New hooks: enforce-qmd-scripts.sh (blocks numbered non-.qmd in scripts/ on local), commit-before-execute.sh (suggests commit before sbatch/quarto render), suggest-new-plan.sh (recommends /new-plan before plan mode). New EnterPlanMode hook event. New hpc/references/positron-ssh-setup.md. Held back new skills (annotation-pipeline, busco, eggnog-mapper, fcs-gx, handoff, prost-annotation, sync-cluster, sync-project, tabula-muris-gene-survey, tf-list-generation) per user decision.
@@ -76,11 +85,4 @@ lab-claude-skills/
 - **Next:**
   - Publish cell-type-families, cell-type-tree, wgcna-cell-type when fine-tuning complete
   - prost-gene-naming remains PI-only (held back for improvement)
-
-### 2026-03-12 — Sync plugin v1.5.0
-- **Plans:** None
-- **Work:** Synced 4 changes to lab repo: new `audit-script` and `learn-code` skills, updated `deep-research-genelist` (family-aware mode) and `deep-research-reports` (family-aware support). Updated README, user-claude-md template, CHANGELOG, plugin.json. Posted to #code.
-- **Next:**
-  - Publish `prost-gene-naming` when ready (held back for improvement)
-  - Update sync-plugin skill to use Read+Write instead of cp for cross-directory copies
 

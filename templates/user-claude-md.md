@@ -98,6 +98,8 @@ Skills are categorized by scope. **General** skills apply to all projects. **Dat
 | `protein-phylogeny` | Protein phylogeny pipeline: alignment (MAFFT), trimming, tree inference (IQ-TREE 3) |
 | `tree-formatting` | Phylogenetic tree visualization with ggtree: layout, coloring, collapsing, overlays |
 | `gene-lookup` | Look up gene/protein info from database IDs (UniProt, Ensembl, FlyBase, WormBase, NCBI) |
+| `pipeline-diagram` | Generate a publication-style pipeline diagram (overview + per-step detail) from a YAML spec |
+| `handoff` | Coordinate local ↔ cluster session handoff — departure → gate → arrival, multi-chat safe |
 | `/done` | End-of-session wrap-up and commit (adapts to project type) |
 | `/new-project` | Scaffold a new project (data science, documentation, or general) |
 | `/new-plan` | Create a planning document |
@@ -111,6 +113,8 @@ Skills are categorized by scope. **General** skills apply to all projects. **Dat
 | `/gene-list-deep-research` | Generate deep research prompts from scRNAseq marker gene lists for cell type annotation |
 | `/process-deep-research` | Process deep research report outputs: clean artifacts, generate PDF/HTML, parse YAML headers |
 | `/cleanup-scripts` | Session-scoped script cleanup: consolidate scratch files, check conventions |
+| `/sync-project` | Sync project state on a new machine: git pull, conda env update, renv restore |
+| `/feedback-walkthrough` | Walk a student through advisor feedback pedagogically, one item at a time |
 
 ### Data Science (analysis projects with data/outs/scripts/ layout)
 

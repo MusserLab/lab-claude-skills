@@ -172,6 +172,27 @@ SKILL.md references the helpers and describes how the generated script uses them
 - `hpc`, `expression-report`, and `new-project` use `references/` and/or bundled examples
 - Older HPC-tool skills (`eggnog-mapper`, `prost-annotation`, `fcs-gx`) embed batch scripts as fenced code blocks in SKILL.md — that's the legacy single-file pattern, slated for refactor
 
+### Shell and `$`-tokens in SKILL.md bodies
+
+When a skill is invoked, Claude Code runs an argument-substitution pass over the SKILL.md
+body **before Claude sees it**. It replaces `$N` (a `$` immediately followed by a digit —
+0-based, so `\$0` is the *first* argument), `\$ARGUMENTS`, and any declared argument name —
+and these collapse to empty strings when the skill is invoked with no arguments (the usual
+auto-load case). A `$` followed by a letter (`$SLURM_ARRAY_TASK_ID`, `$HOME`), command
+substitutions `$(…)`, and `${…}` are left untouched.
+
+So runnable shell pasted inline that uses positional args or awk fields — `echo "\$0"`,
+`awk '{print \$1}'` — is silently blanked on load. Two fixes:
+
+- **Escape** each token with a leading backslash; the backslash is consumed on load and the
+  literal token survives. Never escape a `$`+letter token (`$SLURM_*`, `$HOME`) — there the
+  backslash is *kept*, leaving a stray `\`.
+- **Preferred:** put the script in `templates/` and load it with Read. Substitution does not
+  run on bundled files, so positional args and `$SLURM_ARRAY_TASK_ID` survive verbatim.
+
+(The example tokens above are backslash-escaped in this file's source so they render
+correctly when the skill loads.)
+
 ---
 
 ## 7. Register in User CLAUDE.md

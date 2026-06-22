@@ -1,0 +1,89 @@
+# Pipeline spec for render_pipeline.py — example: the synapse-PPI rebuild.
+# Copy this, edit the steps, run:  python render_pipeline.py myspec.yaml outprefix --detail
+#
+# Each step needs a `title`. Everything else is optional:
+#   decision  -> the blue annotation in the overview (the KEY decision/assumption)
+#   inputs    -> left-hand nodes (kind: required|optional)
+#   outputs   -> right-hand nodes (file: shown in monospace; terminal: true = purple end node)
+#   script / files_in / files_out / params  -> used only by the --detail per-step cards
+
+title: Synapse-PPI prediction pipeline
+subtitle: cross-species presynaptic interaction network from a fine-tuned protein language model
+
+steps:
+  - title: Curate proteins + interactions
+    decision: "known DIRECT interactions, scored by the\nmodel — not asserted from literature"
+    script: rebuild_00_curated_edges.py
+    inputs:
+      - {label: "presynaptic\nprotein set", kind: required}
+      - {label: "STRING +\nliterature", kind: optional}
+    outputs:
+      - {label: curated edges + modules, file: 00.curated_edges/nodes.tsv}
+    files_in: ["26 human UniProt accessions", "STRING physical network (API)"]
+    files_out: ["00.curated_edges.tsv", "00.curated_nodes.tsv", "00.human_nodes.faa"]
+    params: ["42 known direct edges (not all-pairs)", "localization-based modules", "STRING db=0.5 = pathway, not direct"]
+
+  - title: Resolve human sequences
+    decision: "UniProt canonical, verified"
+    script: rebuild_00_curated_edges.py
+    files_in: ["gene symbols -> UniProt REST"]
+    files_out: ["00.human_nodes.tsv / .faa"]
+    params: ["0 mismatches vs known accessions"]
+
+  - title: Score human reference
+    decision: "detectability control — trust an edge\nonly if the model recovers it in human"
+    script: ppi_eval_mps.py
+    outputs:
+      - {label: human-detectability table, file: 01.human_ref_predictions.tsv}
+    files_in: ["01.human_ref_inputs.tsv", "PLM-interact model"]
+    files_out: ["01.human_ref_predictions.tsv"]
+    params: ["edge interpretable iff human score >= 0.5", "do NOT treat human as biological ground truth"]
+
+  - title: Detect species homologs
+    decision: "PROST (structural) ∪ OrthoFinder (gene tree)\n∪ ml-BLAST — union recovers what each misses"
+    script: "PROST search + rebuild_02"
+    inputs:
+      - {label: OrthoFinder run, kind: optional}
+      - {label: "PROST\ndatabases", kind: optional}
+      - {label: "ml → SwissProt\nBLAST", kind: optional}
+    files_in: ["species .prdb (PROST)", "OrthoFinder Orthologues/", "out.ml_to_swissprot.txt"]
+    files_out: ["02.prost_hits.{nt,sl,ml}.tsv"]
+    params: ["top-4 PROST hits/protein", "BLAST recovers RIM that PROST misses", "ml-BLAST e<1e-5, gene family"]
+
+  - title: Collapse to genes
+    decision: "Spongilla: longest protein per MERGED gene\n(avoids Trinity over-fragmentation)"
+    script: rebuild_02_combined_inputs.py
+    inputs:
+      - {label: "merged-gene\nproteome + lookup", kind: optional}
+    files_in: ["spongilla_70AA_longest_protein_per_merged_gene.fasta", "04.spongilla_merged_genes_and_names.tsv"]
+    files_out: ["(gene-level sl homolog map)"]
+    params: ["raw Trinity c#_g# -> merged gene", "dedup homologs per gene"]
+
+  - title: Build cross-species pairs
+    decision: "per edge × species × homolog combo"
+    script: rebuild_02_combined_inputs.py
+    outputs:
+      - {label: cross-species inputs, file: 03.combined_inputs.tsv}
+    files_in: ["00.curated_edges.tsv", "homolog maps (OF/PROST/BLAST)", "species proteome FASTAs"]
+    files_out: ["03.combined_inputs.tsv"]
+    params: ["combos = homologs(A) × homologs(B)", "provenance tag per side (OF/PROST/BLAST)"]
+
+  - title: Score interactions
+    decision: "PLM-interact (ESM2-650M) on Apple-Silicon MPS"
+    script: ppi_eval_mps.py
+    inputs:
+      - {label: "PLM-interact\nmodel", kind: required}
+    outputs:
+      - {label: interaction predictions, file: 03.combined_predictions.tsv}
+    files_in: ["03.combined_inputs.tsv", "pytorch_model.bin (PLM-interact)"]
+    files_out: ["03.combined_predictions.tsv"]
+    params: ["joint tokenization, max 3000 tokens", "sigmoid PPI probability", "resume-safe"]
+
+  - title: Render networks
+    decision: "3 homolog modes × {with, without cross-module};\nlocalization-based modules"
+    script: rebuild_03_network_figure.py
+    outputs:
+      - {label: network figures (×6), file: 03.network_*.png/pdf, terminal: true}
+    files_in: ["00.curated_nodes/edges.tsv", "01.human_ref_predictions.tsv", "03.combined_predictions.tsv"]
+    files_out: ["03.network_{ortholog,allhomolog,prostonly}_{with,no}_crossmodule.png/pdf"]
+    params: ["modes: ortholog / all / PROST-only", "high>=0.5 solid, low 0.01-0.5 dashed", "hide edges undetectable in human"]

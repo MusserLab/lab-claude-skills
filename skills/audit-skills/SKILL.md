@@ -98,6 +98,12 @@ Is the skill appropriately sized and organized?
 - Heavy content (templates, reference docs, long code blocks) belongs in bundled resources
   (`references/`, `templates/`, `scripts/`)
 - Code blocks over ~50 lines in SKILL.md are candidates for extraction
+- **`$`-substitution in inline shell** — flag an unescaped `$N` (`$` + digit) or
+  `\$ARGUMENTS` inside a SKILL.md code block: Claude Code substitutes these on load and
+  blanks them when the skill loads with no args, silently corrupting the snippet. Probe:
+  `grep -nP '(?<!\\)\$([0-9]|ARGUMENTS)' SKILL.md`. Severity **FIX**. Fix: escape as `\$N`,
+  or move the script to `templates/` (preferred). `$SLURM_*`, `$HOME`, `$(…)`, and `${…}`
+  are safe. See the `new-skill` skill for the convention.
 - Accessory files should be organized by type, not dumped loose in the skill directory
 
 **Key question:** If someone reads just SKILL.md, do they get the workflow and decision points

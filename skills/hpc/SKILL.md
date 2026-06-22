@@ -2,11 +2,15 @@
 name: hpc
 description: >
   Yale YCRC HPC cluster reference for the Musser Lab. Use when writing SLURM
-  batch scripts, configuring job resources, managing cluster storage, running
-  bioinformatics tools on HPC, setting up Snakemake pipelines, or connecting
-  to the cluster remotely (SSH setup, Positron/VS Code Remote SSH, interactive
-  sessions). Covers McCleary, Bouchet, and Misha clusters with lab-specific
-  storage paths, partition tables, and tool resource templates.
+  batch scripts, configuring job resources, or for ANY question about cluster
+  storage — where to put data, which filesystem to use, storage paths, quotas,
+  PI/project/scratch/home space, shared data or database folders, Palmer vs
+  Gibbs, /vast vs /gpfs vs /nfs, purge policy, or how much space is available.
+  Also use when running bioinformatics tools on HPC, setting up Snakemake
+  pipelines, or connecting to the cluster remotely (SSH setup, Positron/VS Code
+  Remote SSH, interactive sessions). Covers McCleary, Bouchet, and Misha
+  clusters with lab-specific storage paths, partition tables, and tool resource
+  templates.
 user-invocable: false
 ---
 
@@ -124,6 +128,37 @@ scp). **Do not use them to run tools** — they often have older CPUs that cause
 | **Bouchet** | `/nfs/roberts/project/pi_jm284/` | `~/project_pi_jm284/` (= `/home/<netid>/project_pi_jm284/`) | `/nfs/roberts/scratch/pi_jm284` |
 | **Misha** | `/gpfs/radev/project/musser` | — | `/gpfs/radev/scratch` |
 
+> **McCleary has TWO PI storage allocations of very different size — pick deliberately:**
+> - **`/vast/palmer/pi/musser`** — large (~20 TiB), Palmer VAST. **This is canonical** for raw
+>   data, shared data folders, and anything bulky.
+> - **`/gpfs/gibbs/project/musser`** — small (~1 TiB), Gibbs. Easy to fill; some lab members
+>   land here by default (e.g. older `dc2423/` working dirs), but it is NOT where new bulk
+>   data should go. Prefer Palmer for raw data / shared folders unless a tool specifically
+>   needs Gibbs.
+>
+> When in doubt, check both with `getquota` and put bulk data on whichever has headroom
+> (usually Palmer).
+
+### Shared lab data folder (raw sequencing data, cross-cluster)
+
+Raw sequencing deliveries shared across projects/people live in a shared data folder under PI
+storage. **The intermediate folder name differs between clusters** — Bouchet uses `shared/`,
+McCleary uses `Data/` — so it is NOT a clean root-prefix swap; use the per-cluster path below:
+
+| Cluster | Shared data root | YCGA deliveries land at |
+|---------|------------------|-------------------------|
+| **Bouchet** | `/nfs/roberts/project/pi_jm284/shared/` (= `~/project_pi_jm284/shared/`) | `…/shared/YCGA_DATA_POSTED/` |
+| **McCleary** | `/vast/palmer/pi/musser/Data/` (Palmer — NOT Gibbs) | `/vast/palmer/pi/musser/Data/YCGA_DATA_POSTED/` |
+
+Under either root the internal layout matches, e.g. `…/YCGA_DATA_POSTED/PACBIO/...` and
+`…/YCGA_DATA_POSTED/SingleCell/...`. On Bouchet, `~/project_pi_jm284/jm284/Data/YCGA_DATA_POSTED`
+is a symlink into `shared/YCGA_DATA_POSTED`. Feed these from the lab NAS via Globus.
+In scripts, parameterize the root (note the differing folder name per cluster):
+
+```bash
+SHARED_DATA="${SHARED_DATA:-$HOME/project_pi_jm284/shared}"   # Bouchet; McCleary: /vast/palmer/pi/musser/Data
+```
+
 On Bouchet, lab members typically work via the home symlink `~/project_pi_jm284/` and
 keep their projects under a per-user subdirectory:
 `~/project_pi_jm284/<netid>/projects/<project_name>/`. This resolves to
@@ -233,7 +268,7 @@ cd "$BASEDIR"
 
 echo "=== PROVENANCE ==="
 echo "Job ID:      $SLURM_JOB_ID"
-echo "Script:      $0"
+echo "Script:      \$0"
 echo "Git hash:    $(git rev-parse HEAD)"
 echo "Git dirty:   $(git status --porcelain | head -5)"
 echo "Date:        $(date -Iseconds)"
@@ -323,6 +358,56 @@ GPUs must be explicitly requested with `--gpus`. Key GPU partitions:
 | Misha | `gpu` | H100/H200/A100/A40/L40S | 48-141 GB |
 
 For GPU jobs, also `module load CUDA` before conda activation.
+
+#### Picking the fastest GPU partition (check before submitting)
+
+**Always check queue depth across GPU partitions before submitting** — they swing
+wildly day-to-day, and "the obvious choice" is often the slowest. Before any non-
+trivial GPU job:
+
+```bash
+# 1. Queue depth across all GPU partitions
+for p in gpu gpu_h200 gpu_rtx6000 gpu_b200 scavenge_gpu gpu_devel; do
+  pd=$(squeue -p $p -h -t PD 2>/dev/null | wc -l)
+  rn=$(squeue -p $p -h -t R 2>/dev/null | wc -l)
+  echo "$p: $rn running, $pd pending"
+done
+```
+
+Wide swings are normal. Recent example (2026-05-24): `gpu` had 233 pending, `gpu_h200`
+92, `gpu_rtx6000` 17, `gpu_devel` 0. Past experience said `gpu_h200` was fastest;
+on that day it had a 15-hour ETA.
+
+**After submitting, check your priority position and ETA:**
+
+```bash
+sprio -j <jobid>                                    # your priority breakdown
+squeue -p <part> -t PD -O JobID,Priority -S -p \    # your rank in pending queue
+  | head -10
+squeue -j <jobid> --start                           # estimated start time
+                                                    # (conservative — actual often sooner)
+```
+
+If estimated start is too far out, switch partitions on the pending job:
+
+```bash
+scontrol update job=<jobid> Partition=<new_part>
+```
+
+This works on PD jobs only; no resubmit needed. The job keeps its priority age.
+Session-7 trick — used it to escape a 5-day `gpu` ETA into a fast `gpu_h200` slot.
+
+**Gotcha — "reserved for jobs in higher priority partitions":**
+If a pending job shows reason `(Nodes required for job are DOWN, DRAINED or reserved
+for jobs in higher priority partitions)` even when you have top priority *within*
+your partition, the `priority_gpu` partition has reserved nodes that overlap your
+target partition's nodes. Check overlap with `sinfo -p priority_gpu --Format=Gres`.
+Switching to another general GPU partition may help (different node overlap) or may
+not (`priority_gpu` reserves nodes across all four GPU types on Bouchet). If the
+job is OK with preemption, `scavenge_gpu` bypasses this reservation system entirely
+— but a higher-priority job arriving mid-run will kill yours, so only worth it for
+work that's safe to restart (good per-stage checkpointing or fingerprint-based
+resumption).
 
 ### Interactive jobs
 

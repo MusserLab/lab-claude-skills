@@ -21,6 +21,22 @@ Check the project's `.claude/CLAUDE.md` for a `project-type:` field:
 
 If no field exists, infer: `renv.lock`, `outs/`, or numbered `XX_*.qmd` scripts → data science. Otherwise → general.
 
+**Collaborator mode** — `<!-- done-mode: collaborator -->` (optional):
+- For **repos you don't own** (e.g. a student's project you're reviewing). Set it in your personal `CLAUDE.local.md` so it applies only to you, not the repo owner.
+- In collaborator mode, `/done` keeps your session-management artifacts **private to your clone**:
+  - **Session log** (Step 1b) → appended to `CLAUDE.local.md`, not the shared `.claude/CLAUDE.md`.
+  - **No auto-push** (Step 4) → commit locally, then `/done` **does the push-vs-hold triage for you and recommends a set to push** (one-line rationale each); you approve or adjust rather than adjudicating file-by-file. Nothing is pushed without your OK, and nothing pushable is silently left behind.
+  - **Private plans/reports** (`.claude/local/`) → update as normal but never commit them (the folder is gitignored locally); register them in `CLAUDE.local.md`, not the shared `.claude/CLAUDE.md`.
+
+  **Push-vs-hold triage** — Claude runs this classification and **recommends a push set**; the user approves or adjusts (they don't decide each file). Default to a recommendation; only ask about genuinely ambiguous items:
+  - *Lean push* (accurate, ready, helps the student/repo): shared docs (`.claude/CLAUDE.md`, `project_plan.md`/`project_summary.md`, `docs/feedback/`), shared inputs (`data/`), reference/lookup files, finished scripts or analysis, and doc-accuracy fixes.
+  - *Lean hold* (not ready / personal): work-in-progress `scripts/<you>/`, drafts, prototypes — anything you'd only share once polished.
+  - *Already private* (gitignored — never in a commit anyway): `.claude/local/`, `outs/<you>/`, `CLAUDE.local.md`.
+  - Ask only about the genuinely ambiguous items — recommend the clear ones. The final call is always the user's.
+- Granular alternative: `<!-- done-autopush: false -->` disables only the auto-push and leaves the rest normal.
+
+> Also read `CLAUDE.local.md` (gitignored, personal) for these markers — it overrides `.claude/CLAUDE.md`, so a collaborator can set personal wrap-up behavior without touching the shared repo.
+
 ---
 
 ## 0b. Load Project Extensions
@@ -47,6 +63,8 @@ Briefly list what was completed this session:
 ## 1b. Update Session Log in Project CLAUDE.md
 
 Append a new entry to the **Session Log** section at the bottom of the project's `.claude/CLAUDE.md`. This is a rolling log of the last 5 sessions — it's the primary place future sessions look for "what to do next."
+
+> **Collaborator mode (Step 0):** append the session log to your private `CLAUDE.local.md` instead of the shared `.claude/CLAUDE.md` — same format and same last-5 trim — so your entries stay in your clone and don't reach the repo owner.
 
 ### Format
 
@@ -129,6 +147,20 @@ If the project has a `CHANGELOG.md` in its root directory:
 
 ---
 
+## 3b. Capture SLURM Resource Profiles [Cluster only]
+
+**Run only on the HPC cluster.** Guard: if `command -v sacct` fails (e.g., on local macOS), skip this step **silently** — it does not apply off-cluster.
+
+If SLURM batch jobs were submitted **and completed** this session, capture their observed usage so future jobs can be right-sized instead of re-discovering it:
+
+1. For each distinct tool / job type run this session, pull empirical usage:
+   `jobstats <jobid>` (or `seff <jobid>` / `sacct -j <jobid> --format=Elapsed,MaxRSS,ReqMem,AllocCPUS,State`).
+   Record peak memory, CPU efficiency, elapsed walltime, **and the input scale** (e.g. read/sequence count) — the scale is what makes the number reusable.
+2. Record the right-sized CPUs / Memory / Time / Partition (with observed peak mem + efficiency + input scale) where your project keeps its resource notes — e.g. a comment in the batch script or a project planning doc — so the next run starts from the right ballpark.
+3. Only bother when the numbers **refine** what you already knew — don't churn notes for trivial re-runs or jobs you didn't right-size.
+
+---
+
 ## 4. Git Commit
 
 ### Project repository
@@ -151,7 +183,7 @@ If there are changes:
 - Files already in initial gitStatus should NOT be included unless you worked on them
 - Show the user session-relevant files and suggest a commit message
 - If approved, commit only those files
-- After committing, push to remote automatically (`git push`). Only ask the user if the push fails (e.g., rejected by remote, no remote configured).
+- After committing, push to remote automatically (`git push`) — **unless collaborator mode or `done-autopush: false` is set** (see Step 0; typically in `CLAUDE.local.md` for collaborative repos). If auto-push is off, do NOT push automatically — but DO surface and **pre-triage** the decision: gather every local commit not yet on the remote (`git log @{u}..HEAD --oneline`), this session's and any earlier unpushed ones, classify each with the push-vs-hold heuristics (Step 0), and present a **recommended push set** and a **hold set** with a one-line reason each. Ask the user to approve or tweak the recommendation — Claude does the legwork; the user doesn't adjudicate every file. The final call is theirs. Only ask the user if an attempted push fails (e.g., rejected by remote, no remote configured).
 
 ### User config (`~/.claude`)
 

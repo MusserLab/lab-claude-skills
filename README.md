@@ -200,6 +200,9 @@ Invoke these directly to run a workflow.
 | `/gene-list-deep-research` | Generate deep research prompts from scRNAseq marker gene lists for cell type annotation |
 | `/process-deep-research` | Process deep research report outputs — clean artifacts, generate PDF/HTML, parse YAML headers |
 | `/cleanup-scripts` | Session-scoped script cleanup — consolidate scratch files, check conventions |
+| `/sync-project` | Sync project state when arriving on a new machine — git pull, conda env update, renv restore |
+| `/handoff` | Coordinate local ↔ cluster session handoff — departure → gate → arrival, multi-chat safe |
+| `/feedback-walkthrough` | Walk a student through advisor feedback pedagogically, one item at a time |
 
 ### Data science conventions
 
@@ -237,6 +240,7 @@ For specific research tasks.
 | `protein-phylogeny` | Protein phylogeny inference pipeline — alignment, trimming, tree building |
 | `gene-lookup` | Look up gene/protein info from database IDs (UniProt, Ensembl, FlyBase, etc.) |
 | `tree-formatting` | Phylogenetic tree visualization with ggtree or iTOL |
+| `pipeline-diagram` | Generate a publication-style pipeline diagram (overview + per-step detail) from a YAML spec |
 
 ---
 

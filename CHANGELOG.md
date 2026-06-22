@@ -5,6 +5,22 @@ Format: date-based entries (this isn't versioned software).
 
 ---
 
+## 2026-06-21 (v1.10.0)
+
+### Added
+- `pipeline-diagram` skill — generate publication-style processing-pipeline diagrams (flowing-backbone overview + optional per-step detail) from a small YAML spec; bundled generic renderer + annotated example spec
+- `handoff` skill — coordinate local ↔ cluster Claude Code session handoffs with a strict departure → gate → arrival sequence and multi-chat safety; bundled divergence-recovery reference
+- `sync-project` skill — arrival-side project sync (git pull with divergence classification, conda env update from `environment.yml`, renv restore, memory-promotion check)
+- `feedback-walkthrough` skill — walk a student through advisor feedback pedagogically, one item at a time so they understand and act on it themselves (student side)
+
+### Changed
+- `audit-skills`: flag `$`-substitution in inline shell (`$N` / `$ARGUMENTS` get blanked when a skill loads with no args) as a FIX-severity check
+- `new-skill`: new "Shell and `$`-tokens in SKILL.md bodies" section — escape positional args/awk fields, or move runnable shell to `templates/`
+- `deep-research-reports`: add `family_report1` (WGCNA-module family pipeline) and `family_report2` (per-triage-group) report types with validation, summary tables, and titles — now five report types
+- `hpc`: McCleary Palmer-vs-Gibbs storage guidance, cross-cluster shared data-folder paths, GPU-partition queue-depth/ETA selection workflow, escaped `\$0` in the provenance block; +2 tool_profiles rows (IsoSeq refine+cluster2, HMMER hmmscan 6-frame)
+- `done`: collaborator mode (`<!-- done-mode: collaborator -->`) — keep session log and plans private to your clone and pre-triage push-vs-hold; new "Capture SLURM Resource Profiles" cluster-only step
+- README + `user-claude-md` / `user-claude-md-cluster` templates: added the four new skills
+
 ## 2026-06-15 (v1.9.1)
 
 ### Changed

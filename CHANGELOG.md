@@ -5,6 +5,11 @@ Format: date-based entries (this isn't versioned software).
 
 ---
 
+## 2026-06-21 (v1.10.1)
+
+### Changed
+- `feedback-walkthrough`: switch to **GitHub-issue-based** delivery to match how advisors now send feedback — find rounds via `gh issue list --label feedback`, read with `gh issue view`, respond in **issue comments** and tick task-list checkboxes; `docs/feedback/*.md` is now a fallback. Issue comments are the canonical record (they notify the advisor; checkbox ticks don't); added a `gh auth login` pointer and a write-access note on checkbox ticking. (The advisor-authoring side, `student-feedback`, stays PI-only and is not shipped.)
+
 ## 2026-06-21 (v1.10.0)
 
 ### Added

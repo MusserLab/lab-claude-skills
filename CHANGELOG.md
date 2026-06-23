@@ -5,6 +5,16 @@ Format: date-based entries (this isn't versioned software).
 
 ---
 
+## 2026-06-23 (v1.11.0)
+
+### Added
+- Hook: `done-reminder.sh` (UserPromptSubmit) — detects end-of-session / wrap-up phrasing and injects a non-blocking nudge telling Claude to run the `/done` skill rather than hand-rolling the summary, doc updates, and commit. Holds even when the message also includes a specific sub-task or context is nearly full
+- `general-reminders.txt` now ships with the plugin (the `&&`-chaining permission gotcha) and is injected at every session start — no longer requires each user to create the file by hand
+
+### Changed
+- `project-reminders.sh`: resolve `general-reminders.txt` from the plugin root (`${CLAUDE_PLUGIN_ROOT}/scripts/`) when no personal `~/.claude/hooks/general-reminders.txt` exists, so the shipped default actually reaches plugin users; a personal copy still takes precedence
+- `deep-research-reports`: fix the artifact-stripping regex — the bundled snippet had literal Unicode private-use-area characters baked into `re.sub(...)` (the very junk it strips); replaced them with the proper regex escape sequence so the source stays clean ASCII
+
 ## 2026-06-21 (v1.10.1)
 
 ### Changed

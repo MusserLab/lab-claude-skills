@@ -7,7 +7,13 @@ CWD=$(echo "$INPUT" | python3 -c "import sys,json; print(json.load(sys.stdin).ge
 CONTENT=""
 
 # --- General reminders (all sessions) ---
+# Determine plugin root (from env or relative to this script).
+PLUGIN_ROOT="${CLAUDE_PLUGIN_ROOT:-$(cd "$(dirname "$0")/.." && pwd)}"
+# Prefer a personal override at ~/.claude/hooks/, else fall back to the plugin-shipped copy.
 GENERAL_REMINDERS="$HOME/.claude/hooks/general-reminders.txt"
+if [[ ! -f "$GENERAL_REMINDERS" ]]; then
+  GENERAL_REMINDERS="$PLUGIN_ROOT/scripts/general-reminders.txt"
+fi
 if [[ -f "$GENERAL_REMINDERS" ]]; then
   CONTENT=$(cat "$GENERAL_REMINDERS")
 fi
@@ -23,8 +29,7 @@ if [[ -f "$REMINDERS_FILE" ]]; then
 fi
 
 # --- Security version check ---
-# Determine plugin root (from env or relative to this script)
-PLUGIN_ROOT="${CLAUDE_PLUGIN_ROOT:-$(cd "$(dirname "$0")/.." && pwd)}"
+# PLUGIN_ROOT was determined above (general reminders block).
 PLUGIN_VER_FILE="$PLUGIN_ROOT/scripts/SECURITY_VERSION"
 PERSONAL_VER_FILE="$HOME/.claude/hooks/SECURITY_VERSION"
 PERSONAL_HOOK="$HOME/.claude/hooks/protect-sensitive-reads.sh"

@@ -259,6 +259,7 @@ The plugin includes hooks that automatically enforce lab conventions. These acti
 | `commit-before-execute.sh` | PreToolUse (Bash) | Suggests committing changes before `sbatch` or `quarto render` so BUILD_INFO git hash is accurate (suggestion, not block) |
 | `suggest-new-plan.sh` | PreToolUse (EnterPlanMode) | Suggests using `/new-plan` (tracked planning document) over built-in plan mode |
 | `project-reminders.sh` | SessionStart | Injects general and project-specific reminders at session start |
+| `done-reminder.sh` | UserPromptSubmit | Detects end-of-session / wrap-up phrasing and nudges Claude to run the `/done` skill rather than hand-rolling the summary and commit (non-blocking) |
 
 ### Project reminders
 
@@ -272,7 +273,7 @@ The `project-reminders` hook supports two levels of reminders:
 3. Check PLOTTING_PLAN.md before modifying any plotting script
 ```
 
-**General reminders (all sessions)** — Create `~/.claude/hooks/general-reminders.txt` for rules that apply across all projects:
+**General reminders (all sessions)** — The plugin ships a default `general-reminders.txt` (covering the `&&`-chaining permission gotcha) that applies across all projects. To override it with your own list, create `~/.claude/hooks/general-reminders.txt` — a personal copy takes precedence over the plugin's:
 
 ```
 1. Always check planning documents before modifying scripts

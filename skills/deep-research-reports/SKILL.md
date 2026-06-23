@@ -98,7 +98,7 @@ Cleaning order is critical — PUA characters must be stripped first or other pa
 import re
 
 # 1. Strip all PUA characters (U+E000–U+F8FF) — MUST be first
-text = re.sub(r'[-]', '', text)
+text = re.sub(r'[\ue000-\uf8ff]', '', text)
 
 # 2. Replace entity["type","name","desc"] → name
 text = re.sub(r'entity\["[^"]*","([^"]*)","[^"]*"\]', r'\1', text)

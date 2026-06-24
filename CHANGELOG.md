@@ -5,6 +5,12 @@ Format: date-based entries (this isn't versioned software).
 
 ---
 
+## 2026-06-24 (v1.11.1)
+
+### Changed
+- `audit-project`, `audit-script`, `audit-skills`: new optional, **gated "Adversarial Verification & Completeness" phase** — when the Workflow tool is available *and* an opt-in signal is present (ultracode on, an explicit thorough/adversarial/"double-check" request, or a saved handoff report), fan out a read-only pass that adversarially verifies each already-formed finding (verifiers may downgrade/reject, not just confirm) plus a completeness critic. Fully gated: skips silently with no behavior change for users without the Workflow tool (e.g. standard plugin installs). Behavior notes updated to allow fan-out only for this verification pass — never for the initial read/walk-through or for running user code
+- `hpc`: refactor for clarity and single-source-of-truth — added a Duo 2FA + SSH ControlMaster note (Positron/Remote-SSH can't answer Duo non-interactively), moved GPU-partition selection/ETA tactics into a new `references/gpu-partition-tactics.md`, and converted the policy section into an index pointing to each policy's topical home. `references/positron-ssh-setup.md` substantially expanded (Duo/ControlMaster walkthrough, platform notes, troubleshooting); `tool_profiles.md` gains busco/hmmer/transdecoder rows
+
 ## 2026-06-23 (v1.11.0)
 
 ### Added

@@ -199,6 +199,42 @@ Quick checks on user-level configuration (lightweight — skip silently if every
 
 ---
 
+## 7b. Optional: Adversarial Verification & Completeness (gated — requires the Workflow tool)
+
+> **Gated — optional enhancement, not a requirement.** The audit is complete and valid
+> without this phase. Run it ONLY when **both** hold:
+> - the **Workflow tool is available** in this environment — it is **not** present in every
+>   Claude Code setup (lab-plugin users on a standard install will not have it), **and**
+> - **at least one opt-in signal:** ultracode is on, the user explicitly asked for thorough /
+>   adversarial / "double-check" verification, or you are producing a saved handoff report
+>   for another session.
+>
+> **If the Workflow tool is absent or no opt-in signal is present, skip this entire phase**
+> and proceed with your solo findings. Never block, delay, or weaken the audit waiting on a
+> capability the environment may not have, and don't mention the workflow to users who can't
+> run it.
+
+When the conditions hold, fan out a short verification workflow over the drift / staleness
+findings you've **already gathered solo** (Steps 1–7). This is well suited to a large project
+with many planning docs, where one context can't hold every doc at once:
+
+1. **Adversarially verify each finding** — one agent per finding (or per planning doc), each
+   re-reading the actual CLAUDE.md / planning doc / file and prompted to **refute**: confirm
+   the stale reference / duplication / orphaned file / status mismatch is real with exact
+   locations, or reject it. Catches "looks stale but isn't" before you propose edits.
+2. **Completeness critic** — one agent re-scanning the Project Document Registry, `.claude/`,
+   and `scripts/` fresh, told what you already found, hunting only for what you **missed**:
+   unregistered docs/scripts, orphaned output dirs, status/reality mismatches, stale "Next"
+   items already done.
+3. **(Handoff mode) draft concrete edits** — literal replacement text per confirmed finding.
+
+Fold the verified / refuted / newly-found findings into the Summary, and note that an
+adversarial pass was run. Do the read and cross-referencing of Steps 1–7 solo; only this
+verification pass over **already-formed** findings may fan out. This is the "adversarial
+verify + completeness critic" pattern from the Workflow tool's quality-patterns guidance.
+
+---
+
 ## 8. Summary
 
 Report findings organized as:

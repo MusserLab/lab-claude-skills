@@ -442,6 +442,45 @@ When auditing, Claude should actively run diagnostics (in Claude-driven modes) o
 
 ---
 
+## Optional: Adversarial Verification & Completeness (gated — requires the Workflow tool)
+
+> **Gated — optional enhancement, not a requirement.** The audit is complete and valid
+> without this phase. Run it ONLY when **both** hold:
+> - the **Workflow tool is available** in this environment — it is **not** present in every
+>   Claude Code setup (lab-plugin users on a standard install will not have it), **and**
+> - **at least one opt-in signal:** ultracode is on, the user explicitly asked for thorough /
+>   adversarial / "double-check" verification, or you are producing a saved handoff report
+>   for another session.
+>
+> **If the Workflow tool is absent or no opt-in signal is present, skip this entire phase**
+> and proceed with your solo findings. Never block, delay, or weaken the audit waiting on a
+> capability the environment may not have, and don't mention the workflow to users who can't
+> run it.
+
+Run this **after** you've gathered findings in any mode (thorough / fast / report-only) and
+**before** finalizing the report. Fan out over the findings you've **already formed solo**:
+
+1. **Adversarially verify each BUG / CONCERN** — one agent per finding, each re-reading the
+   actual script lines (and, where relevant, re-checking the tool/format docs behind the
+   Domain Assumptions Checklist) and prompted to **refute**: is the bug real and does it fire
+   in the script's *actual* use case, or is it a false positive / FYI-level theoretical
+   issue? This is the highest-value use — it kills plausible-but-wrong bug reports before
+   they reach the user, and lets a verifier **downgrade** a finding (to FYI), not only
+   confirm it, honoring this skill's simplicity-first philosophy.
+2. **Completeness critic** — one agent re-reading the script fresh, told what you already
+   found, hunting only for what you **missed**: silent data-flow drops, unverified domain
+   assumptions, edge cases, missing validation, analytical-reasoning gaps.
+3. **(Report-only / handoff mode) draft fix artifacts** — concrete diffs per confirmed
+   finding, so the implementing session can apply without re-deriving.
+
+Fold the verified / refuted / newly-found findings into the report and note that an
+adversarial pass was run. This is the "adversarial verify + completeness critic" pattern from
+the Workflow tool's quality-patterns guidance — see that tool's docs for the fan-out
+mechanics. The fan-out is **read-only verification**: never use it to run the user's code or
+save the report (see Claude Code Behavior).
+
+---
+
 ## Audit Report Format
 
 ```markdown
@@ -552,4 +591,11 @@ When this skill is active:
 - **Track uncertainty.** If you're not sure whether something is a bug or intentional, say so. "This might be intentional, but if not, it would cause..." is better than a false positive or a missed bug.
 - **In thorough mode: don't pre-digest.** Let the user read and run the code first. Ask questions, don't give answers. The user finding issues themselves is the point.
 - **In fast mode: be comprehensive.** You're working alone — don't skip sections or categories. The user is counting on your thoroughness because they're not reading every line.
-- **Do not use subagents for audits.** Run the audit directly in the current conversation. Subagents may lack tool permissions and cannot reliably save reports or verify scripts. For independent audits, use a separate Claude Code session instead.
+- **Run the audit solo; fan out only for gated verification.** Do the interactive /
+  diagnostic audit directly in the current conversation — subagents may lack tool permissions
+  and can't reliably run diagnostics or save reports, and a separate Claude Code session is
+  better for a fully independent audit. The one exception is the optional gated verification
+  pass (see "Optional: Adversarial Verification & Completeness"): a read-only adversarial
+  refutation of findings you've **already formed**, plus a completeness critic, may fan out
+  via the Workflow tool when it's available and an opt-in signal is present. Never use it for
+  the interactive walk-through, for running the user's code, or for saving the report.

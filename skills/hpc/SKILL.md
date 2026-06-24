@@ -1,16 +1,21 @@
 ---
 name: hpc
 description: >
-  Yale YCRC HPC cluster reference for the Musser Lab. Use when writing SLURM
-  batch scripts, configuring job resources, or for ANY question about cluster
-  storage — where to put data, which filesystem to use, storage paths, quotas,
-  PI/project/scratch/home space, shared data or database folders, Palmer vs
-  Gibbs, /vast vs /gpfs vs /nfs, purge policy, or how much space is available.
-  Also use when running bioinformatics tools on HPC, setting up Snakemake
-  pipelines, or connecting to the cluster remotely (SSH setup, Positron/VS Code
-  Remote SSH, interactive sessions). Covers McCleary, Bouchet, and Misha
-  clusters with lab-specific storage paths, partition tables, and tool resource
-  templates.
+  Use for the Musser Lab's Yale YCRC HPC clusters (McCleary, Bouchet, Misha)
+  when writing SLURM batch scripts, configuring job resources, or for ANY
+  question about cluster storage — quotas, PI/project/scratch/home space,
+  shared data or database folders, Palmer vs Gibbs, /vast vs /gpfs vs /nfs,
+  or purge policy. Also use when running bioinformatics tools on HPC, setting
+  up Snakemake pipelines, managing the cluster software environment (module
+  load vs conda, conda envs, renv on HPC), transferring data to or from the
+  cluster (rsync, scp, Globus, between-cluster transfer), or retrieving YCGA
+  sequencing data (ycgaFastq, URLFetch, archived/Glacier fastq retrieval,
+  the -p ycga partition). Also use when connecting to the cluster remotely or
+  running Claude Code on a compute node (SSH setup, Positron/VS Code Remote
+  SSH, interactive sessions, "Claude Code on the cluster", Duo 2FA +
+  ControlMaster connection multiplexing, Windows/WSL vs macOS/Linux remote
+  setup). Covers lab-specific storage paths, partition tables, and tool
+  resource templates.
 user-invocable: false
 ---
 
@@ -51,6 +56,13 @@ Host misha
     HostName misha.ycrc.yale.edu
     User <netid>
 ```
+
+**Note on "passwordless":** SSH keys get you past the *password*, but YCRC still requires
+**Duo 2FA** (a `keyboard-interactive` passcode) on every login-node connection. For
+interactive terminal use that's just one extra prompt. For **Positron / VS Code Remote-SSH**,
+the non-interactive ProxyCommand can't answer Duo — you must use SSH `ControlMaster`
+multiplexing so one interactive login is reused. See `references/positron-ssh-setup.md` for
+the full template and setup order.
 
 ### First job
 
@@ -359,55 +371,8 @@ GPUs must be explicitly requested with `--gpus`. Key GPU partitions:
 
 For GPU jobs, also `module load CUDA` before conda activation.
 
-#### Picking the fastest GPU partition (check before submitting)
-
-**Always check queue depth across GPU partitions before submitting** — they swing
-wildly day-to-day, and "the obvious choice" is often the slowest. Before any non-
-trivial GPU job:
-
-```bash
-# 1. Queue depth across all GPU partitions
-for p in gpu gpu_h200 gpu_rtx6000 gpu_b200 scavenge_gpu gpu_devel; do
-  pd=$(squeue -p $p -h -t PD 2>/dev/null | wc -l)
-  rn=$(squeue -p $p -h -t R 2>/dev/null | wc -l)
-  echo "$p: $rn running, $pd pending"
-done
-```
-
-Wide swings are normal. Recent example (2026-05-24): `gpu` had 233 pending, `gpu_h200`
-92, `gpu_rtx6000` 17, `gpu_devel` 0. Past experience said `gpu_h200` was fastest;
-on that day it had a 15-hour ETA.
-
-**After submitting, check your priority position and ETA:**
-
-```bash
-sprio -j <jobid>                                    # your priority breakdown
-squeue -p <part> -t PD -O JobID,Priority -S -p \    # your rank in pending queue
-  | head -10
-squeue -j <jobid> --start                           # estimated start time
-                                                    # (conservative — actual often sooner)
-```
-
-If estimated start is too far out, switch partitions on the pending job:
-
-```bash
-scontrol update job=<jobid> Partition=<new_part>
-```
-
-This works on PD jobs only; no resubmit needed. The job keeps its priority age.
-Session-7 trick — used it to escape a 5-day `gpu` ETA into a fast `gpu_h200` slot.
-
-**Gotcha — "reserved for jobs in higher priority partitions":**
-If a pending job shows reason `(Nodes required for job are DOWN, DRAINED or reserved
-for jobs in higher priority partitions)` even when you have top priority *within*
-your partition, the `priority_gpu` partition has reserved nodes that overlap your
-target partition's nodes. Check overlap with `sinfo -p priority_gpu --Format=Gres`.
-Switching to another general GPU partition may help (different node overlap) or may
-not (`priority_gpu` reserves nodes across all four GPU types on Bouchet). If the
-job is OK with preemption, `scavenge_gpu` bypasses this reservation system entirely
-— but a higher-priority job arriving mid-run will kill yours, so only worth it for
-work that's safe to restart (good per-stage checkpointing or fingerprint-based
-resumption).
+For choosing the least-congested GPU partition before submitting, and for switching a
+pending job's partition to a faster queue, see `references/gpu-partition-tactics.md`.
 
 ### Interactive jobs
 
@@ -428,7 +393,9 @@ Heavy compute (DIAMOND, Cell Ranger, STAR, BRAKER, eggNOG-mapper, PROST) should 
 be submitted as batch jobs — never run on the interactive node. Rule of thumb: if it takes
 >5 minutes or needs >8 CPUs, write a batch script.
 
-Use `devel` for quick tests (6-hour limit, fast queue). Use `day` for full working
+Use `devel` for quick tests (6-hour limit, fast queue) — but its per-user caps differ by
+cluster (McCleary 4 CPU / 32 GiB, Bouchet 8 CPU / 120 GiB; see `references/partitions.md`),
+so a devel job sized for Bouchet may pend forever on McCleary. Use `day` for full working
 sessions (up to 24 hours). Add `--x11` for graphical forwarding (requires X11 setup).
 
 For setting up Positron (VS Code) to connect to an interactive session via SSH, see
@@ -508,7 +475,7 @@ conflicts where the activation order silently determines which version runs.
 |--------------------------------|---------------------|
 | Tools used in both local and cluster environments | Cluster-only heavy tools unlikely to run locally |
 | Python/R packages | Tools with complex cluster-specific dependencies |
-| Lightweight bioinformatics (samtools, MAFFT, DIAMOND) | Cell Ranger, STAR, PROST, EggNOG-mapper |
+| Lightweight bioinformatics (samtools, MAFFT, DIAMOND) | Cell Ranger, STAR, PROST, eggNOG-mapper |
 | Anything tracked in `environment.yml` | GPU-dependent tools requiring CUDA |
 
 **Always pin module versions** — use `module load CellRanger/9.0.1`, never bare
@@ -648,10 +615,9 @@ URLFetch http://fcb.ycga.yale.edu:3010/randomstring/folder
 
 ### Data retention
 
-- ~45 days post-sequencing: raw files deleted
-- ~60 days: fastq files moved to archive
-- ~180 days: data removed from main storage (archive persists indefinitely)
-- **As of March 31, 2026**: retention reduced to 6 months
+- Retention is **6 months** post-sequencing (policy effective 2026-03-31). The previous
+  staged schedule — raw files ~45 days, fastq moved to archive ~60 days, removed from main
+  storage ~180 days — no longer applies. Archived data persists indefinitely.
 
 ### Archived data retrieval
 
@@ -735,46 +701,31 @@ In data science projects, batch scripts are **thin SLURM wrappers** that call `.
 scripts. The analysis logic lives entirely in the `.py` file; the `.sh` file handles only
 SLURM directives, environment activation, and the `python` invocation.
 
-**Batch script template** (calling a `.py` script):
+**Batch script template** (calling a `.py` script): same SBATCH directives, `BASEDIR`/`cd`,
+and provenance echo block as the §4 lab default, with four deltas that define the
+thin-wrapper pattern — fail-fast, conda-only activation, a named log file, and run timing:
 
 ```bash
-#!/bin/bash
-#SBATCH --job-name=<brief_name>
-#SBATCH --partition=day
-#SBATCH --time=2:00:00
-#SBATCH --cpus-per-task=8
-#SBATCH --mem-per-cpu=5G
-#SBATCH --mail-type=BEGIN,END,FAIL
-#SBATCH --mail-user=<your email>
-#SBATCH --output=logs/slurm-<brief_name>-%j.out
-
+#SBATCH --output=logs/slurm-<brief_name>-%j.out   # named per job, not generic slurm-%j.out
 # <One-line description of what this job does>
 
-set -euo pipefail
+set -euo pipefail                                  # fail fast
 
-BASEDIR=$(git rev-parse --show-toplevel)
-cd "$BASEDIR"
-
-echo "=== Job info ==="
-echo "Job ID: $SLURM_JOB_ID"
-echo "Node: $(hostname)"
-echo "Start: $(date)"
-echo "Git hash: $(git rev-parse --short HEAD)"
-echo ""
+# ... §4 SBATCH directives + BASEDIR/cd + provenance echo block ...
 
 module load miniconda
-source $(conda info --base)/etc/profile.d/conda.sh
+source $(conda info --base)/etc/profile.d/conda.sh # conda-only activation idiom
 conda activate <env-name>
 
-echo "Python: $(which python)"
-# echo "tool: $(tool --version)"   # Log versions of tools used by the .py script
-echo ""
-
-SECONDS=0
+SECONDS=0                                           # time the run
 python scripts/<section>/XX_script.py
-echo ""
 echo "=== Completed in ${SECONDS}s ($(date)) ==="
 ```
+
+Use `set -euo pipefail` and the `source $(conda info --base)/…` idiom because a conda-only
+wrapper has no `module purge`/heavy-module step to fail on; drop §4's `module purge` +
+`module load Tool/x.y.z` + per-tool version lines — there's no cluster-only module here,
+just the `.py`.
 
 This pattern keeps analysis code portable (runnable locally or interactively) while
 SLURM configuration stays separate. See the `script-organization` skill for the full
@@ -809,13 +760,13 @@ for the broader "commit before execute" convention that also covers `.qmd` rende
 
 ## 13. Policies
 
-- **Scratch purge**: Files older than 60 days are automatically deleted. Email notification
-  one week before. Do not artificially modify timestamps to circumvent.
-- **Job rate limit**: 200 submissions per hour.
-- **Max interactive apps**: 4 concurrent OOD interactive instances per user.
-- **Module system**: Use `module load` for software. Run `module avail` to list available
-  packages. Always `module purge` before loading to avoid conflicts.
-- **McCleary decommission**: McCleary will be retired in 2026. Plan new long-term projects
-  on Bouchet. McCleary remains useful for YCGA partition access.
-- **YCGA partition**: Jobs on the `ycga` partition (McCleary) analyzing YCGA sequencing
-  data are exempt from compute charges.
+YCRC policy hard-values live at their topical homes; this index points to them so the
+numbers have a single source of truth (update them there, not here):
+
+- **Scratch 60-day purge** (+ no conda envs / no sole-copy raw data on scratch, email one
+  week before, no timestamp-gaming) — see §3 Storage policies.
+- **Job rate limit — 200 submissions/hour** — see §4 Job arrays.
+- **Max 4 concurrent OOD interactive apps per user** — see §2 Open OnDemand.
+- **McCleary decommissioning 2026 / Bouchet primary going forward** — see §2 Cluster Overview.
+- **`ycga` partition compute-charge exemption** (`-p ycga`, McCleary, YCGA data) — see §2 and §10.
+- **Module system** (`module load` / `module avail` / always `module purge` first) — see §7/§12.

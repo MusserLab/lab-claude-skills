@@ -5,8 +5,10 @@ tool, generate batch scripts, and interpret output. This table just covers how m
 request from SLURM. **Always check `jobstats` after initial runs and adjust.**
 
 **Tools with dedicated skills:** `eggnog-mapper` (eggNOG-mapper), `prost-annotation`
-(PROST), `protein-phylogeny` (IQ-TREE, MAFFT), `expression-report` (scanpy/matplotlib).
-Use those skills for batch script generation — this table is a quick resource reference.
+(PROST), `protein-phylogeny` (IQ-TREE, MAFFT), `busco` (BUSCO), `hmmer`
+(hmmscan/hmmsearch), `transdecoder` (TransDecoder), `expression-report`
+(scanpy/matplotlib). Use those skills for batch script generation — this table is a
+quick resource reference.
 
 | Tool | CPUs | Memory | Time | Partition | GPU | Notes |
 |------|------|--------|------|-----------|-----|-------|
@@ -23,5 +25,5 @@ Use those skills for batch script generation — this table is a quick resource 
 | **BUSCO** | 8 | 4G/cpu | 4h | day | — | Varies with lineage DB |
 | **IsoSeq refine + cluster2** | 16 | 32G total | 4h | day | — | cluster2 is the bottleneck; mem scales ~linearly with FLNC, peaks ~8G at 8M reads → ~18G at 18M. 32 cores only 69% eff — 16 is plenty. Mf1 7.9M FLNC → 11.6 min. |
 | **HMMER hmmscan (6-frame)** | 4 | 8G total | 2.5h | day | -- | Few HMMs -> parallelism falls off >4 cores. ~6G peak / 40-65 min on a 0.3-0.9M-transcript IsoSeq transcriptome (transeq -frame 6 -> ~5M peptides) vs a 4-HMM db. Use `-o /dev/null` (alignment text is huge). |
-| **EggNOG-mapper** | 8 | 4G/cpu | 4h | day | — | |
+| **eggNOG-mapper** | 8 | 4G/cpu | 4h | day | — | |
 | **Genome assembly** | 32 | 200G total | 2 days | week/bigmem | — | Highly variable; scale from jobstats |

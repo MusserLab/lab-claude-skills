@@ -211,6 +211,44 @@ After reviewing individual skills, step back and look at the full library:
 
 ---
 
+## Optional Phase: Adversarial Verification & Completeness (gated — requires the Workflow tool)
+
+> **Gated — optional enhancement, not a requirement.** The audit is complete and valid
+> without this phase. Run it ONLY when **both** hold:
+> - the **Workflow tool is available** in this environment — it is **not** present in every
+>   Claude Code setup (lab-plugin users on a standard install will not have it), **and**
+> - **at least one opt-in signal:** ultracode is on, the user explicitly asked for thorough /
+>   adversarial / "double-check" verification, or you are producing a saved handoff report
+>   for another session.
+>
+> **If the Workflow tool is absent or no opt-in signal is present, skip this entire phase**
+> and proceed with your solo findings. Never block, delay, or weaken the audit waiting on a
+> capability the environment may not have, and don't mention the workflow to users who can't
+> run it.
+
+When the conditions hold, fan out a short verification workflow over the findings you have
+**already formed solo** (the read + cross-reference of Phases 1–3 stay solo — see Behavior
+Notes). The workflow:
+
+1. **Adversarially verify each finding** — one agent per finding (or per cluster of related
+   findings), each re-reading the actual SKILL.md / reference lines and prompted to
+   **refute**: confirm the duplication / bad path / trigger gap is real with exact line
+   numbers, or downgrade / reject it. Catches plausible-but-wrong findings and miscalibrated
+   severities before you recommend changes.
+2. **Completeness critic** — one agent re-reading the target skill(s) fresh, told what you
+   already found, hunting only for what you **missed**: stale paths, broken cross-references,
+   internal contradictions, inconsistent conventions, trigger gaps for whole sections, or
+   lab-repo drift.
+3. **(Save-report / Both mode only) draft edit artifacts** — literal replacement text per
+   confirmed finding, so the implementing session can apply without re-deriving.
+
+Fold the verified / refuted / newly-found findings into the Phase 4 table, and note in the
+summary that an adversarial pass was run (it raises confidence; its absence is not a defect).
+This is the "adversarial verify + completeness critic" pattern from the Workflow tool's
+quality-patterns guidance — see that tool's docs for the fan-out mechanics.
+
+---
+
 ## Phase 4: Interactive Report
 
 Present all findings in a single table, ordered by severity (FIX first, then PRUNE,
@@ -286,7 +324,12 @@ It is NOT a skill or memory file.
   or adjusting ggplot2 themes'" is actionable.
 - **Respect the author's intent.** Skills encode accumulated experience. Before recommending
   removal, consider whether the content captures a hard-won lesson that isn't obvious.
-- **Do not use subagents.** Run the audit directly in the current conversation. Skills need
-  to be read carefully and cross-referenced — subagents can't maintain the full picture.
+- **Read solo; verify with fan-out only when gated.** Do the read, cross-reference, and
+  initial findings (Phases 1–3) directly in the current conversation — skills must be read
+  carefully and cross-referenced, and subagents can't hold the full library picture. The one
+  exception is the optional gated verification phase above: an adversarial verify +
+  completeness critic over findings you've **already formed** may fan out via the Workflow
+  tool, when that tool is available and an opt-in signal is present. Never use subagents for
+  the initial read.
 - **Cross-reference the `new-skill` skill** for best practices on structure, description
   writing, and organization. That skill defines the standards this audit checks against.

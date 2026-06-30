@@ -46,6 +46,14 @@ lab-claude-skills/
 ## Session Log
 <!-- Maintained by /done. Most recent first. Keep last 5 entries. -->
 
+### 2026-06-29 — Audit subagent execution-model overhaul + hpc Positron Tier 1/2 + weekly-audit job (dev, pending sync)
+- **Plans:** None
+- **Work:** Developed in `~/.claude/skills/` (NOT yet published). **Fresh-context subagent execution model across the three audit skills:** single-skill audits → a fresh **Auditor subagent** (escapes authoring-chat contamination; fat prompt); full-library/cross-doc reads stay **solo**, only *verification* fans out (gated Workflow); **never agent teams**. `audit-skills`: Execution Model section + 3 templates (auditor/refuter/completeness) + `verify-fanout.workflow.js`. `audit-script`: **read-vs-do split** (cold read delegable to a fresh Auditor; diagnostics/interaction/report-saving stay with the orchestrator) + auditor template. `audit-project`: mechanical bash pre-pass + report-only/scheduled mode. **hpc:** `positron-ssh-setup.md` restructured into **Tier 1 (basic) + Tier 2 (disconnect-proof:** salloc-in-tmux on login node, ControlPersist, round-robin, hardened ProxyCommand) + `scripts/` (cp-from-bundled install) + 5 audit fixes. **New `~/.claude/jobs/` env-aware weekly-audit job** (cluster cron auditing cluster project copies; work-since-audit trigger; report-only digest). settings.json: 3 docs domains allowlisted. All four skills verified by fresh-context subagents (dogfooded).
+- **Next:**
+  - **`/sync-plugin`** to publish the hpc + audit-skills + audit-script + audit-project updates to the lab repo.
+  - **`/sync-cluster`** + Bouchet setup for the weekly-audit job: update the Bouchet Claude CLI, `~/.claude/jobs/weekly-audit.sh --dry-run`, confirm cluster ROOTS, install the cron (`jobs/weekly-audit.cron`).
+  - Carry-over: 10 held-back new skills still pending; presentations; cell-type-* fine-tuning.
+
 ### 2026-06-15 — Sync plugin v1.9.1
 - **Plans:** None
 - **Work:** Published 2 skill refinements about `environment.yml` pip handling. `conda-env`: record pip-installed packages under a `pip:` subsection (`--from-history` omits them), detect via `conda list ... pypi`, reconcile rather than overwrite (copied wholesale). `done`: renamed "Conda environment export" → "drift check"; reconcile `environment.yml` against both conda + pip instead of blind overwrite — **selective merge** kept Slack/STATUS_SUMMARY/SLURM-3b content out (PI-only). CHANGELOG + plugin.json (1.9.0→1.9.1). Cluster cross-check passed (cluster just behind on the same edit). Posted to #code. Earlier same session: `/sync-cluster` pushed the same conda-env/done/sync-project + settings.json refinements to canonical `~/.claude`. Deferred per user: all 10 held-back new skills, `presentations` (separate wrap-up pending), `sync-cluster` (PI-specific repos).
@@ -78,11 +86,4 @@ lab-claude-skills/
   - Publish cell-type-families, cell-type-tree, wgcna-cell-type when fine-tuning complete
   - prost-gene-naming remains PI-only (held back for improvement)
   - Consider publishing eggnog-mapper, prost-annotation, sync-cluster, sync-project
-
-### 2026-03-21 — Sync plugin v1.6.0
-- **Plans:** None
-- **Work:** Synced 14 changes to lab repo: 3 new skills (cleanup-scripts, expression-report, hpc), 11 updated skills (audit, data-handling, deep-research-reports, done, new-project, new-skill, protein-phylogeny, quarto-book-setup, quarto-docs, script-organization, tree-formatting). Selective merges for done (Session Log, staging safety, extensions — without Slack/STATUS_SUMMARY) and new-project (cluster/SLURM, Session Log — without Slack). Updated README, user-claude-md template, CHANGELOG, plugin.json. Posted to #code.
-- **Next:**
-  - Publish cell-type-families, cell-type-tree, wgcna-cell-type when fine-tuning complete
-  - prost-gene-naming remains PI-only (held back for improvement)
 

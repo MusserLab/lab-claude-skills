@@ -203,6 +203,7 @@ Invoke these directly to run a workflow.
 | `/sync-project` | Sync project state when arriving on a new machine — git pull, conda env update, renv restore |
 | `/handoff` | Coordinate local ↔ cluster session handoff — departure → gate → arrival, multi-chat safe |
 | `/feedback-walkthrough` | Walk a student through advisor feedback pedagogically, one item at a time |
+| `/plugin-feedback` | File a lab-skill bug, improvement, or new-skill idea as a GitHub issue on the plugin repo |
 
 ### Data science conventions
 
@@ -273,7 +274,7 @@ The `project-reminders` hook supports two levels of reminders:
 3. Check PLOTTING_PLAN.md before modifying any plotting script
 ```
 
-**General reminders (all sessions)** — The plugin ships a default `general-reminders.txt` (covering the `&&`-chaining permission gotcha) that applies across all projects. To override it with your own list, create `~/.claude/hooks/general-reminders.txt` — a personal copy takes precedence over the plugin's:
+**General reminders (all sessions)** — The plugin ships a default `general-reminders.txt` (covering the `&&`-chaining permission gotcha and a prompt to offer `/plugin-feedback` when you hit a rough edge with a skill) that applies across all projects. To override it with your own list, create `~/.claude/hooks/general-reminders.txt` — a personal copy takes precedence over the plugin's:
 
 ```
 1. Always check planning documents before modifying scripts
@@ -325,7 +326,9 @@ The most impactful skill improvements are usually about **correctness** — maki
 
 ### How to report
 
-Open an issue on the [GitHub repo](https://github.com/MusserLab/lab-claude-skills/issues). You can do this on the website, or ask Claude to do it for you right in your conversation:
+The easiest way is the **`/plugin-feedback`** skill: type `/plugin-feedback` in Claude Code — or just tell Claude something like "suggest a skill improvement" or "file a plugin issue." It drafts the issue from your conversation, shows it to you to confirm or edit, and files it on the [GitHub repo](https://github.com/MusserLab/lab-claude-skills/issues) — using the `gh` CLI if you have it set up, or handing you a pre-filled link to click if you don't. Claude will also offer this on its own — once, unobtrusively — if it notices you hit a rough edge with a skill.
+
+Prefer to do it by hand? Open an issue on the [GitHub repo](https://github.com/MusserLab/lab-claude-skills/issues) directly on the website (there's a **Skill feedback** template), or ask Claude to do it for you right in your conversation:
 
 > "Open a GitHub issue on MusserLab/lab-claude-skills — the data-handling skill didn't flag that my join dropped 50 rows"
 

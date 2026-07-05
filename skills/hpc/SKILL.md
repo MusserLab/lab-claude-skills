@@ -62,7 +62,9 @@ Host misha
 interactive terminal use that's just one extra prompt. For **Positron / VS Code Remote-SSH**,
 the non-interactive ProxyCommand can't answer Duo — you must use SSH `ControlMaster`
 multiplexing so one interactive login is reused. See `references/positron-ssh-setup.md` for
-the full template and setup order.
+the full template and setup order — it covers two tiers: a **basic** session, and a
+**persistent** one that survives VPN/laptop disconnects (the allocation is held in `tmux` on
+the login node, so a dropped connection no longer kills it).
 
 ### First job
 
@@ -399,7 +401,10 @@ so a devel job sized for Bouchet may pend forever on McCleary. Use `day` for ful
 sessions (up to 24 hours). Add `--x11` for graphical forwarding (requires X11 setup).
 
 For setting up Positron (VS Code) to connect to an interactive session via SSH, see
-`references/positron-ssh-setup.md`.
+`references/positron-ssh-setup.md`. It documents two tiers — a **basic** session (quick to set
+up; a laptop/VPN drop kills the allocation) and a **persistent** session (a bit more setup; the
+allocation survives disconnects via a `tmux`-held `salloc` + helper scripts, with reconnect
+instructions). Recommend the persistent tier for any long or large allocation.
 
 ### Job monitoring
 
@@ -698,48 +703,19 @@ it is running.
 ### The `.py` + `.sh` pattern
 
 In data science projects, batch scripts are **thin SLURM wrappers** that call `.py` analysis
-scripts. The analysis logic lives entirely in the `.py` file; the `.sh` file handles only
-SLURM directives, environment activation, and the `python` invocation.
-
-**Batch script template** (calling a `.py` script): same SBATCH directives, `BASEDIR`/`cd`,
-and provenance echo block as the §4 lab default, with four deltas that define the
-thin-wrapper pattern — fail-fast, conda-only activation, a named log file, and run timing:
-
-```bash
-#SBATCH --output=logs/slurm-<brief_name>-%j.out   # named per job, not generic slurm-%j.out
-# <One-line description of what this job does>
-
-set -euo pipefail                                  # fail fast
-
-# ... §4 SBATCH directives + BASEDIR/cd + provenance echo block ...
-
-module load miniconda
-source $(conda info --base)/etc/profile.d/conda.sh # conda-only activation idiom
-conda activate <env-name>
-
-SECONDS=0                                           # time the run
-python scripts/<section>/XX_script.py
-echo "=== Completed in ${SECONDS}s ($(date)) ==="
-```
-
-Use `set -euo pipefail` and the `source $(conda info --base)/…` idiom because a conda-only
-wrapper has no `module purge`/heavy-module step to fail on; drop §4's `module purge` +
-`module load Tool/x.y.z` + per-tool version lines — there's no cluster-only module here,
-just the `.py`.
-
-This pattern keeps analysis code portable (runnable locally or interactively) while
-SLURM configuration stays separate. See the `script-organization` skill for the full
-convention including numbering.
+scripts — the `.sh` holds only SLURM directives, env activation, and the `python` invocation;
+all logic lives in the `.py`. The wrapper is the §4 template with four deltas: `set -euo pipefail`,
+conda-only activation via `source $(conda info --base)/etc/profile.d/conda.sh`, a named log file
+(`logs/slurm-<brief_name>-%j.out`), and `SECONDS` run timing — and it drops §4's `module purge` +
+tool modules since there's no cluster-only module. See the **`script-organization`** skill for the
+full template and numbering convention.
 
 ### Commit before submit
 
-**Always commit scripts before submitting batch jobs.** The git hash in BUILD_INFO.txt and
-the SLURM log must reflect the code that actually ran. If you've been editing a `.py` script,
-commit it (and the `.sh` wrapper) before `sbatch`. The provenance block logs
-`git status --porcelain` as a safety net, but the intent is a clean tree at submit time.
-
-This is the cluster-specific case of a general rule — see the `script-organization` skill
-for the broader "commit before execute" convention that also covers `.qmd` rendering.
+**Always commit scripts before submitting batch jobs** — the git hash in the SLURM log (and
+BUILD_INFO.txt) must reflect the code that actually ran; commit the `.py` and its `.sh` wrapper
+before `sbatch`. This is the cluster case of the `script-organization` skill's "commit before
+execute" convention.
 
 ### Script generation rules
 

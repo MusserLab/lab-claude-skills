@@ -5,6 +5,21 @@ Format: date-based entries (this isn't versioned software).
 
 ---
 
+## 2026-07-04 (v1.12.0)
+
+### Added
+- `plugin-feedback` skill — file a lab-skill bug, improvement, or new-skill idea as a GitHub issue on `MusserLab/lab-claude-skills`, drafted from the conversation and confirmed before filing; uses the `gh` CLI when authenticated, otherwise hands back a pre-filled issue URL (no auth needed). Ships with a **Skill feedback** GitHub issue template
+- `general-reminders.txt` now also prompts Claude to offer `/plugin-feedback` — once per session, unobtrusively — when the user hits genuine friction with a skill
+- `audit-script`, `audit-skills`: bundled subagent-prompt `templates/` (a fresh **Auditor** for the cold read; **refuter** + **completeness critic** for the gated verification fan-out), plus a `verify-fanout.workflow.js` for `audit-skills`
+- `hpc`: `scripts/hold-node.sh` + `scripts/positron-node.sh` — a persistent salloc-in-tmux allocation and a ProxyCommand node resolver for disconnect-proof Positron / Remote-SSH (Tier 2)
+
+### Changed
+- `audit-project`: new mechanical bash pre-pass (§0b) that feeds the interactive review, plus a report-only / scheduled mode (§0c) that runs detection only and writes a report without changing anything
+- `audit-script`, `audit-skills`: new **"Execution Model"** section — when the current chat authored the target, delegate the cold read to a fresh **Auditor subagent** (escapes authoring-chat blind spots); diagnostics, interaction, and report-saving stay with the orchestrator; verification may fan out (gated), never the initial read, and never as agent teams. `audit-skills` also flags bundled `scripts/` that contain real logic for a separate `/audit-script` pass
+- `hpc`: `references/positron-ssh-setup.md` restructured into **Tier 1 (basic) + Tier 2 (disconnect-proof)** with the two bundled helper scripts; `gpu-partition-tactics.md` and `tool_profiles.md` updated (prefer `scontrol update Partition` over cancel+resubmit, IsoSeq memory scaling, new barrnap row)
+- `deep-research-genelist`: exclude unannotated bare-ID markers from the embedded gene list and report their counts instead, so downstream research isn't seeded with uninformative IDs
+- `script-organization`: **"a section is one coherent pipeline"** — no count threshold forces a split; a distinct thread starts a new numbered section; regrouping is only ever suggested, never automatic
+
 ## 2026-06-24 (v1.11.1)
 
 ### Changed

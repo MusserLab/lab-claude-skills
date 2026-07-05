@@ -22,6 +22,44 @@ Check the project's `.claude/CLAUDE.md` for a `project-type:` field:
 
 ---
 
+## 0b. Mechanical pre-pass (deterministic — gather, don't judge)
+
+Several checks below are pure structure, not judgment — gather them with bash up front and feed the
+results into the interactive review, so your attention goes to the hard calls rather than to what a
+regex settles:
+
+```bash
+wc -l .claude/CLAUDE.md .claude/*.md 2>/dev/null                 # §6 CLAUDE.md size + planning-doc sizes (§2)
+ls .claude/*.md                                                  # §3 unregistered docs (diff against the Registry)
+ls scripts/[0-9]*_* 2>/dev/null | grep -v '\.qmd$'              # §4b numbered non-.qmd violations
+ls scripts/scratch/ 2>/dev/null                                 # §4b scratch leftovers
+# §4b correspondence: numbered scripts/*.qmd vs outs/<num>_*  (orphans either way)
+```
+
+Hand these to Steps 2–6 as evidence. **The cross-document judgment stays solo** — drift, duplication,
+and convention pruning need one context holding CLAUDE.md + every planning doc at once; fanning that
+read out across isolated agents would destroy the cross-doc signal the audit exists to find. (Only the
+optional gated verification in §7b — refuting findings already formed — may fan out.)
+
+---
+
+## 0c. Report-only / scheduled mode
+
+When invoked **non-interactively** — e.g. a headless weekly cron (`claude -p`) or when the user asks
+for "report only" — run the **detection half only** and change nothing:
+
+- **Do:** §0b mechanical pre-pass, §1 drift detection, §2 *automated* checks, §2c session-log health,
+  §3 unregistered docs/scripts, §4/§4b script conventions (data-science), §5 prune *candidates*,
+  §6/§7 size checks → compile the §8 Summary and **save it to `.claude/audit_reports/`**.
+- **Skip:** §2 *interactive review*, §2b STATUS_SUMMARY rebuild, and every other step that asks a
+  question or edits a file. Make **no file changes** except writing the report; ask **nothing**.
+
+The saved report is a worklist: the user later opens the project interactively and says "work through
+the audit findings," at which point the interactive/decision steps run with them. This is the mode the
+bundled `jobs/weekly-audit.sh` digest job uses across recently-active projects.
+
+---
+
 ## 1. Cross-Check CLAUDE.md Against Planning Documents
 
 The main project CLAUDE.md should not maintain script or file lists that duplicate planning documents. Check for staleness:

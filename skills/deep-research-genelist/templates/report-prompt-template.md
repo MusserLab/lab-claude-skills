@@ -19,7 +19,7 @@ The gene list (included in Section 6 below) is derived from {{MODULE_TYPE_DESCRI
 
 {{ANNOTATION_SOURCE_GUIDE}}
 
-Genes whose display_name is a bare gene ID (e.g., `comp12345_c0`, `XLOC_012345`, `LOC12345`) have no identified homolog by any method — these are uncharacterized.
+Unannotated markers (bare gene IDs — e.g., `comp12345_c0`, `TRINITY-DN…`, `XLOC_012345`, `LOC12345` — with no identified homolog by any method) are **omitted from the gene list below**, because a bare transcript ID carries no interpretable information. Their count is summarized in the Annotation Source Guide above. Do **not** attempt to infer anything from, or ask for, specific unannotated IDs.
 
 {{MERGED_MODE_INPUT_GUIDANCE}}
 
@@ -92,7 +92,7 @@ markers:
   secreted_products: ["<gene1>", "<gene2>"]
   key_pathways: ["<pathway1>", "<pathway2>"]
   metabolic_signature: "<brief description of metabolic profile>"
-  n_uncharacterized_notable: <integer — count of uncharacterized genes worth further investigation>
+  n_uncharacterized_notable: <integer — the count of unannotated markers omitted from the list, as stated in the Annotation Source Guide>
 ---
 ```
 
@@ -221,7 +221,7 @@ Discuss the evidence for each interpretation. Note that 1-to-1 cell type homolog
 
 1. **Surprising absences:** Discuss any key genes whose absence from the list is unexpected given the inferred functions. What would you expect to see if the cell type interpretation is correct?
 2. **Ambiguous genes:** Identify genes that may be particularly important functionally but whose function is ambiguous because their ortholog/homolog list contains genes with divergent functions. These are priority candidates for further investigation (e.g., protein domain analysis, structural prediction).
-3. **Uncharacterized genes:** Report the number of genes in the list that have no identified orthologs or whose orthologs are uncharacterized. Note that these may represent lineage-specific innovations and could be among the most biologically interesting genes in the list.
+3. **Unannotated / poorly-characterized markers:** Bare-ID markers with no homolog by any method are **omitted** from the list (their count — and how many of the top-ranked markers were among them — is given in the Annotation Source Guide). Do not try to interpret specific omitted IDs, but do comment on whether this cluster's identity likely rests partly on **lineage-specific / uncharacterized genes** (especially if many of its *top-ranked* markers were unannotated). Separately, for genes whose *annotation itself* is a domain of unknown function or a generic activity term, flag the most notable as candidates for further investigation.
 {{SECTION_J_COMPARISON_TYPE}}
 
 ### K. Comparison Type Summary

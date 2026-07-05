@@ -134,6 +134,7 @@ Skills are categorized by scope. **General** skills apply to all projects. **Dat
 | `/cleanup-scripts` | Session-scoped script cleanup: consolidate scratch files, check conventions |
 | `/sync-project` | Sync project state on a new machine: git pull, conda env update, renv restore |
 | `/feedback-walkthrough` | Walk a student through advisor feedback pedagogically, one item at a time |
+| `/plugin-feedback` | File a lab-skill bug, improvement, or new-skill idea as a GitHub issue on the plugin repo |
 
 ### Data Science (analysis projects with data/outs/scripts/ layout)
 

@@ -17,6 +17,12 @@ Each item is a concrete check — not every item applies to every skill.
   - `scripts/` — helper code deployed to project `python/` or `R/`
   - `assets/` — static files used in output (icons, HTML templates)
 - [ ] No loose files in the skill root (everything except SKILL.md goes in a subdirectory)
+- [ ] Bundled `scripts/` files with real executable logic (not boilerplate) are flagged for a
+  separate `/audit-script` pass — this audit checks their placement/portability, not their
+  algorithmic correctness
+- [ ] Deployable boilerplate (`templates/`, sample sheets, env YAMLs, reference data) is NOT
+  sent to `/audit-script` — it calibrates to a script's data/use case and misfires on
+  intentional template placeholders
 - [ ] SKILL.md covers workflow and decision points; reference files cover details
 - [ ] Someone reading just SKILL.md gets the full workflow without drowning in specifics
 

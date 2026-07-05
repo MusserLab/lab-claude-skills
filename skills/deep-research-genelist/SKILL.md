@@ -220,11 +220,15 @@ lowest confidence:
 4. **[Tier 3 — Sequence similarity]** via [specific method(s)] (if present)
    [formatting description] → [interpretation guidance from reference]
 
-Genes with bare gene IDs (e.g., comp12345_c0) have no identified homolog —
-these are uncharacterized.
+{n_unannotated} of the {n_total} markers ({pct}%) had no homolog by any method (bare gene IDs,
+e.g. comp12345_c0 / TRINITY-DN…); these are **omitted from the gene list below** as uninterpretable.
+Of the cluster's top 25 ranked markers, {n_top_unannotated} were unannotated. Do not list, request,
+or attempt to interpret specific unannotated IDs — treat them only as a count of likely
+lineage-specific / novel genes.
 ```
 
-Only include tiers that are actually present in this dataset's annotation sources.
+Fill `{n_unannotated}`, `{n_total}`, `{pct}`, `{n_top_unannotated}` from the actual gene list
+(see Step 5). Only include tiers that are actually present in this dataset's annotation sources.
 
 #### 3d. Annotation profile YAML schema
 
@@ -442,8 +446,25 @@ For family reports, use the family template at `~/.claude/skills/deep-research-g
 
 Build the gene list for Section 6 of the prompt.
 
+**Exclude unannotated (bare-ID) markers from the embedded list.** A marker is unannotated when its
+`display_name` is just the bare transcript ID (i.e., `display_name` equals the gene ID — no ortholog
+symbol and no functional description from any source). These carry no interpretable information, so
+listing them only wastes the deep-research tool's budget. **Omit them from Section 6** and instead
+report:
+- `{n_unannotated}` — how many markers were omitted, and `{pct}` = that as a percent of `{n_total}`
+  (the total significant markers). Surface these in the **Annotation Source Guide** (Step 3c).
+- `{n_top_unannotated}` — of the **top 25 markers by the list's ranking** (i.e. the first 25 rows
+  before filtering), how many were unannotated. This preserves the one useful signal — that a
+  cluster's *strongest* markers may be lineage-specific — without listing IDs.
+
+Keep genes whose `display_name` is a functional **description** (e.g. `Domain of unknown function`,
+`zinc ion binding`) — those convey information and stay in the list.
+
+> **Guard:** if filtering would leave essentially nothing (a list that is *entirely* unannotated),
+> stop and tell the user — such a list isn't worth running as a deep-research report.
+
 **Columns to include:**
-- `display_name` — always
+- `display_name` — always (annotated markers only, per above)
 - `comparison_type` — only if merged mode
 - `pct.1` — only if available (marker table input)
 

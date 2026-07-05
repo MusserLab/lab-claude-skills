@@ -25,7 +25,11 @@ done
 
 Wide swings are normal. Recent example (2026-05-24): `gpu` had 233 pending, `gpu_h200`
 92, `gpu_rtx6000` 17, `gpu_devel` 0. Past experience said `gpu_h200` was fastest;
-on that day it had a 15-hour ETA.
+on that day it had a 15-hour ETA. Again (2026-06-22): a `gpu` job pinned to
+`rtx_5000_ada` sat **15 h unstarted** (`gpu` = 151 pending / 2 running) — moving it to
+`gpu_devel` (0 pending, same `rtx_5000_ada` hardware plus idle Blackwell/B200,
+non-preemptible) started it in **~10 s**. `gpu_devel` is the reliable escape hatch on
+Bouchet: short queue, real GPUs, no preemption (unlike `scavenge_gpu`).
 
 **After submitting, check your priority position and ETA:**
 
@@ -45,6 +49,11 @@ scontrol update job=<jobid> Partition=<new_part>
 
 This works on PD jobs only; no resubmit needed. The job keeps its priority age.
 Session-7 trick — used it to escape a 5-day `gpu` ETA into a fast `gpu_h200` slot.
+**Prefer `scontrol update Partition` over cancel+resubmit when the job has dependents:**
+the job ID is unchanged, so any `--dependency=afterok:<id>` jobs pointing at it stay
+valid (cancel+resubmit gives a new ID and orphans them → `DependencyNeverSatisfied`,
+forcing you to resubmit the whole chain). Only the gres type must exist on the new
+partition (e.g. `rtx_5000_ada` exists on both `gpu` and `gpu_devel`).
 
 **Gotcha — "reserved for jobs in higher priority partitions":**
 If a pending job shows reason `(Nodes required for job are DOWN, DRAINED or reserved

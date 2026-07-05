@@ -45,6 +45,31 @@ calibrate its recommendations to the script's actual role.
 
 ---
 
+## Execution Model — get fresh eyes without leaving the chat
+
+The biggest threat to a single-script audit is **author contamination**: if this chat wrote the
+script, it rationalizes its own choices. But unlike a skill audit, much of this skill's value needs
+the orchestrator's powers — running diagnostics against your real data and live env, and the
+interactive walk-through. So split **read** from **do**:
+
+- **If this chat created/edited the script** → delegate the *cold read* to a fresh **Auditor
+  subagent** (`templates/auditor-prompt.md`): it reads the script cold, does the Domain Verification
+  research (WebSearch/WebFetch), applies the 5 categories, and returns **candidate findings with line
+  numbers** — running no code. The **orchestrator then does the doing**: runs the diagnostics that
+  confirm or refute each candidate against real data (`anti_join`, `dim`, re-running chunks),
+  discusses with you, and saves the report. The "subagent can't run your code" limit is a *feature*
+  here — the orchestrator's diagnostics *are* the verification of the cold read.
+- **If a clean chat is doing the audit** (it didn't write the script) → it already has fresh eyes;
+  read inline, no Auditor subagent needed.
+- **Per mode:** *fast* / *report-only* use the Auditor subagent for the read, then the orchestrator
+  confirms + (fast) discusses. *Thorough* stays the live pair-review (you are the fresh perspective),
+  but you may run the Auditor first as an independent cross-check whose candidates seed the walk-through.
+- **Never** delegate the diagnostics, interaction, or report-saving, and **never use an agent team** —
+  only the read. The gated **Adversarial Verification** phase (refuter + completeness, below) still
+  applies on top, over findings already formed.
+
+---
+
 ## Entry Flow
 
 When the skill is invoked (via `/audit-script` or auto-loaded from context):
@@ -591,11 +616,11 @@ When this skill is active:
 - **Track uncertainty.** If you're not sure whether something is a bug or intentional, say so. "This might be intentional, but if not, it would cause..." is better than a false positive or a missed bug.
 - **In thorough mode: don't pre-digest.** Let the user read and run the code first. Ask questions, don't give answers. The user finding issues themselves is the point.
 - **In fast mode: be comprehensive.** You're working alone — don't skip sections or categories. The user is counting on your thoroughness because they're not reading every line.
-- **Run the audit solo; fan out only for gated verification.** Do the interactive /
-  diagnostic audit directly in the current conversation — subagents may lack tool permissions
-  and can't reliably run diagnostics or save reports, and a separate Claude Code session is
-  better for a fully independent audit. The one exception is the optional gated verification
-  pass (see "Optional: Adversarial Verification & Completeness"): a read-only adversarial
-  refutation of findings you've **already formed**, plus a completeness critic, may fan out
-  via the Workflow tool when it's available and an opt-in signal is present. Never use it for
-  the interactive walk-through, for running the user's code, or for saving the report.
+- **Split read from do (see Execution Model).** Diagnostics, the interactive walk-through, and
+  saving the report stay with the orchestrator — subagents can't reliably run your code/data or save
+  files. But the *cold read* is delegable: when this chat authored the script, hand the static review
+  + domain research to a fresh **Auditor subagent** to escape the chat's own rationalization, then run
+  the confirming diagnostics yourself. A clean chat already has fresh eyes — read inline. The optional
+  gated verification (refuter + completeness over findings already formed) may fan out via the Workflow
+  tool when present + opted-in. Never use a subagent for the walk-through, for running the user's code,
+  or for saving the report; never use an agent team.

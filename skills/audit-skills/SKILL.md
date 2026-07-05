@@ -23,6 +23,48 @@ This is the skill-level counterpart to `/audit-project` (documentation health) a
 
 ---
 
+## Execution Model — who does the reading
+
+Audit quality hinges on **fresh context**. Choose the mechanism by scope and by whether *this*
+chat authored the skill being audited:
+
+| Situation | Who reads | Agent calls | Why |
+|-----------|-----------|:-----------:|-----|
+| Single skill, **authored in this chat** | **Auditor subagent** (fresh) → combined-verify subagent | 2 | The orchestrator is contaminated — it rationalizes its own choices. Recuse it from the read. |
+| Single skill, **clean chat** (didn't author it) | orchestrator reads inline → combined-verify subagent | 1 | The clean chat already has fresh eyes; a verifier still catches its anchoring. |
+| **Full library** (~50 skills) | orchestrator reads **all** inline → verification fans out | many (gated) | Cross-skill overlap/redundancy/naming need one mind holding all skills at once; fanning out the *read* destroys that signal. |
+| Any | **never an agent team** | — | Fixed rubric over static files — nothing to negotiate. Teams add nondeterminism, coordination, and a second lossy channel for zero gain. |
+
+Three subagent roles ship as prompt templates in `templates/`, composed differently per scope:
+
+- **Auditor** (`templates/auditor-prompt.md`) — cold-reads one skill → findings. Single-skill authoring case only.
+- **Refuter** (`templates/refuter-prompt.md`) — confirms / downgrades / rejects findings. Fans out **per finding**.
+- **Completeness critic** (`templates/completeness-prompt.md`) — finds what was missed. Fans out **per skill**.
+
+"Combined-verify" = one subagent given the Refuter + Completeness bodies together over a single
+skill's findings (the single-skill case, 1 call). In the full-library case the two split apart and
+parallelize on their different axes via `templates/verify-fanout.workflow.js`.
+
+**Mechanical pre-pass (always; deterministic; no agent).** Before any reading, gather evidence with
+bash so agents spend judgment on hard calls, not on what a regex settles — then hand the results to
+the auditor/critic as "mechanical evidence already gathered":
+
+```bash
+wc -l SKILL.md references/*.md 2>/dev/null                 # size
+grep -rn "/Users/" . 2>/dev/null                            # absolute-path leaks (portability)
+grep -nP '(?<!\\)\$([0-9]|ARGUMENTS)' SKILL.md              # $-substitution corruption (SKILL.md only)
+diff -rq <this-skill-dir> <lab-repo-twin-dir> 2>/dev/null   # lab-repo drift, if the lab repo exists
+```
+
+**Capability gating.** The Agent/Task tool (single subagents) is standard everywhere, so single-skill
+delegation works for all users. The **Workflow** tool (the full-library fan-out) is NOT on every
+install — gate it on Workflow-present AND an opt-in signal (ultracode / explicit "thorough" /
+save-report). Fallback when absent: one sequential combined-verify subagent per skill, or solo +
+self-critique. Never block the audit waiting on a tool the environment may lack, and don't mention
+the Workflow path to users who can't run it.
+
+---
+
 ## Entry Flow
 
 ### 1. Ask Scope
@@ -79,6 +121,11 @@ List all skills in scope. For each, report:
 - **PATH ISSUE** — Contains absolute user paths (`/Users/...`)
 - **NO TRIGGERS** — Description doesn't front-load when-to-use conditions
 
+When a skill bundles a `scripts/` directory, note in the Accessory Files column which entries
+are **logic scripts** (real executable code) vs **boilerplate** (templates, sample sheets,
+reference data) — the logic scripts are the candidates for a separate `/audit-script` pass
+(see Category 1, Size & Structure).
+
 Present the inventory table and note any patterns before proceeding to detailed review.
 
 ---
@@ -87,6 +134,11 @@ Present the inventory table and note any patterns before proceeding to detailed 
 
 Read each skill's SKILL.md (and accessory files if present). Evaluate against the 6 audit
 categories below. Load `references/quality_checklist.md` for detailed per-category criteria.
+
+> **Who performs this read** depends on scope — see **Execution Model** above. For a single skill
+> authored in this chat, delegate it to a fresh **Auditor** subagent (`templates/auditor-prompt.md`)
+> rather than reading it in the contaminated orchestrator; for a clean chat or the full library,
+> the orchestrator reads inline.
 
 ### The 6 Audit Categories
 
@@ -105,6 +157,18 @@ Is the skill appropriately sized and organized?
   or move the script to `templates/` (preferred). `$SLURM_*`, `$HOME`, `$(…)`, and `${…}`
   are safe. See the `new-skill` skill for the convention.
 - Accessory files should be organized by type, not dumped loose in the skill directory
+- **Bundled scripts with real logic get flagged, not logic-checked.** This audit verifies a
+  bundled script's *placement, portability, and surrounding references* — it does **not** check
+  its algorithm for bugs, silent data drops, or analytical correctness. A bug in a bundled
+  script ships to every user of the skill, so its correctness matters *more* than a one-off
+  analysis script's, not less. For each `scripts/` file containing genuine logic (parsing,
+  computation, data handling — e.g. a `*.py` QC tool), **recommend a separate `/audit-script`
+  pass** and list it in the report's "Scripts flagged for separate review" section (Phase 4).
+  Do **not** send deployable boilerplate — `templates/` (SLURM scripts), sample sheets, env
+  YAMLs, reference FASTAs — to `audit-script`: it calibrates to a script's data and use case and
+  would misfire on intentional template placeholders (flagging deliberate path/param
+  placeholders as "hardcoded paths" or "missing validation"). The line: *real logic* →
+  `/audit-script`; *boilerplate* → the structure/portability checks here.
 
 **Key question:** If someone reads just SKILL.md, do they get the workflow and decision points
 without drowning in detail?
@@ -244,8 +308,13 @@ Notes). The workflow:
 
 Fold the verified / refuted / newly-found findings into the Phase 4 table, and note in the
 summary that an adversarial pass was run (it raises confidence; its absence is not a defect).
-This is the "adversarial verify + completeness critic" pattern from the Workflow tool's
-quality-patterns guidance — see that tool's docs for the fan-out mechanics.
+
+The two roles use the shipped templates — **Refuter** (`templates/refuter-prompt.md`, fans out per
+finding) and **Completeness critic** (`templates/completeness-prompt.md`, fans out per skill).
+`templates/verify-fanout.workflow.js` is a ready-to-adapt skeleton that runs both fan-outs
+concurrently and returns structured results for the orchestrator to fold; pass it the findings and
+per-skill inputs via `args`. This is the "adversarial verify + completeness critic" pattern from
+the Workflow tool's quality-patterns guidance — see that tool's docs for the fan-out mechanics.
 
 ---
 
@@ -267,6 +336,21 @@ RESTRUCTURE, REFINE):
 ```
 
 **Summary line:** "Found N findings across M skills: X FIX, Y PRUNE, Z RESTRUCTURE, W REFINE"
+
+### Scripts flagged for separate review
+
+If any skill in scope bundles scripts with real executable logic, list them in a short table
+so the user can run `/audit-script` on each. This audit checked their placement and portability,
+not their algorithmic correctness — that deeper, data-aware review is `audit-script`'s job.
+
+| Skill | Script | ~Lines | What it does |
+|-------|--------|-------:|--------------|
+| `isoseq-pipeline` | `scripts/isoseq_pipeline_qc.py` | 253 | per-step Iso-Seq QC parsing + summary tables |
+
+These are a **scope handoff, not a severity finding** — they get no FIX/PRUNE/RESTRUCTURE/REFINE
+tag, because the issue isn't a defect in the skill; it's that the bundled code needs a review
+this audit doesn't perform. Omit this section entirely if no skill in scope bundles non-trivial
+logic scripts (boilerplate templates, sample sheets, env YAMLs, and reference data don't count).
 
 Then ask: **"Which findings do you want to work through? (all / by severity / specific numbers)"**
 
@@ -324,12 +408,16 @@ It is NOT a skill or memory file.
   or adjusting ggplot2 themes'" is actionable.
 - **Respect the author's intent.** Skills encode accumulated experience. Before recommending
   removal, consider whether the content captures a hard-won lesson that isn't obvious.
-- **Read solo; verify with fan-out only when gated.** Do the read, cross-reference, and
-  initial findings (Phases 1–3) directly in the current conversation — skills must be read
-  carefully and cross-referenced, and subagents can't hold the full library picture. The one
-  exception is the optional gated verification phase above: an adversarial verify +
-  completeness critic over findings you've **already formed** may fan out via the Workflow
-  tool, when that tool is available and an opt-in signal is present. Never use subagents for
-  the initial read.
+- **Fresh context wins; pick the reader by scope (see Execution Model).** Never fan out the
+  **cross-skill** read — overlap/redundancy/naming need one mind holding all skills at once, and
+  sharding it across isolated agents destroys that signal. So for the **full library**, the
+  orchestrator reads all skills and forms findings solo, then only *verification* fans out (gated).
+  But for a **single skill authored in this chat**, delegate the read to a fresh **Auditor** subagent
+  — the contaminated orchestrator rationalizes its own choices, and a cold reader catches what it
+  can't. (From a clean chat that didn't author the skill, inline-solo already has fresh eyes; just
+  add the combined-verify subagent.) Subagent quality depends on a **fat prompt** — the templates
+  inline the rubric pointers, exact paths, mechanical evidence, output schema, and adversarial
+  framing; a thin "audit this" delegation is what produces a poor audit. **Never use an agent team
+  for auditing** (fixed rubric, static files — nothing to negotiate).
 - **Cross-reference the `new-skill` skill** for best practices on structure, description
   writing, and organization. That skill defines the standards this audit checks against.

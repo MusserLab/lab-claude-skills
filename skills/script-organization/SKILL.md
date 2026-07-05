@@ -166,6 +166,24 @@ When creating a new script in a sectioned project:
 - **Flat**: Single topic, small scope, fewer than ~10 scripts
 - **Sectioned**: Multiple distinct analytical threads, especially when different people work on different sections
 
+### A section is one coherent pipeline — not a catch-all
+
+A **section is a single coherent analysis pipeline** (or sub-project). Its numbering (`01_`, `02_`, …)
+should read as *steps of that pipeline*. **Keep the whole sub-project together no matter how many
+scripts it takes** — a 15-script sub-project is perfectly fine if the scripts belong to the same
+coherent effort. There is **no count threshold** that forces a split.
+
+**When you start a genuinely distinct analysis thread, create a NEW section** (`scripts/<section>/` +
+`outs/<section>/`, numbered from `01_`) rather than appending to an existing one. Appending unrelated
+threads to a single section is what makes numbers "run ahead" — e.g. a deep-research pipeline landing
+as `atlas/08–11,19` when it belongs in `deep_research/01–05` — and the number stops meaning "step N of
+this pipeline."
+
+**Only when a section has clearly diverged into different areas** (e.g. an atlas-characterization
+section that has accumulated an unrelated annotation pipeline + a gene-expression figure sub-project +
+a deposit tool) should you **suggest** regrouping it into coherent sections — and **propose it to the
+user; never split or renumber automatically.** Coherence, not size, decides.
+
 ---
 
 ## `data/` vs `outs/`
@@ -183,7 +201,8 @@ When creating a new script in a sectioned project:
 
 Scripts are numbered per-section (`01_`, `02_`, etc.) so `ls` shows them in a sensible order. **Numbers are labels, not dependency order.** Dependencies are encoded entirely by input paths within each script.
 
-- Assign the next available number when adding a script
+- Assign the next available number **within the script's own section** (see "A section is one coherent
+  pipeline" above — a distinct new thread gets a *new section from `01_`*, not the next number in a catch-all)
 - Never renumber existing scripts when one is archived or deleted
 - In sectioned projects, numbering restarts at `01_` in each section
 

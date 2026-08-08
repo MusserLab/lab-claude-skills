@@ -48,14 +48,14 @@ This installs all skills and hooks as a single package. Skills are available as 
 
 **Updates:**
 
-If you installed via the marketplace (Option A), the plugin updates automatically when you restart Claude Code. No manual action needed — just restart when prompted.
+**Third-party marketplaces such as `musser-lab` do not auto-update by default.**
 
-If auto-update doesn't work or you installed via CLI, you can manually update by opening a terminal, running `claude`, then:
+**Restarting Positron on its own does not guarantee that you get a new release.** Downloaded
+plugin changes still have to be activated.
 
-```
-/plugin uninstall lab-skills
-/plugin install lab-skills
-```
+Exact update instructions for Positron are being validated on a clean student profile before
+they are published here. **Until then, if you need the newest release, ask Jacob** — he will walk
+you through it for your setup.
 
 ### Option B: Manual install (if you want to customize)
 

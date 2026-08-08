@@ -1,5 +1,9 @@
 # Partition Quick-Reference
 
+> **"Per-user limits" are aggregate across all of your jobs in that partition — not per job.**
+> Two concurrent jobs share the same CPU/memory allowance. The "Max N jobs/user" notes are a
+> separate, additional cap on how many jobs you may have submitted at once.
+
 ## McCleary partitions
 
 | Partition | Max time | Per-user limits | GPUs | Notes |
@@ -20,7 +24,7 @@
 |-----------|----------|----------------|------|-------|
 | **day** | 1 day | 1,200 CPUs, 18 TiB | — | 84 nodes (64 CPU, 990 GiB each) |
 | **day_AMD** | 1 day | 1,200 CPUs, 18 TiB | — | 26 Turin nodes (128 CPU, 2,251 GiB each) |
-| **devel** | 6 hours | 8 CPUs, 120 GiB | — | Max 2 jobs/user |
+| **devel** | 6 hours | 4 CPUs, 60 GiB | — | Max 2 submitted jobs/user |
 | **week** | 7 days | 64 CPUs, 1 TiB | — | 6 nodes |
 | **gpu** | 2 days | 6 GPUs | RTX 5000 Ada (32 GB) | 9 nodes, 4 GPUs/node |
 | **gpu_rtx6000** | 2 days | 6 GPUs | RTX Pro 6000 Blackwell (96 GB) | 8 Turin nodes, 8 GPUs/node |

@@ -5,6 +5,82 @@ Format: date-based entries (this isn't versioned software).
 
 ---
 
+## 2026-08-07 (v1.12.1)
+
+### Fixed
+- `hpc`: **the Tier 1 direct-`squeue` `ProxyCommand`s in the previous release could not work.**
+  They used an unescaped `$(squeue …)`, which your **laptop** expands — and laptops have no
+  `squeue`, so the remote command collapsed to `nc  22` and failed with no useful message. Now
+  escaped as `\$(squeue …)` in **every direct-`squeue` entry**, with a note that `ssh -G` cannot
+  detect this because it never runs the command
+- `hpc`: **wrong Bouchet `devel` limits** in `references/partitions.md` (claimed 8 CPUs /
+  120 GiB). Corrected to **4 CPUs, 60 GiB, max 2 submitted jobs per user**, and the table now
+  says explicitly that per-user limits are **aggregate across all your jobs**, not per job
+- `hpc`: **`SKILL.md` told you to run Claude Code / Positron sessions on `day` with 8 CPUs.**
+  Interactive work belongs on `devel`: YCRC makes `devel` the default partition for `salloc`,
+  and VS Code jobs found outside the devel partitions **may be terminated without notice** (this
+  skill infers the same applies to Positron Remote-SSH). The example is now
+  `salloc -p devel -c 4 --mem=32G -t 6:00:00 --job-name=positron-devel`, with per-cluster limits
+  (Bouchet 4 CPUs / 60G / max 2 jobs; McCleary 4 CPUs / 32G / max 1 job)
+- `hpc`: **`scripts/hold-node.sh` could submit a second allocation on reconnect.** It only looked
+  for **RUNNING** jobs, so a same-name job that was still **PENDING** was invisible and re-running
+  the alias queued another one; piping `squeue` into `head` also discarded its exit status, so a
+  scheduler failure looked identical to "no job". It now does one cluster-wide lookup with an
+  **explicit state filter** -- `PENDING,RUNNING,SUSPENDED,CONFIGURING,COMPLETING` (Slurm's
+  no-state default omits SUSPENDED) -- captured without a pipeline. If a job is found it prints
+  each id/state/node-or-reason and **exits without submitting**; if the lookup **fails it refuses
+  and exits nonzero**, leaving the allocation state explicitly unknown. It also now **rejects a
+  caller-supplied job name** in every spelling (`-J`, `-Jname`, `--job-name`, `--job-name=`), so
+  the name looked up and the name submitted cannot drift. The existing-job branch no longer opens
+  a shell: that shell could become the root of a fresh tmux session, outlive the allocation, and
+  make a later alias run reattach a stale shell instead of re-checking. Tier 2's
+  `ControlPersist 30m` keeps the SSH master alive without it. This protects against an extra
+  submission on a normal reconnect; it is **not** an atomic lock -- two *simultaneous first*
+  starts can still both allocate
+- `hpc`: **reconnection advice assumed one login node per cluster.** There are two, and tmux
+  sessions are login-node-local, so a reconnect behaves differently depending on where you land:
+  on the **same** login node tmux reattaches your original `salloc` shell and the helper is not
+  invoked at all; on the **other** one a temporary tmux runs the helper, which finds the existing
+  job, submits nothing and exits. The guide now spells out all four reconnect outcomes --
+  reattached, existing RUNNING job, existing PENDING job (wait; nothing can connect without a
+  node), and a genuinely new allocation (which requires redoing the `/tmp` preflight if you use
+  the optional target) -- plus lookup failure, where you stop and investigate. **After an
+  uncertain reconnect, `scancel -n positron-devel` is what reliably releases the node** (`exit`
+  only works from the original `salloc` shell)
+- `hpc`: bundled `scripts/hold-node.sh` and `scripts/positron-node.sh` had stale examples showing
+  `--partition=day`, 8 CPUs, and the old `positron` job name. Both now show the supported
+  `positron-devel` / `devel` / 4 CPUs / 6 h form. `positron-node.sh` keeps `positron` as its
+  runtime default so already-copied SSH configs keep working; it is now labelled a legacy default
+
+### Changed
+- `hpc`: `devel` is now the default throughout `references/positron-ssh-setup.md` — Tier 1 and
+  Tier 2 sessions, reconnection, cheat sheet, shutdown, and the batch-placeholder variant. Any
+  `day` / `ycga` / non-`devel` / >6 h example is kept only inside a labelled **UNVERIFIED** block
+- `hpc`: Tier 2 steps no longer mix clusters — they are written as `<cluster>-devel` and say to
+  stay on the cluster you allocated on
+- `hpc`: the cheat sheet and shutdown steps separate **laptop-side** from **cluster-side**
+  commands, with laptop-safe forms (`ssh <cluster>.ycrc.yale.edu "squeue --me"`,
+  `ssh <cluster>.ycrc.yale.edu "scancel -n positron-devel"`) for Bouchet and McCleary
+- `hpc`: the two-concurrent-IDE-session recipe is **removed** — it exceeded Bouchet's aggregate
+  4-CPU `devel` allowance and McCleary allows only one submitted `devel` job. Open a second
+  window against the *same* allocation instead
+- `hpc`: adds a `mccleary-devel` route at McCleary's documented limits, noting it has **not been
+  live-tested**; **Misha** is marked UNVERIFIED rather than "works identically"
+- `hpc`: SSH-key setup corrected — one upload to YCRC's key uploader reaches every cluster, so
+  the old per-cluster `ssh-copy-id` step is gone. The Windows/WSL section drops the incorrect
+  `remote.SSH.path` advice (Positron does not expose that setting) and is labelled UNVERIFIED
+- `hpc`: installing the Positron server on **NFS home is the supported default**, and the
+  node-local `/tmp` trick is now an **optional, advanced, Bouchet-only** workaround for repeated
+  install failures, collapsed behind a details block. It uses its own `bouchet-devel-tmp` SSH
+  target keyed exactly (never a `bouchet-*` glob), and requires a fail-closed preflight — run on
+  a shell you have positively confirmed is the allocated compute node — before connecting
+  Positron. If the preflight refuses, or the hostname can't be matched, use ordinary
+  `bouchet-devel` on NFS. The manual-seed recipe is labelled macOS-only
+- README: **corrects the claim that the plugin auto-updates on restart.** `musser-lab` does not
+  auto-update by default, and restarting Positron alone does not guarantee a new release. Exact
+  Positron update instructions are still being validated on a clean student profile; until they
+  are published, students are told to ask Jacob
+
 ## 2026-07-04 (v1.12.0)
 
 ### Added

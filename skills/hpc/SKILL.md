@@ -378,33 +378,53 @@ pending job's partition to a faster queue, see `references/gpu-partition-tactics
 
 ### Interactive jobs
 
+**Interactive work belongs in `devel`.** YCRC makes `devel` the **default partition for
+`salloc`**, and interactive jobs are normally permitted on `devel` (or `gpu_devel` for a GPU) or
+on a private partition you have been explicitly authorized to use — **not** generally on the
+other public partitions. Do not reach for `day` just because an interactive job wants more time
+or more cores; that is a signal to write a batch script.
+
+**IDE sessions — Positron or VS Code, including Claude Code running inside them — are covered by
+a stricter, explicit rule.** YCRC states that VS Code jobs found outside the devel partitions
+**may be terminated without notice**; this skill treats Positron Remote-SSH as the same kind of
+IDE workload, so the same rule is assumed to apply to it.
+
 ```bash
 # Quick interactive session (testing, short tasks)
 salloc -p devel -c 4 --mem=16G -t 2:00:00
 
-# Claude Code working session (writing scripts, running them, submitting batch jobs)
-salloc -p day -c 8 --mem=32G -t 6:00:00 --job-name=positron
+# Claude Code / Positron working session (writing scripts, running them, submitting batch jobs)
+salloc -p devel -c 4 --mem=32G -t 6:00:00 --job-name=positron-devel
 ```
 
-**Recommended for Claude Code sessions: 8 CPUs, 32 GB RAM.** Most interactive work
-(writing scripts, parsing TSVs/GFFs, pandas, matplotlib) needs <4 GB, but 32 GB provides
-headroom for occasional spikes (loading large SQLite DBs, sorting big BLAST outputs,
-multi-panel figures). The 8 CPUs help with parallel grep/ripgrep and pigz.
+**Sizing an interactive session: 4 CPUs, up to 32 GB RAM.** Most interactive work (writing
+scripts, parsing TSVs/GFFs, pandas, matplotlib) needs <4 GB; the extra memory is headroom for
+occasional spikes (loading large SQLite DBs, sorting big BLAST outputs, multi-panel figures).
+
+**`devel` per-user limits are aggregate across all of your `devel` jobs, not per job** (see
+`references/partitions.md`):
+
+| Cluster | Max time | Aggregate per user | Submitted jobs |
+|---------|----------|--------------------|----------------|
+| Bouchet `devel` | 6 hours | 4 CPUs, 60G | max 2 |
+| McCleary `devel` | 6 hours | 4 CPUs, 32G | max 1 |
+
+A single 4-CPU session therefore consumes your entire `devel` CPU allowance on either cluster,
+and McCleary permits only one submitted `devel` job at a time.
 
 Heavy compute (DIAMOND, Cell Ranger, STAR, BRAKER, eggNOG-mapper, PROST) should always
 be submitted as batch jobs — never run on the interactive node. Rule of thumb: if it takes
->5 minutes or needs >8 CPUs, write a batch script.
+>5 minutes or needs >4 CPUs, write a batch script.
 
-Use `devel` for quick tests (6-hour limit, fast queue) — but its per-user caps differ by
-cluster (McCleary 4 CPU / 32 GiB, Bouchet 8 CPU / 120 GiB; see `references/partitions.md`),
-so a devel job sized for Bouchet may pend forever on McCleary. Use `day` for full working
-sessions (up to 24 hours). Add `--x11` for graphical forwarding (requires X11 setup).
+Add `--x11` for graphical forwarding (requires X11 setup).
 
 For setting up Positron (VS Code) to connect to an interactive session via SSH, see
 `references/positron-ssh-setup.md`. It documents two tiers — a **basic** session (quick to set
 up; a laptop/VPN drop kills the allocation) and a **persistent** session (a bit more setup; the
 allocation survives disconnects via a `tmux`-held `salloc` + helper scripts, with reconnect
-instructions). Recommend the persistent tier for any long or large allocation.
+instructions). The persistent tier buys **no extra time and no extra resources** — it is the same
+6-hour `devel` job inside the same caps. What it buys is that a laptop sleep, VPN drop, or closed
+lid no longer forfeits the rest of that session and sends you back to the queue.
 
 ### Job monitoring
 

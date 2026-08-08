@@ -46,6 +46,14 @@ lab-claude-skills/
 ## Session Log
 <!-- Maintained by /done. Most recent first. Keep last 5 entries. -->
 
+### 2026-08-08 — Sync plugin v1.12.1: hpc Positron/devel repair (full 4-gate release)
+- **Plans:** `LAB_CLAUDE_SKILLS_PLAN.md` (Phase 5 onboarding — README accuracy)
+- **Work:** Shipped **v1.12.1** (commit `eae2194`, pushed) via the full `/sync-plugin` gate sequence — Gate 1 inventory → Gate 2 apply → Gate 3 staged preflight → Gate 4 push, with several bounded correction passes between gates. **Five real defects fixed, not just doc polish:** (1) every Tier 1 direct-`squeue` `ProxyCommand` shipped in v1.12.0 used an **unescaped `$(squeue …)`**, which the *laptop* expands — `squeue` doesn't exist there, so the remote command collapsed to `nc  22`; now `\$(squeue …)`. (2) `references/partitions.md` had the **wrong Bouchet `devel` limits** (claimed 8 CPUs/120 GiB → actually 4 CPUs/60 GiB, max 2 submitted jobs, aggregate per user). (3) `SKILL.md` recommended `salloc -p day -c 8` for IDE sessions — YCRC says VS Code jobs outside devel **may be terminated without notice**; now `devel`-only with a per-cluster limits table. (4) `scripts/hold-node.sh` could **double-allocate on reconnect** (only checked `-t RUNNING`, so a PENDING same-name job was invisible; `| head -1` also swallowed squeue's exit status) — now one lookup with explicit `PENDING,RUNNING,SUSPENDED,CONFIGURING,COMPLETING`, fail-closed on squeue error, rejects caller `-J`/`--job-name` overrides, and exits instead of opening a stale management shell. (5) reconnection advice assumed **one login node**; there are two and tmux is login-node-local — now one consolidated rule with all five reconnect outcomes. Also: `mccleary-devel` route (documented limits, **not live-tested**), Misha marked UNVERIFIED, `/tmp` server-install trick demoted to an optional Bouchet-only workaround behind a fail-closed preflight on a dedicated `bouchet-devel-tmp` target, and the **README's false "auto-updates on restart" claim** corrected. Two external test harnesses (ProxyCommand escaping, 12-case hold-node) were **run but deliberately not published** — kept in scratchpad.
+- **Next:**
+  - **Clean-student-profile Positron smoke test** — blocks publishing update instructions as tested and blocks the `#code` student announcement (the release itself is already live).
+  - **`/sync-cluster`** — all five cluster HPC files are behind; cluster `SKILL.md` still has the wrong `-p day -c 8` guidance, the wrong devel limits, the unescaped ProxyCommands, and the cluster-only container/LibreOffice section (33 lines) deliberately deferred out of this release.
+  - Carry-over: 10 held-back new skills; `presentations`; cell-type-* fine-tuning.
+
 ### 2026-06-29 — Audit subagent execution-model overhaul + hpc Positron Tier 1/2 + weekly-audit job (dev, pending sync)
 - **Plans:** None
 - **Work:** Developed in `~/.claude/skills/` (NOT yet published). **Fresh-context subagent execution model across the three audit skills:** single-skill audits → a fresh **Auditor subagent** (escapes authoring-chat contamination; fat prompt); full-library/cross-doc reads stay **solo**, only *verification* fans out (gated Workflow); **never agent teams**. `audit-skills`: Execution Model section + 3 templates (auditor/refuter/completeness) + `verify-fanout.workflow.js`. `audit-script`: **read-vs-do split** (cold read delegable to a fresh Auditor; diagnostics/interaction/report-saving stay with the orchestrator) + auditor template. `audit-project`: mechanical bash pre-pass + report-only/scheduled mode. **hpc:** `positron-ssh-setup.md` restructured into **Tier 1 (basic) + Tier 2 (disconnect-proof:** salloc-in-tmux on login node, ControlPersist, round-robin, hardened ProxyCommand) + `scripts/` (cp-from-bundled install) + 5 audit fixes. **New `~/.claude/jobs/` env-aware weekly-audit job** (cluster cron auditing cluster project copies; work-since-audit trigger; report-only digest). settings.json: 3 docs domains allowlisted. All four skills verified by fresh-context subagents (dogfooded).
@@ -78,12 +86,3 @@ lab-claude-skills/
   - Publish cell-type-families, cell-type-tree, wgcna-cell-type when fine-tuning complete
   - prost-gene-naming remains PI-only (held back for improvement)
   - tabula-muris-gene-survey and prost-annotation held for next sync
-
-### 2026-03-23 — Sync plugin v1.7.0
-- **Plans:** None
-- **Work:** Synced 5 updated skills to lab repo: audit-script (domain verification phase), conda-env (cluster activation, post-export hygiene), done (session numbering, sync reminder, conda export), hpc (full content sync — provenance, dual-env, interactive commands), script-organization (cluster .py format + template). Fixed README `/quarto-publish` → `/publish`. Updated README, CHANGELOG, plugin.json. Posted to #code.
-- **Next:**
-  - Publish cell-type-families, cell-type-tree, wgcna-cell-type when fine-tuning complete
-  - prost-gene-naming remains PI-only (held back for improvement)
-  - Consider publishing eggnog-mapper, prost-annotation, sync-cluster, sync-project
-

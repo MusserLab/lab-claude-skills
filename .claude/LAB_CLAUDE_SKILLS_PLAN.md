@@ -197,7 +197,8 @@ Plugin versions ≤1.3.1 had `"hooks": "./hooks/hooks.json"` in `plugin.json`. C
 - `scientific-manuscript` references directory is large — consider whether all annotated examples should be in the shared repo
 - `done` skill references `~/.claude` git tracking — may need adjustment for members who don't git-track their `.claude/` directory
 - Template CLAUDE.md files use `{placeholder}` syntax — evaluate whether these need more guided setup
-- **Windows security**: Hooks work when Git Bash is available (confirmed). `$HOME` in deny rules doesn't expand — `/security-setup` generates absolute paths as workaround. Plugin update requires CLI uninstall/reinstall. `curl|bash` grep pattern needs `grep -F` fix. See Windows Onboarding Checklist above.
+- **Windows security**: Hooks work when Git Bash is available (confirmed). `$HOME` in deny rules doesn't expand — `/security-setup` generates absolute paths as workaround. `curl|bash` grep pattern needs `grep -F` fix. See Windows Onboarding Checklist above.
+- **Plugin updates are NOT automatic, and the student update path is untested (v1.12.1, 2026-08-08).** Third-party marketplaces like `musser-lab` do not auto-update by default, and restarting Positron alone does not guarantee a new release — the README claimed otherwise until v1.12.1 corrected it. The uninstall/reinstall CLI route has **never been smoke-tested on a clean student-like Positron profile**, so no exact update procedure is published yet; the README currently tells students to ask Jacob. **This blocks Phase 5 onboarding and the `#code` announcement** — run the smoke test (record Positron version, OS, surface, install scope, host) before publishing steps or announcing.
 
 ## Key Files
 

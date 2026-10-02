@@ -1,0 +1,180 @@
+{
+  "status": "isolated candidate; not released or accepted",
+  "marketplace": "musser-lab",
+  "dependency_installation": "Install Core and selected optional packages explicitly in both clients.",
+  "legacy": {
+    "name": "lab-skills",
+    "version": "1.12.1",
+    "transition": "opt-in; check overlap and protections before switching"
+  },
+  "packages": [
+    {
+      "name": "research-core",
+      "version": "0.1.0-candidate.6",
+      "requires": {},
+      "skills": [
+        "audit-project",
+        "audit-script",
+        "cleanup-scripts",
+        "conda-env",
+        "data-handling",
+        "debugging-before-patching",
+        "done",
+        "figure-export",
+        "file-safety",
+        "git-conventions",
+        "learn-code",
+        "new-plan",
+        "new-project",
+        "pipeline-diagram",
+        "planning",
+        "plugin-feedback",
+        "quarto-docs",
+        "r-plotting-style",
+        "r-renv",
+        "research-core-setup",
+        "script-organization",
+        "security-setup",
+        "sync-project"
+      ],
+      "files_sha256": {
+        ".claude-plugin/plugin.json": "da52b08b25a3e218c504a729728836b2aeb6bcf12752ad9b48bb3e506ac72273",
+        ".codex-plugin/plugin.json": "2bf372e35fd3f5b6984a1ce41018e203175b2b788559ff69f88e263fa3525758",
+        "instructions/agent-collaboration.md": "c3cf0bdf3513b539147b31e37187adfde2aea884167cd9e83ea1bb86356e085d",
+        "scripts/install_instructions.py": "796c8e5e8dde1e8135362a594ff6a60f23fc530d9e1a52fa6608af4316e6f373",
+        "skills/audit-project/SKILL.md": "95f0ded755b3ed8341f4a63709788ced48cbdb10863a37287a2bbbe279273225",
+        "skills/audit-script/SKILL.md": "fd9ba009587ec6e5982d11c5d9a14d5d08e8dccd3a56714b5864ca14f744785d",
+        "skills/audit-script/templates/auditor-prompt.md": "bc00edecca5fce7ecae51fb6a45aeb774c5e4b4ff6b13df1fddabf12cb537f10",
+        "skills/cleanup-scripts/SKILL.md": "6fe3834cdb63b6c7c52fcc95f1a923ddad8a194a45d59f827069f9678c1e5ea6",
+        "skills/conda-env/SKILL.md": "b0868bed8109890810d3e90e907224027783b4b1093d6bf6401b1cf39d32f1de",
+        "skills/data-handling/SKILL.md": "c086a9051201a53d01888cc74407a4014d62ba7a4fa7390c0f0fb83cbc279563",
+        "skills/debugging-before-patching/SKILL.md": "aa185ec00f26b5f66574463568fae6dc9d470fb3fcdc05fa45f6bc78e553d148",
+        "skills/done/SKILL.md": "bfbb368a21c04031331779623dbb487842b9fa19a2dfaa42aa314d16af21ec4e",
+        "skills/done/references/github-closeout.md": "ba7937ae543fe6304febb4341aea0622b7e6f102abadd849a0b653a229dfc3f9",
+        "skills/figure-export/SKILL.md": "315e65f83d9399db8c9e5df8c07bac7075bcc58713687945952c1a59b8735891",
+        "skills/file-safety/SKILL.md": "d6234cd2699d85c075375d2fbd1f0a062bd6cda870f01ee9781c19417d91e477",
+        "skills/git-conventions/SKILL.md": "5dd983f4521d527bdde9128274a9eed86b6ed8b92813ba1300c3e1ad6f61b928",
+        "skills/learn-code/SKILL.md": "8477cb91af73dc9391e5d02934061673614207e9fc44a804479080fa7373af8f",
+        "skills/new-plan/SKILL.md": "37b32c094a40c545b4c4d2b18eba33e9688295f1c07e6f5d65651819807b63ee",
+        "skills/new-project/SKILL.md": "96b86e83427b71c5b696c4fae60fce6696af836eb3ffefc209acde9d9acfc354",
+        "skills/new-project/references/work-coordination.md": "3933bbafc59b5077a8a4034d312b199850ec60b01e118c45e9c0b398647e7fa6",
+        "skills/new-project/scripts/coordination.py": "cdfc5b40968e5fe8f472100be2a1a5d2f1ee2cf76a6b5138607b7a68076c80e1",
+        "skills/new-project/templates/claude_md_data_science.md": "19d730adf213ff65f7440e64b64fc2dd682d6833535695c65db5026771520f0e",
+        "skills/new-project/templates/claude_md_general.md": "9e181a5553abd1f7acbe3a0449f850dc6d982e4335c2f1ed16aad52ba29344ee",
+        "skills/pipeline-diagram/SKILL.md": "a7e7b7bc0d4740291bcaf717c2eab4eb8f58806210914e1bd7ed7af2cddef8fa",
+        "skills/pipeline-diagram/templates/pipeline_spec.example.yaml": "448cbf1ce13d3c7492dd854db2f3c67e5dde22f6f4741c5d37742bb06dcd7e52",
+        "skills/pipeline-diagram/templates/render_pipeline.py": "1247d2707c13d9b09a1d22b95fb870d0dfa01804e901045637b37d6f28a811c6",
+        "skills/planning/SKILL.md": "96ac9227f9f9751e630ef7b8cc25e45eb78775974d2bed879148fbb0412500d7",
+        "skills/planning/references/upgrading-existing-plans.md": "d1572689585fc723fcd9fa57de65715964062031b91ca9e8894d0d7877af76e6",
+        "skills/plugin-feedback/SKILL.md": "af6fecc74c9200e4a7b1e77a2689c6570dda7eca9c677530e1040df5ca522cb6",
+        "skills/quarto-docs/SKILL.md": "d29c45ec22165592a6e3455c54a28590c28389ce6b38fda720805ae0b8f2fe11",
+        "skills/quarto-docs/references/pdf-formatting.md": "7f26b96740f36f56b54d0c81b1dd691433b455af865d77d01d4c3941577060eb",
+        "skills/r-plotting-style/SKILL.md": "90c10c9397ae133293c80e8b039f90386b38d83ca5e8fbb8e8b81894be2c924d",
+        "skills/r-renv/SKILL.md": "288becac8ce209832b06826add2ca70f2391ac7fe21f17f4a6b1d63c9752205c",
+        "skills/research-core-setup/SKILL.md": "fdffb8ed78434aa32e85eeac2319fc7e4f771eb0cfc93fcc0253cbc40cf3adcc",
+        "skills/research-core-setup/references/help.md": "a5547f3440fedbd74ffa3464154256d1e90c0c7816657b2c22eca9e989f463ab",
+        "skills/script-organization/SKILL.md": "6a0f72ca4cfe942029ca58e818c9a44d4e7fda013b5f6bdeb221c50f290cc0ac",
+        "skills/security-setup/SKILL.md": "360af8544ccec2f72a091b8fac1ed80655a1d013aac0ae433ca7def200fc7fac",
+        "skills/sync-project/SKILL.md": "9adf46bd3715d1af0b31202c23e0d541ac1909e09ea2ad5155c1a089ee76b015"
+      }
+    },
+    {
+      "name": "yale-research",
+      "version": "0.1.0-candidate.1",
+      "requires": {
+        "research-core": "0.1.0-candidate.6"
+      },
+      "skills": [
+        "globus-transfer",
+        "hpc",
+        "lux-collections"
+      ],
+      "files_sha256": {
+        ".claude-plugin/plugin.json": "7a193aad42cbd05973e748cc055344137a7a7421d450b3157ffd64011a1c69bd",
+        ".codex-plugin/plugin.json": "14d4aa1c4bb8c852c9ac8e9c63f4c50d76c4fbe1ae20a61d8b87a74738e28f12",
+        "skills/globus-transfer/SKILL.md": "ddf69a01e7032f384c4dce22170c5619a9b8c87f842a3d176f59c88f918053a6",
+        "skills/hpc/SKILL.md": "042778bd544ccd34db37e2696b135f6b6df1f924ffcc549a97429c30db5d31ce",
+        "skills/hpc/references/gpu-partition-tactics.md": "e7273d8847e621faf35caecc1a9e7c02d74bfc839cd50e0034f22c1630c946c1",
+        "skills/hpc/references/partitions.md": "fe907aec701c88e8cf592fb45882460fae05ff3b3a34acaef2dfc7799691a161",
+        "skills/hpc/references/positron-ssh-setup.md": "f597c5e994560587b4e626eb865dcefb06332546f6d2036955eb9026b138f635",
+        "skills/hpc/references/resource-learning.md": "073b8e7a034e9732075ae75383aa3231e5db40463635362e1db76256549e2897",
+        "skills/hpc/references/snakemake.md": "2348bf4ff7dbff20b2ddb058c391fed5855c3805997fe117479233ed3a4a1f03",
+        "skills/hpc/references/student-setup.md": "4f572b3c9890bda379ccbe904cc4c5232b104ba24af9cf2744690a8afc457285",
+        "skills/hpc/references/tool_profiles.md": "664fb5a0e5d03f2a0bc4b98b9f6822f6f8c9fc3eb3c89a9c41108f0b20176ff3",
+        "skills/hpc/scripts/hold-node.sh": "9e919f3bb5eae172a3b21786e921d6d0f0590e8a550dd6205acb597858b078ed",
+        "skills/hpc/scripts/positron-node.sh": "cabb7c73388d23cb834d0d5ba25108f963490445a35227b287fca0be5ad0df58",
+        "skills/lux-collections/SKILL.md": "1039bc5e4242028e21626fd906b1c985554450c94e2e104264d4e29157f74f1b",
+        "skills/lux-collections/references/data-model.md": "18197dce452ae12e913369a4e9c945bce75ee8218a1aefadc90e4a68b9fa7059",
+        "skills/lux-collections/references/query-cookbook.md": "a65696ed5f5a3ddba0d89948e05faab4901e67d3f4c5809c7eb355a61e148d03"
+      }
+    },
+    {
+      "name": "single-cell-research",
+      "version": "0.1.0-candidate.1",
+      "requires": {
+        "research-core": "0.1.0-candidate.6"
+      },
+      "skills": [
+        "deep-research-genelist",
+        "deep-research-reports"
+      ],
+      "files_sha256": {
+        ".claude-plugin/plugin.json": "e7d22664a13578ce9d1b4121a552e9b3261783096c9363b2299ea11f8c13e72d",
+        ".codex-plugin/plugin.json": "8a568c999b148a84cf0807eddfeb756e9ded9f23607fca2e51b409a0c63fc82d",
+        "skills/deep-research-genelist/SKILL.md": "2a17a6c4ffe2295c37f73737d2357e6cdd7d59a5c729cd865dd726346cc39c08",
+        "skills/deep-research-genelist/references/annotation_methods.md": "bf9caf5e11e393c18b379c10930480125b4991543ace7ba895ab7849e2633471",
+        "skills/deep-research-genelist/templates/annotation_profile_example.yaml": "ddcc22b1580eba5ee8fc8a9c2095d3452b9cdfe538136349023a30ebf8a83855",
+        "skills/deep-research-genelist/templates/family-report-template.md": "00ecfe50cea7e7349493b7be154bfccf1e33622fbda71e0ffaa747c56a1d5694",
+        "skills/deep-research-genelist/templates/report-prompt-template.md": "4c825618c8eab19cb3ef00abcb9da263db7f3192e24abebc0f8ed9214026a35f",
+        "skills/deep-research-reports/SKILL.md": "84f0a655a8d2c0a3248fabfebaddeab12d0338c09b86f1762b38f34935348b16",
+        "skills/deep-research-reports/templates/cleaning-patterns.md": "fa783ec211096863f2af82fb93b3a7a2a752c90e9811d27cba5133f2ad962e03",
+        "skills/deep-research-reports/templates/report-style.css": "70cd51d92544669e86a8ebb674a6728d27f56a0f37603feff5e9e39b2096072d"
+      }
+    },
+    {
+      "name": "genome-annotation",
+      "version": "0.1.0-candidate.2",
+      "requires": {
+        "research-core": "0.1.0-candidate.6"
+      },
+      "skills": [
+        "busco",
+        "gene-lookup",
+        "hmmer",
+        "protein-phylogeny",
+        "tree-formatting"
+      ],
+      "files_sha256": {
+        ".claude-plugin/plugin.json": "db05ce9e29eccb1eec3343321a407b9ecd289b94d77e07c6b15759d8b2b348a1",
+        ".codex-plugin/plugin.json": "3bcd2d617f49e0e1163c76e6edb0b55bbc01a13bd411e125d32b1bb90b897041",
+        "skills/busco/SKILL.md": "54fa3d5f82ff7d957308f880eb536485592fd606b17296f0460295fc6532084d",
+        "skills/busco/references/gotchas.md": "88414d51fe08a1e87e660739f4bd2975847f049732ca2360349ad05502d6e8e0",
+        "skills/busco/references/lineage_table.md": "b232405c9db8687f5570f107eac62094aed2bdd78b4956e13601eb7ff30e888f",
+        "skills/busco/templates/busco_aggregate.qmd": "a990c67c14f9c9b58e7a5e63a82b641c196bdec8c2e711f5ccc2ca30e3dcd313",
+        "skills/busco/templates/busco_array.sh": "6c116403c1efab9caea9cb996271d51954668e6b409371e5969fdad299d45b0f",
+        "skills/busco/templates/busco_environment.yml": "57184f899f1c31083ef889ea6bcd0b6271be5941b60cc720ebe8f66bdc4fbd19",
+        "skills/busco/templates/busco_local.sh": "a3e4de0ab13d01054120a693eaa6872d04f0bc41d3b4647831863476536ebc0f",
+        "skills/busco/templates/busco_samples.tsv": "2533294d6732c1071493552797c7acb49c579ff34b2202bf2276ee642ec617ba",
+        "skills/busco/templates/busco_setup.sh": "8d5f97e58be425e12d889f4a0e2b9672233999866edeb318fe508a6e165f99e5",
+        "skills/gene-lookup/SKILL.md": "7ea950c0ba31677d63af848296baa18226eb66dda0f5dac3bc38478018e51eda",
+        "skills/hmmer/SKILL.md": "8607cceb768c19309aeb52f8b80362bdd3c625b9ebea4cc720c1232756a306a6",
+        "skills/hmmer/references/custom_hmms.md": "d6173a2efb53e56fa2c140373c1c6f8045031d5c7c414cfe7518cf27ff7d1f40",
+        "skills/hmmer/references/gotchas.md": "d0349a9bc17f7e00307184711734bf94f66cc2d5f44cdf30d96e510161287e74",
+        "skills/hmmer/references/pfam_markers.md": "cebf9d6280ff87087834355933fd9af9677c2a1eb89afe180d6c2febbd11086f",
+        "skills/hmmer/references/tool_comparison.md": "51123b6964ca9f98f2682ec66bb60a057ab1ec192fd79d2c990d7015dfcbd8eb",
+        "skills/hmmer/templates/build_custom_hmm.sh": "f2078f8b365f414fdba9e634824123cdf02eb8316c2803370c5a9dc9f1243ac7",
+        "skills/hmmer/templates/hmmer_array.sh": "d4fa28f5342636fc78885da15d050f58b355aac060a27c09eb86d0f5ca8dec18",
+        "skills/hmmer/templates/hmmer_environment.yml": "155ed6ca233e704a54933b3c66a0c6858da5d1ae07c56b141efdb76a2af328ca",
+        "skills/hmmer/templates/hmmer_local.sh": "033c23e73e339b71d4ef544ae62e3cc36fee6c528ec490d4b1c65e85fff2031b",
+        "skills/hmmer/templates/hmmer_samples.tsv": "0121f2fd46a8a633b7dd6d432a4fc0c38f5682649455500f8ff63b453bc3764a",
+        "skills/hmmer/templates/hmmer_setup.sh": "30eb43e3de83b4ae3e16aaf41642e27199afde4d509bed136309809434081f2d",
+        "skills/protein-phylogeny/SKILL.md": "b01ffa141ddd51e0b3d7d1ce3fa5313ffb8bb73a5a55814f80439cc68d2e1681",
+        "skills/tree-formatting/SKILL.md": "b98b32cabbc2ba14ed1923571eff6a71bcaffb26a2942789e95f94e595b60521",
+        "skills/tree-formatting/templates/ggtree/collapsed_circular.qmd": "7cc3b35e34899d57ec21527270783ea15cafbd8ba0d3b6a646525523dbdc0f04",
+        "skills/tree-formatting/templates/ggtree/collapsed_rectangular.qmd": "fe53816bb77f1600eaced7e69d1a56d7d9f01c9caabbfa542dd0c39b2631eb2a",
+        "skills/tree-formatting/templates/itol/annotations.R": "5ea1a61d7b852115fa72046f5679b5b2e8b5b3e3b192abd0e662d43a5a777005",
+        "skills/tree-formatting/templates/itol/upload_export.py": "635aabe2db9fe5660dc0d53535bd04d523aff7d4780d3e65ddbaee5aeb2b103f"
+      }
+    }
+  ]
+}

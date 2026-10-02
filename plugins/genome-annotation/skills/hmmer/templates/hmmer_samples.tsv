@@ -1,0 +1,4 @@
+task_id	sample_id	input_fasta
+1	sample_A	data/<area>/sample_A.fasta
+2	sample_B	data/<area>/sample_B.fasta
+3	sample_C	data/<area>/sample_C.fasta

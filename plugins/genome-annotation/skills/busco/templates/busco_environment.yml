@@ -1,0 +1,8 @@
+name: busco_env
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - python=3.11
+  - busco>=5.7
+  - pandas

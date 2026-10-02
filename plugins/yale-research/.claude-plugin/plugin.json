@@ -1,0 +1,8 @@
+{
+  "name": "yale-research",
+  "version": "0.1.0-candidate.1",
+  "description": "Yale HPC onboarding, resource learning, Globus transfers and Lux collections.",
+  "author": {
+    "name": "Musser Lab"
+  }
+}

@@ -1,5 +1,10 @@
 # Lab Claude Skills
 
+> **Shared Claude Code/Codex toolkit:** the [opt-in trial quickstart](docs/research-plugins-trial.md)
+> names the trial channel, release check, setup and recovery steps. See the
+> [student guide](docs/research-plugins.md) and [compatibility evidence](docs/research-plugin-compatibility.md).
+> The existing `lab-skills` 1.12.1 plugin remains available; each student chooses their own switch.
+
 Shared [Claude Code](https://docs.anthropic.com/en/docs/claude-code) skills and conventions for the lab. These skills teach Claude Code our lab's standards for data handling, plotting, script organization, reproducibility, and more.
 
 ## What are skills?

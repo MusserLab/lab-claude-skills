@@ -1,0 +1,20 @@
+{
+  "name": "single-cell-research",
+  "version": "0.1.0-candidate.1",
+  "description": "Dataset-derived marker prompts and structured research report processing.",
+  "author": {
+    "name": "Musser Lab"
+  },
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Single-cell Research",
+    "shortDescription": "Dataset-derived marker prompts and structured research report processing.",
+    "developerName": "Musser Lab",
+    "category": "Productivity",
+    "capabilities": [],
+    "longDescription": "Dataset-derived marker prompts and structured research report processing.",
+    "defaultPrompt": [
+      "Help me use Single-cell Research."
+    ]
+  }
+}

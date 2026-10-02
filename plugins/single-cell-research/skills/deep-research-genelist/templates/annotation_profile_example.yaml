@@ -1,0 +1,21 @@
+# Synthetic illustration only; no real dataset or established gene relationships.
+dataset: "example atlas"
+organism: "Example species"
+common_name: "example organism"
+date_created: "YYYY-MM-DD"
+confirmed_by_user: false
+sources:
+  - method: "eggnog"
+    tier: "group_annotation"
+    evidence_type: "group-derived annotation; pairwise orthology unresolved"
+    source_output: "<actual annotation file and fields>"
+    tool_version: "<recorded version or unknown>"
+    database_version: "<recorded version or unknown>"
+    name_format: "representative gene symbol or functional description"
+    distinguishing_feature: "use source fields; display names alone may overlap other methods"
+    examples: ["ExampleGene", "example enzyme activity"]
+    notes: "Replace with the dataset's actual evidence; do not infer pairwise orthology from a label."
+unannotated:
+  format: "bare gene ID with no interpretable annotation in supplied evidence"
+  examples: ["gene_003"]
+  notes: "Missing annotation does not by itself establish absence of homology or lineage specificity."

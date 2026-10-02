@@ -1,0 +1,20 @@
+{
+  "name": "research-core",
+  "version": "0.1.0-candidate.6",
+  "description": "Research collaboration, integrity, reproducibility and student setup.",
+  "author": {
+    "name": "Musser Lab"
+  },
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Research Core",
+    "shortDescription": "Research collaboration, integrity, reproducibility and student setup.",
+    "developerName": "Musser Lab",
+    "category": "Productivity",
+    "capabilities": [],
+    "longDescription": "Research collaboration, integrity, reproducibility and student setup.",
+    "defaultPrompt": [
+      "Help me set up Research Core."
+    ]
+  }
+}

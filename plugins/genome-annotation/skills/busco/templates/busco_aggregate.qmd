@@ -1,0 +1,430 @@
+---
+title: "BUSCO completeness — multi-input comparison"
+subtitle: "Aggregate N BUSCO short_summary JSONs (input × lineage) into comparison tables + figure"
+author: "YOUR_NAME"
+date: today
+jupyter: python3
+format:
+  html:
+    toc: true
+    toc-depth: 2
+    number-sections: true
+    code-overflow: wrap
+    code-fold: false
+    code-tools: true
+    highlight-style: github
+    theme: cosmo
+    fontsize: 1rem
+    linestretch: 1.5
+    self-contained: true
+execute:
+  echo: true
+  warning: false
+  cache: false
+---
+
+## Background
+
+Each BUSCO array task produces a `short_summary.specific.<lineage>.<input>_<lineage>.json`
+under `outs/<area>/<XX_busco>/<input>_<lineage>/`. This script:
+
+1. Loads all JSONs (plus the sample sheet for species labels, if present).
+2. Builds a long-format table (one row per input × lineage × metric) and a
+   wide-format table (one row per input).
+3. Plots a stacked bar chart of S/D/F/M percentages, faceted by lineage,
+   with `% Complete` text labels above each bar.
+4. Copies all `short_summary.txt` files to a single `summaries/` folder for
+   easy sharing.
+
+**Edit the four `<area>` / `<XX_busco>` placeholders below for your project.**
+Use the sample sheet and output root for one mode only. Genome, transcriptome and proteins
+runs each need a separate aggregation destination; the mixed-mode refusal below is intentional.
+
+Lineage panels summarize different marker sets and denominators; a higher percentage in one
+panel does not by itself establish a more complete input. State the primary lineage and any
+separately agreed sensitivity or out-of-clade comparison when discussing this report. Investigate
+missing/fragmented markers and input/mode fit before making biological absence or quality claims.
+
+## Setup
+
+```{python}
+#| label: setup
+import json
+import shutil
+import subprocess
+import sys
+from datetime import datetime
+from pathlib import Path
+
+import matplotlib.pyplot as plt
+import pandas as pd
+
+plt.rcParams["svg.fonttype"] = "none"
+
+# Project root: resolve the Git repository from the current working directory.
+# The producer provenance below already requires this project to be Git-tracked.
+def project_root() -> Path:
+    try:
+        root = subprocess.check_output(
+            ["git", "rev-parse", "--show-toplevel"], text=True, stderr=subprocess.DEVNULL
+        ).strip()
+    except subprocess.CalledProcessError as error:
+        raise RuntimeError("Run aggregation from inside the project's Git repository") from error
+    return Path(root).resolve()
+
+PROJECT_ROOT = project_root()
+print(f"Project root: {PROJECT_ROOT}")
+
+# ── EDIT THESE PATHS ────────────────────────────────────────
+BUSCO_DIR    = PROJECT_ROOT / "outs"  / "<area>" / "<XX_busco>"
+SAMPLES_TSV  = PROJECT_ROOT / "batch" / "<area>" / "busco_samples.tsv"
+OUT_DIR      = PROJECT_ROOT / "outs"  / "<area>" / "<XX_busco_aggregate>"
+# ────────────────────────────────────────────────────────────
+
+if OUT_DIR.exists() and any(OUT_DIR.iterdir()):
+    raise RuntimeError(
+        "Output destination is not empty; use a fresh path or preserve/clear it only after "
+        "confirming the existing producer-owned outputs are disposable"
+    )
+OUT_DIR.mkdir(parents=True, exist_ok=True)
+(OUT_DIR / "summaries").mkdir(exist_ok=True)
+
+SCRIPT_PATH = Path("scripts") / "<area>" / "<XX_busco_aggregate>.qmd"
+# Add every imported project helper, small configuration and environment lock used by this run.
+RELEVANT_CODE_PATHS = [SCRIPT_PATH]
+if any(path.is_absolute() or ".." in path.parts for path in RELEVANT_CODE_PATHS):
+    raise ValueError("Relevant producing paths must be repository-relative")
+if any(not (PROJECT_ROOT / path).is_file() for path in RELEVANT_CODE_PATHS):
+    raise FileNotFoundError("A declared producing file is missing")
+
+GIT_COMMIT = subprocess.check_output(
+    ["git", "rev-parse", "HEAD"], cwd=PROJECT_ROOT, text=True
+).strip()
+
+def relevant_blob_ids():
+    committed = []
+    working = []
+    for relative in RELEVANT_CODE_PATHS:
+        committed.append(subprocess.check_output(
+            ["git", "rev-parse", f"{GIT_COMMIT}:{relative.as_posix()}"],
+            cwd=PROJECT_ROOT, text=True, stderr=subprocess.DEVNULL,
+        ).strip())
+        working.append(subprocess.check_output(
+            ["git", "hash-object", str(relative)], cwd=PROJECT_ROOT, text=True
+        ).strip())
+    return committed, working
+
+try:
+    COMMITTED_BLOBS, WORKING_BLOBS = relevant_blob_ids()
+except subprocess.CalledProcessError as error:
+    raise RuntimeError(
+        "Relevant producing files do not match HEAD; make a focused commit before retained execution"
+    ) from error
+if COMMITTED_BLOBS != WORKING_BLOBS:
+    raise RuntimeError(
+        "Relevant producing files do not match HEAD; make a focused commit before retained execution"
+    )
+print(f"Producing commit: {GIT_COMMIT}")
+```
+
+## Load sample sheet
+
+```{python}
+#| label: load-samples
+samples = pd.read_csv(SAMPLES_TSV, sep="\t")
+print(f"Sample sheet: {samples.shape[0]} rows × {samples.shape[1]} cols")
+
+# Sample-sheet column auto-detect: skill template uses 'input', some project
+# sheets use 'pool' (or other name conventions). Normalize to 'input'.
+if "input" not in samples.columns:
+    if "pool" in samples.columns:
+        samples = samples.rename(columns={"pool": "input"})
+    else:
+        raise RuntimeError(
+            f"Sample sheet has neither 'input' nor 'pool' column: "
+            f"{samples.columns.tolist()}"
+        )
+
+samples.head()
+```
+
+## Locate and parse BUSCO JSON summaries
+
+```{python}
+#| label: parse-jsons
+json_files = sorted(BUSCO_DIR.glob("*/short_summary.specific.*.json"))
+print(f"Found {len(json_files)} BUSCO JSON files")
+
+if not json_files:
+    raise RuntimeError(
+        f"No BUSCO JSONs in {BUSCO_DIR}. "
+        f"Did the SLURM array finish? Did rsync from cluster complete?"
+    )
+
+rows = []
+for jf in json_files:
+    with open(jf) as fh:
+        d = json.load(fh)
+    res     = d["results"]
+    lineage = d["lineage_dataset"]["name"]
+    n_markers = int(res["n_markers"])
+
+    # Strict suffix-strip on the run dir name. Avoids silent corruption that
+    # `replace(f"_{lineage}", "")` would cause if an input name happened to
+    # contain the lineage substring elsewhere.
+    run_name = jf.parent.name
+    suffix   = f"_{lineage}"
+    if not run_name.endswith(suffix):
+        raise RuntimeError(
+            f"Run dir {run_name!r} does not end with expected suffix {suffix!r}. "
+            f"BUSCO run dir naming has drifted from <input>_<lineage> convention."
+        )
+    input_id = run_name[: -len(suffix)]
+
+    rows.append({
+        "input":           input_id,
+        "lineage":         lineage,
+        "n_orthologs":     n_markers,
+        "complete_pct":    float(res["Complete percentage"]),
+        "single_pct":      float(res["Single copy percentage"]),
+        "duplicated_pct":  float(res["Multi copy percentage"]),
+        "fragmented_pct":  float(res["Fragmented percentage"]),
+        "missing_pct":     float(res["Missing percentage"]),
+        "complete_n":      int(res["Complete BUSCOs"]),
+        "single_n":        int(res["Single copy BUSCOs"]),
+        "duplicated_n":    int(res["Multi copy BUSCOs"]),
+        "fragmented_n":    int(res["Fragmented BUSCOs"]),
+        "missing_n":       int(res["Missing BUSCOs"]),
+        "one_line_summary": res["one_line_summary"],
+        "busco_version":   d["versions"]["busco"],
+        "lineage_creation_date": d["lineage_dataset"]["creation_date"],
+        "mode":            d["parameters"]["mode"],
+        "json_path":       str(jf.relative_to(PROJECT_ROOT)),
+    })
+
+raw = pd.DataFrame(rows)
+print(f"Parsed: {raw.shape[0]} rows")
+
+# Aggregating across mixed BUSCO modes would silently combine apples and
+# oranges (transcriptome `euk_tran` vs proteome `prot` vs genome `geno`).
+if raw["mode"].nunique() != 1:
+    raise RuntimeError(
+        f"Mixed BUSCO modes in run set: {sorted(raw['mode'].unique())}. "
+        f"Aggregator expects all runs to be the same mode."
+    )
+print(f"Mode (homogeneous): {raw['mode'].iloc[0]}")
+
+raw.head()
+```
+
+## Optional: join species labels from sample sheet
+
+```{python}
+#| label: join-species
+# Species column is optional — skip the join if the sample sheet doesn't have it.
+if "species" in samples.columns:
+    labels = samples[["input", "species"]].drop_duplicates()
+    raw = raw.merge(labels, on="input", how="left")
+
+    missing_species = raw[raw["species"].isna()]
+    if not missing_species.empty:
+        raise RuntimeError(
+            "Inputs without a species label in the sample sheet "
+            "(sample sheet/run set mismatch):\n"
+            f"{missing_species[['input', 'lineage']].to_string(index=False)}"
+        )
+    raw[["input", "species", "lineage", "complete_pct", "n_orthologs"]]
+else:
+    print("Note: sample sheet has no 'species' column; species labels skipped.")
+    raw["species"] = ""
+    raw[["input", "lineage", "complete_pct", "n_orthologs"]]
+```
+
+## Wide table (one row per input)
+
+```{python}
+#| label: wide-table
+metrics = ["complete_pct", "single_pct", "duplicated_pct",
+           "fragmented_pct", "missing_pct", "n_orthologs"]
+# pivot() (not pivot_table) — raises on duplicates rather than silently
+# keeping the first row. By construction (input × lineage) is unique.
+wide = raw.pivot(
+    index=["input", "species"],
+    columns="lineage",
+    values=metrics,
+)
+wide.columns = [f"{lin}__{m}" for m, lin in wide.columns]
+wide = wide.reset_index().sort_values("input")
+wide
+```
+
+## Long table (one row per input × lineage × metric)
+
+```{python}
+#| label: long-table
+long = raw.melt(
+    id_vars=["input", "species", "lineage", "n_orthologs", "one_line_summary",
+             "busco_version", "lineage_creation_date", "mode", "json_path"],
+    value_vars=["complete_pct", "single_pct", "duplicated_pct",
+                "fragmented_pct", "missing_pct"],
+    var_name="metric",
+    value_name="percentage",
+)
+long["metric"] = long["metric"].str.replace("_pct", "", regex=False)
+long.head(12)
+```
+
+## Figure: stacked bar chart of S/D/F/M, faceted by lineage
+
+```{python}
+#| label: stacked-bars
+#| fig-height: 5
+#| fig-width: 9
+
+# Standard BUSCO stacking order: S → D → F → M (Complete is S+D, omitted to
+# avoid double-counting). BUSCO official Wong/Okabe-Ito palette.
+plot_metrics = ["single", "duplicated", "fragmented", "missing"]
+plot_df = long[long["metric"].isin(plot_metrics)].copy()
+plot_df["metric"] = pd.Categorical(plot_df["metric"], categories=plot_metrics, ordered=True)
+
+busco_palette = {
+    "single":     "#56B4E9",
+    "duplicated": "#3492C7",
+    "fragmented": "#F0E442",
+    "missing":    "#F04442",
+}
+
+lineages = sorted(plot_df["lineage"].unique())
+fig, axes = plt.subplots(1, len(lineages), figsize=(4 * len(lineages) + 1, 5),
+                          sharey=True, squeeze=False)
+
+for ax, lin in zip(axes[0], lineages):
+    sub = plot_df[plot_df["lineage"] == lin]
+    pivot = sub.pivot(index="input", columns="metric", values="percentage")
+    pivot = pivot[plot_metrics]
+    pivot.plot(
+        kind="bar", stacked=True, ax=ax,
+        color=[busco_palette[m] for m in plot_metrics],
+        width=0.75, edgecolor="white", linewidth=0.5,
+    )
+    # % Complete (= S + D) text label above each bar — the headline number
+    for i, p in enumerate(pivot.index):
+        complete = pivot.loc[p, "single"] + pivot.loc[p, "duplicated"]
+        ax.text(i, complete + 1.0, f"C:{complete:.1f}%",
+                ha="center", va="bottom", fontsize=8)
+
+    n_orth = sub["n_orthologs"].iloc[0]
+    pretty_lin = lin.replace("_", " ")
+    ax.set_title(f"{pretty_lin}\n(n = {n_orth})")
+    ax.set_xlabel("")
+    ax.set_ylim(0, 105)
+    ax.set_ylabel("% of orthologs" if ax is axes[0, 0] else "")
+    ax.tick_params(axis="x", rotation=45)
+    ax.legend().set_visible(False)
+
+handles, labels = axes[0, -1].get_legend_handles_labels()
+fig.legend(handles, labels, loc="center right", bbox_to_anchor=(1.02, 0.5),
+           title="BUSCO category", frameon=False)
+
+# Customize the suptitle for your project — defaults shown below by mode
+mode_label = {"euk_tran": "transcriptome", "prot": "proteome", "geno": "genome"}.get(
+    raw["mode"].iloc[0], raw["mode"].iloc[0]
+)
+fig.suptitle(f"BUSCO {mode_label} completeness", fontsize=12, y=1.02)
+plt.tight_layout()
+plt.savefig(OUT_DIR / "busco_completeness.pdf", bbox_inches="tight")
+plt.savefig(OUT_DIR / "busco_completeness.png", bbox_inches="tight", dpi=300)
+plt.savefig(OUT_DIR / "busco_completeness.svg", bbox_inches="tight")
+plt.show()
+```
+
+## Write tables
+
+```{python}
+#| label: write-tables
+long.to_csv(OUT_DIR / "busco_summary_long.tsv", sep="\t", index=False)
+wide.to_csv(OUT_DIR / "busco_summary_wide.tsv", sep="\t", index=False)
+print(f"Wrote: {OUT_DIR / 'busco_summary_long.tsv'}  ({long.shape[0]} rows)")
+print(f"Wrote: {OUT_DIR / 'busco_summary_wide.tsv'}  ({wide.shape[0]} rows)")
+```
+
+## Consolidate text summaries
+
+```{python}
+#| label: consolidate-summaries
+txt_files = sorted(BUSCO_DIR.glob("*/short_summary.specific.*.txt"))
+summary_outputs = [OUT_DIR / "summaries" / path.name for path in txt_files]
+for tf in txt_files:
+    shutil.copy2(tf, OUT_DIR / "summaries" / tf.name)
+print(f"Copied {len(txt_files)} short_summary.txt files to {OUT_DIR / 'summaries'}")
+```
+
+## Prepare completion evidence
+
+```{python}
+#| label: completion-outputs
+lineage_dates = dict(zip(raw["lineage"], raw["lineage_creation_date"]))
+expected_outputs = [
+    OUT_DIR / "busco_completeness.pdf",
+    OUT_DIR / "busco_completeness.png",
+    OUT_DIR / "busco_completeness.svg",
+    OUT_DIR / "busco_summary_long.tsv",
+    OUT_DIR / "busco_summary_wide.tsv",
+    *summary_outputs,
+]
+missing_outputs = [path for path in expected_outputs if not path.is_file()]
+if missing_outputs:
+    raise RuntimeError(f"Expected outputs are missing: {missing_outputs}")
+```
+
+## Headline summary
+
+```{python}
+#| label: headline
+hl = (
+    raw[["input", "species", "lineage", "one_line_summary"]]
+    .sort_values(["input", "lineage"])
+)
+for _, r in hl.iterrows():
+    print(f"  {r['input']:5s} {str(r['species']):30s} {r['lineage']:18s}  {r['one_line_summary']}")
+```
+
+## BUILD_INFO
+
+```{python}
+#| label: build-info
+try:
+    _, final_working_blobs = relevant_blob_ids()
+except subprocess.CalledProcessError as error:
+    raise RuntimeError("Relevant producing files changed during execution") from error
+if final_working_blobs != COMMITTED_BLOBS:
+    raise RuntimeError("Relevant producing files changed during execution")
+
+lines = [
+    "completion: complete",
+    f"script: {SCRIPT_PATH}",
+    f"date: {datetime.now().isoformat(timespec='seconds')}",
+    f"commit: {GIT_COMMIT}",
+    f"environment: {sys.version.splitlines()[0]}",
+    "invocation: quarto render scripts/<area>/<XX_busco_aggregate>.qmd --output-dir outs/<area>/<XX_busco_aggregate>/",
+    f"input: {SAMPLES_TSV} | bytes={SAMPLES_TSV.stat().st_size}",
+    f"input: {BUSCO_DIR} | {len(json_files)} BUSCO summary JSON files",
+    f"n_runs: {len(json_files)}",
+    f"mode: {raw['mode'].iloc[0]}",
+    f"inputs: {sorted(raw['input'].unique())}",
+    f"lineages: {sorted(raw['lineage'].unique())}",
+    f"lineage_dates: {lineage_dates}",
+    f"busco: {raw['busco_version'].iloc[0]}",
+]
+lines.extend(
+    f"input: {path.relative_to(PROJECT_ROOT)} | bytes={path.stat().st_size}"
+    for path in json_files
+)
+lines.extend(
+    f"source: {path} | content verified against commit" for path in RELEVANT_CODE_PATHS
+)
+lines.extend(f"output: {path.relative_to(PROJECT_ROOT)}" for path in expected_outputs)
+build_info = "\n".join(lines) + "\n"
+(OUT_DIR / "BUILD_INFO.txt").write_text(build_info)
+print(build_info)
+```

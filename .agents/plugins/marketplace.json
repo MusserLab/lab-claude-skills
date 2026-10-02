@@ -1,0 +1,56 @@
+{
+  "name": "musser-lab",
+  "interface": {
+    "displayName": "Musser Lab Research"
+  },
+  "plugins": [
+    {
+      "name": "research-core",
+      "source": {
+        "source": "local",
+        "path": "./plugins/research-core"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    },
+    {
+      "name": "yale-research",
+      "source": {
+        "source": "local",
+        "path": "./plugins/yale-research"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    },
+    {
+      "name": "single-cell-research",
+      "source": {
+        "source": "local",
+        "path": "./plugins/single-cell-research"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    },
+    {
+      "name": "genome-annotation",
+      "source": {
+        "source": "local",
+        "path": "./plugins/genome-annotation"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

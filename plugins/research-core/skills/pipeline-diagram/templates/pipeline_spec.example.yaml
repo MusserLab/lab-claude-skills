@@ -1,0 +1,56 @@
+# Generic example for render_pipeline.py.
+# Copy this file, replace the illustrative steps, then run:
+#   python render_pipeline.py pipeline.yaml outprefix --detail
+#
+# Each step needs a title. Other fields are optional:
+#   decision  -> key decision or assumption in the overview
+#   inputs    -> left-hand nodes (kind: required|optional)
+#   outputs   -> right-hand nodes (file: label; terminal: true marks a final product)
+#   script / files_in / files_out / params -> per-step detail cards
+
+title: Example analysis pipeline
+subtitle: illustrative preprocessing, analysis, validation, and reporting flow
+
+steps:
+  - title: Validate inputs
+    decision: "confirm sample identities and required metadata
+before transformation"
+    script: 01_validate_inputs.py
+    inputs:
+      - {label: "measurement
+table", kind: required}
+      - {label: "sample
+metadata", kind: required}
+    outputs:
+      - {label: validation report, file: outs/01_validate/report.tsv}
+    files_in: [data/measurements.tsv, data/samples.tsv]
+    files_out: [outs/01_validate/report.tsv]
+    params: [unique sample IDs, explicit unmatched cases, expected measurement units]
+
+  - title: Normalize measurements
+    decision: "use the project-approved transformation
+and retain untransformed values"
+    script: 02_normalize.py
+    files_in: [data/measurements.tsv, outs/01_validate/report.tsv]
+    files_out: [outs/02_normalize/normalized.tsv]
+    params: [record method and parameters, preserve sample order]
+
+  - title: Test the primary question
+    decision: "apply the prespecified model and report
+effect sizes with uncertainty"
+    script: 03_model.py
+    outputs:
+      - {label: model results, file: outs/03_model/results.tsv}
+    files_in: [outs/02_normalize/normalized.tsv, data/samples.tsv]
+    files_out: [outs/03_model/results.tsv]
+    params: [explicit seed if stochastic, stated comparison unit, multiple-test correction]
+
+  - title: Review and report
+    decision: "separate supported conclusions
+from unresolved anomalies"
+    script: 04_report.qmd
+    outputs:
+      - {label: figures and report, file: outs/04_report/report.html, terminal: true}
+    files_in: [outs/03_model/results.tsv]
+    files_out: [outs/04_report/report.html, outs/04_report/summary.tsv]
+    params: [show coverage and exclusions, inspect retained figures]

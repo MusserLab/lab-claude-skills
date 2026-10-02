@@ -7,6 +7,23 @@
     {
       "name": "lab-skills",
       "source": "./"
+    },
+    {
+      "name": "research-core",
+      "source": "./plugins/research-core"
+    },
+    {
+      "name": "yale-research",
+      "source": "./plugins/yale-research"
+    },
+    {
+      "name": "single-cell-research",
+      "source": "./plugins/single-cell-research"
+    },
+    {
+      "name": "genome-annotation",
+      "source": "./plugins/genome-annotation"
     }
-  ]
+  ],
+  "description": "Research procedures for Claude Code and Codex, with the retained legacy lab-skills plugin."
 }

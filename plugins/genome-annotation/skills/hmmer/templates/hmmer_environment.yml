@@ -1,0 +1,9 @@
+name: hmmer_env
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - hmmer>=3.4
+  - emboss=6.6.0    # provides transeq for 6-frame translation
+  - mafft           # for build_custom_hmm.sh (alignment step)
+  - trimal          # for build_custom_hmm.sh (alignment trimming)

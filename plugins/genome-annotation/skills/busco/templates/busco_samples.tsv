@@ -1,0 +1,5 @@
+task_id	input	species	lineage	mode	fasta_path
+1	example_A	Genus_species	metazoa_odb10	transcriptome	data/<area>/example_A.fasta
+2	example_B	Genus_species	metazoa_odb10	transcriptome	data/<area>/example_B.fasta
+3	example_A	Genus_species	eukaryota_odb10	transcriptome	data/<area>/example_A.fasta
+4	example_B	Genus_species	eukaryota_odb10	transcriptome	data/<area>/example_B.fasta

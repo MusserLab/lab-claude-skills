@@ -1,0 +1,20 @@
+{
+  "name": "genome-annotation",
+  "version": "0.1.0-candidate.2",
+  "description": "Gene lookup, sequence completeness, profile search and phylogeny.",
+  "author": {
+    "name": "Musser Lab"
+  },
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Genome Annotation",
+    "shortDescription": "Gene lookup, sequence completeness, profile search and phylogeny.",
+    "developerName": "Musser Lab",
+    "category": "Productivity",
+    "capabilities": [],
+    "longDescription": "Gene lookup, sequence completeness, profile search and phylogeny.",
+    "defaultPrompt": [
+      "Help me use Genome Annotation."
+    ]
+  }
+}

@@ -28,6 +28,22 @@ listed in the manifest and both client catalogs are available for an authorized 
 | `yale-research` | HPC setup and resource learning, Globus transfer and Lux collection search. | Candidate.1; remote onboarding and student compatibility remain unverified. |
 | `lab-skills` | Existing legacy plugin, version 1.12.1. | Remains available during the transition. |
 
+## Choose the packages you need
+
+The four new packages contain reviewed public adaptations of the shared procedures. They do not
+include the maintainer's private skill editions, personal configuration or unpublished research.
+
+- **Everyone:** start with Research Core.
+- **Single-cell work:** add Single-cell Research when you need its marker-research procedures.
+- **Sequence analysis and trees:** add Genome Annotation when you need those procedures.
+- **Yale services:** add Yale Research only when you need its HPC, Globus or Lux guidance.
+  Core and both scientific packages work without it; none requires or automatically installs Yale.
+
+Yale Research is publicly readable, but using restricted services still requires your own authorized
+account and access. Its documented lab storage/database defaults apply only where you have access;
+setup verifies or replaces them for your project. Installing the package grants no account,
+allocation, credentials or access. Users elsewhere can skip it; it is not a generic cluster profile.
+
 Private Musser Lab Style and Sponge Corpus packages are planned separately. No private distribution
 has been selected or released in this candidate, so neither has an installation or
 issue-submission route here.

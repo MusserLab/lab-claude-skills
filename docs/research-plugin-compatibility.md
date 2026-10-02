@@ -1,19 +1,47 @@
 # Research plugin compatibility and evidence
 
-> **Candidate status, 2026-10-01:** Core candidate.6, Yale candidate.1, Single-cell candidate.1
-> and Genome candidate.2 contain 33 skills. Phase 1 is accepted as the basis for a bounded macOS
-> terminal trial. The opt-in trial quickstart names the publication check and first-use boundary. Build/hash, focused metadata/template
-> checks and scoped native CLI trials passed. Current four-package installation, changed Git update,
-> same-profile retained-ref recovery and instruction preservation now pass in both macOS CLIs.
-> Real scientific execution/rendering, ordinary student use and broader interfaces remain unverified.
+> **Research Plugins 0.1.0, 2026-10-01:** all four public packages contain 33 skills. Phase 1
+> was accepted with the limits recorded below; normal public release was subsequently authorized.
+> The accepted candidate's four-package macOS CLI install/update/recovery and instruction-preservation
+> checks passed. Desktop, Windows/Linux, ordinary student use and real scientific execution remain
+> separate evidence targets. Use the [installation quickstart](research-plugins-install.md).
+
+The [release inventory](../release/first-release.json) identifies all four packages at `0.1.0`.
+Its SHA-256 is `5cf8048f2b4bfee979e18ec4050a4044b5386dfd743c7ecf59576a7404e37dcf`.
+The release build changed eight client manifest versions and the inventory; all 85 procedure/resource
+files remained unchanged. Exact build/export checks passed. Candidate hashes below describe their
+historical snapshots, not this release inventory. Verify actual GitHub release/tag publication
+before installation; build, publication, client use and scientific acceptance are separate records.
 
 Compatibility has two dimensions: the computer/interface where the client runs and the execution
-host used for scientific commands. Evidence for one combination does not establish another. The
-[first-release manifest](../release/first-release.json) records the exact current candidate; the
-[student guide](research-plugins.md) and [trial quickstart](research-plugins-trial.md) give installation and recovery paths. Verify remote publication before using them.
+host used for scientific commands. Evidence for one combination does not establish another.
+
+## Current Codex availability and release limits
+
+Official client guidance was fetched on 2026-10-01. Availability is distinct from a lab test:
+
+| Interface | Current official route | Research Plugins evidence/limit |
+|---|---|---|
+| Desktop on macOS | The current [desktop guide](https://learn.chatgpt.com/docs/app) names the ChatGPT app with Codex mode and an Apple Silicon download. | No package lifecycle test in Desktop; use the quickstart's reviewed repository route. |
+| Desktop on Windows | [Native PowerShell/sandbox or WSL2](https://learn.chatgpt.com/docs/windows/windows-app); agent and terminal settings are separate. | No native Windows test. Use manual exact-block instruction adoption; do not execute the helper against real instructions. |
+| Desktop on Linux | [Preview](https://learn.chatgpt.com/docs/linux/linux-app) for supported Ubuntu, Debian, Fedora and Arch desktop distributions, x64/ARM64. | No Linux Desktop or helper lifecycle test. |
+| Codex CLI | [CLI installation](https://learn.chatgpt.com/docs/codex/cli) and [Windows native/WSL guidance](https://learn.chatgpt.com/docs/windows/windows-sandbox). | 0.149.0 macOS candidate lifecycle passed. Windows, WSL2 and generic Linux remain untested. |
+| IDE extension, including a proposed Positron route | [Official plugin guidance](https://learn.chatgpt.com/docs/plugins) currently says plugins are unavailable in the IDE extension. | Use Desktop or CLI for these plugins. An embedded terminal is a CLI route; no Positron integration claim. |
+| Browser/cloud | Local Git marketplace installation is a separate distribution context. | No browser/cloud import or execution check; local install supplies no cloud deployment. |
+
+Use your own ChatGPT account through the normal browser sign-in flow. Local Desktop, CLI and IDE
+also support API keys, with separate API billing and limited workspace/cloud/OAuth-dependent
+features. Codex cloud requires ChatGPT sign-in. [Official authentication](https://learn.chatgpt.com/docs/auth).
+No credential copying or authentication-file reads are needed for this release setup.
+
+Custom Git/repo marketplaces are separate from OpenAI's universal directory. Desktop can discover
+the checkout's repository catalog; CLI supports named Git refs. The compatibility manifest remains
+supported. [Official packaging documentation](https://developers.openai.com/plugins/build/plugins).
+Exact minimum OS builds not specified by the fetched overview pages should be checked through the
+current installer for the student's computer; no broader hardware compatibility is inferred.
 
 The first interfaces requested in the joint review are Claude Code and Codex terminals, their
-supported Positron integrations, Codex Desktop and Claude Desktop. No full combination matrix is
+requested Positron routes, Codex Desktop and Claude Desktop. No full combination matrix is
 implied: prioritize the routes students actually use and record the execution host separately.
 Anthropic distinguishes the [Desktop Code tab](https://code.claude.com/docs/en/desktop) from
 [Cowork and Chat plugin use](https://support.claude.com/en/articles/13837440-use-plugins-in-claude).
@@ -27,9 +55,11 @@ describes custom skill uploads and GitHub imports. That establishes a route to e
 for this complete plugin, its instruction helper or native update/recovery workflow. Evaluate before
 the first proposed lab adoption; this target does not hold the first release for demonstrated routes.
 
-## Current and retained matrix
+## Retained candidate checkpoints and interface targets
 
-The newest rows govern current claims; earlier-version rows preserve the limits at their checkpoints.
+The following table retains candidate-stage evidence and then-proposed targets. Pending statements
+are historical to their checkpoints. The release summary and current availability table above govern
+today's claims; no candidate test has been relabelled as a new 0.1.0 Desktop or scientific run.
 
 | Client, interface and host | Status | Evidence now | Smallest next evidence |
 |---|---|---|---|
@@ -66,7 +96,7 @@ The newest rows govern current claims; earlier-version rows preserve the limits 
 | AICR | Unverified | No AICR account, allocation, environment, storage or package route has been checked. | Repeat the bounded install/discovery/path check and verify AICR-specific access and execution assumptions before advertising support. |
 | Private Musser Lab Style or Sponge Corpus | Unavailable in this candidate | No private distribution has been selected or released in this candidate. | Select and review an authorized private distribution first; then test member authentication, explicit package install/update, missing-access behavior and private issue routing. |
 
-## Final four-package lifecycle and Core review — 2026-10-01
+## Accepted candidate: four-package lifecycle and Core review — 2026-10-01
 
 Tested payload: Core candidate.6, Yale candidate.1, Single-cell candidate.1, Genome candidate.2;
 33 skills and 93 package files. Release inventory SHA-256:
@@ -101,9 +131,10 @@ The earlier `.claude/` restricted-mode plan-edit limit remains separate.
 Codex's isolated model trial still needs the user's supported native sign-in. No credentials are
 copied or linked to make it pass. Broad desktop/IDE/Windows/cluster support and real domain science
 remain outside this evidence. Jacob subsequently accepted Phase 1 on 2026-10-01 with these limits.
-The actual trial, Phase 2 and all release/adoption actions still require their separate approval.
+Normal public release was subsequently authorized. Student adoption and later scientific phases
+retain their own scope and acceptance; the technical trial did not itself authorize them.
 
-## Core candidate.6 evidence
+## Retained Core candidate.6 evidence
 
 Core remains 23 skills and 38 package files. The four-package export remains 33 skills,
 93 package files and 96 selected release files. Manifest SHA-256:
@@ -292,8 +323,9 @@ output-review check adds bounded model evidence; ordinary student use remains un
 These results do not establish editor/desktop behavior, Windows, a cluster, private repository
 access, observed automatic updates, or scientific validity of every bundled method. The current manifest
 selects `research-core`, `yale-research`, `single-cell-research` and `genome-annotation`,
-all still under Phase 1 review. A plugin installation also does
-not install its external scientific tools or make a local machine suitable for a remote workflow.
+as the then-current candidate inventory. Phase 1 was subsequently accepted as recorded above.
+A plugin installation also does not install its external scientific tools or make a local machine
+suitable for a remote workflow.
 
 ## Evidence to record for each demonstrated route
 
@@ -328,18 +360,19 @@ does not invalidate a separately demonstrated combination.
 - Routine updates require a maintainer-named moving release branch/channel. Immutable tags or
   commits are for intentional pinning/recovery and must not be moved silently.
 
-## Windows/Desktop trial preparation
+## Native Windows instruction adoption
 
-The first selected participant reportedly uses Codex Desktop on Windows; this is not yet a
-verified installation inventory. Current [official Windows documentation](https://learn.chatgpt.com/docs/windows/windows-app)
-distinguishes the native Windows agent from WSL and configures the integrated terminal separately.
-The terminal alone cannot establish the agent environment. [Plugin documentation](https://developers.openai.com/plugins/build/plugins)
-continues to support the candidate's Codex compatibility manifest; no packaging redesign is needed
-merely because a newer portable format exists.
+The current [official Windows documentation](https://learn.chatgpt.com/docs/windows/windows-app)
+distinguishes Windows native from WSL2 and configures the integrated terminal separately. Record
+the agent's actual environment; a terminal choice alone is insufficient.
 
-Source inspection of the instruction helper found an unconditional os.fchmod call and a directory
-open/fsync after replacement. [Python documents Windows fchmod support from 3.13](https://docs.python.org/3/library/os.html#os.fchmod);
-that call is unavailable on older native Windows Python. The later directory-flush behavior remains
-unverified. Inspect the actual runtime and test on disposable instruction files before adoption.
-Do not label a macOS mock or a WSL run native Windows evidence, and do not change the student's
-agent environment simply to avoid validating their chosen route.
+The accepted candidate inspection found an unconditional `os.fchmod` call and a directory
+open/fsync after replacement in the instruction helper. Native Windows support for those operations
+has not been demonstrated. **Do not run this helper against real native Windows instructions.**
+Use the [quickstart's manual route](research-plugins-install.md#preserve-your-current-setup-and-adopt-the-instructions):
+exact installed block, complete diff, byte-for-byte backup, approval, native edit and preservation
+readback. If exact preservation cannot be verified, stop without writing. A WSL2 or macOS result is
+not native Windows evidence, and the setup must not silently change the student's chosen environment.
+
+The public 0.1.0 release retains the reviewed helper; a future compatibility repair can be delivered
+through a normal package update. Manual adoption is a separate verified result, not helper success.

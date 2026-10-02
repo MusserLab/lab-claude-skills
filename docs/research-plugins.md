@@ -1,32 +1,27 @@
 # Research plugins: student guide
 
-> **Opt-in trial toolkit:** Core candidate.6, Yale candidate.1, Single-cell candidate.1 and Genome
-> candidate.2 contain the four-package result accepted in Phase 1 on 2026-10-01. Start with the
-> [trial quickstart](research-plugins-trial.md), which names the exact channel and release to verify
-> before installation. This local preparation is not proof that publication has happened.
-> Both macOS CLI package lifecycles passed; ordinary student use, Windows/Desktop and other
-> interfaces remain trial targets. See the [compatibility record](research-plugin-compatibility.md).
+> **Research Plugins 0.1.0:** four public packages for Claude Code and Codex, with 33 skills.
+> Start with the [installation quickstart](research-plugins-install.md) for the exact release,
+> Codex Desktop setup prompt and client requirements. Verify the GitHub release/tag before
+> installation. The [compatibility record](research-plugin-compatibility.md) states what has
+> actually been tested; scientific use retains the project's normal review and acceptance.
 
 Research plugins provide shared research procedures for Claude Code and Codex. Research Core adds
 the common collaboration, integrity, reproducibility and setup behavior. Optional packages add
 scientific or institutional procedures without replacing project instructions, accepted methods,
 styles, credentials or host configuration.
 
-The [first-release manifest](../release/first-release.json) is the exact authority for packages,
-versions, files and dependencies in a built candidate or release. Native evidence from
-earlier candidates remains historical. Core retains 21 shared procedures plus `plugin-feedback`
-and `research-core-setup` (23 skills); Yale adds `hpc`, `globus-transfer` and `lux-collections`.
-Single-cell adds `deep-research-genelist` and `deep-research-reports`; Genome adds five sequence
-analysis and display procedures. There are 33 skills across the four candidates. Only packages
-listed in the manifest and both client catalogs are available for an authorized local trial.
+The [release inventory](../release/first-release.json) identifies exact packages, versions, files
+and dependencies. All four new packages are version `0.1.0`; earlier candidate evidence remains
+historical. Inventory, publication and programme acceptance have separate records.
 
-| Package | Purpose | Present status |
+| Package | Purpose | Release contents |
 |---|---|---|
-| `research-core` | Twenty-one shared research procedures, `plugin-feedback`, and `research-core-setup`; no hooks or permission grants. | Candidate.6 accepted in Phase 1; macOS CLI lifecycle checked; use the opt-in trial quickstart and recorded route limits. |
-| `single-cell-research` | Dataset-derived marker prompts and general research-report processing. | Candidate.1: two skills; expression reports and specialized family workflows deferred. |
-| `genome-annotation` | Gene lookup, protein phylogeny, tree formatting, BUSCO and HMMER. | Candidate.2: all five accepted in Phase 1 with the agreed interpretation/privacy corrections; trial scope applies. |
-| `yale-research` | HPC setup and resource learning, Globus transfer and Lux collection search. | Candidate.1; remote onboarding and student compatibility remain unverified. |
-| `lab-skills` | Existing legacy plugin, version 1.12.1. | Remains available during the transition. |
+| `research-core` | Common workflow, setup and help; no hooks or permission grants. | 21 shared procedures, `plugin-feedback` and `research-core-setup`: 23 skills. |
+| `single-cell-research` | Marker research and research-report processing. | 2 skills; expression reports and specialized family workflows deferred. |
+| `genome-annotation` | Sequence analysis and tree display. | `gene-lookup`, `protein-phylogeny`, `tree-formatting`, `busco` and `hmmer`: 5 skills. |
+| `yale-research` | Optional Yale service guidance. | `hpc`, `globus-transfer` and `lux-collections`: 3 skills. |
+| `lab-skills` | Existing legacy Claude Code plugin. | Version 1.12.1 remains available on the default branch. |
 
 ## Choose the packages you need
 
@@ -45,7 +40,7 @@ setup verifies or replaces them for your project. Installing the package grants 
 allocation, credentials or access. Users elsewhere can skip it; it is not a generic cluster profile.
 
 Private Musser Lab Style and Sponge Corpus packages are planned separately. No private distribution
-has been selected or released in this candidate, so neither has an installation or
+has been selected or released, so neither has an installation or
 issue-submission route here.
 
 For students, Research Core is the common working toolkit: it helps start and plan projects, protect
@@ -102,12 +97,13 @@ origins and unique changes before migration, including any refresh that might re
 
 ## Before your first agent session
 
-If you do not have a client yet, choose the interface you intend to use and follow its official
-installation and sign-in guide: [Claude Code](https://code.claude.com/docs/en/setup) or
-[Codex CLI](https://learn.chatgpt.com/docs/codex/cli). Use your own account and the intended service;
-[Codex authentication](https://learn.chatgpt.com/docs/auth) explains supported sign-in options.
-A terminal client is the simplest initial route; use the actual desktop/editor's documented setup
-when that is your choice. A successful terminal check does not validate an editor integration.
+Choose the interface you intend to use and follow its official installation and native sign-in
+flow: [Claude Code](https://code.claude.com/docs/en/setup),
+[Codex Desktop](https://learn.chatgpt.com/docs/app) or
+[Codex CLI](https://learn.chatgpt.com/docs/codex/cli). The
+[quickstart](research-plugins-install.md#start-in-codex-desktop) covers current Codex operating-system,
+authentication and plugin-surface requirements. Use Desktop directly if that is your working client;
+a separate CLI is needed only when your selected route actually uses it.
 
 Once the client works locally, follow the package path below. Cluster account approval can happen
 in parallel; you do not need to rebuild a working local setup when access arrives later.
@@ -115,12 +111,12 @@ in parallel; you do not need to rebuild a working local setup when access arrive
 ## Main path
 
 Use an installed client signed in through its native account flow, Git for repository catalogs,
-and an available Python 3 interpreter for the instruction helper. Use the project environment
+and an available Python 3 interpreter when using the verified instruction-helper route. Use the project environment
 where appropriate; setup does not install a runtime or scientific toolchain. If helper execution
-is unavailable, request a faithful manual preview without treating it as a completed installation.
+is unavailable, use the reviewed manual adoption route and report that helper execution was unavailable.
 
-1. Confirm the package is present in the manifest and that the maintainer has authorized the
-   candidate trial, named the moving release channel, or supplied an intentional recovery pin.
+1. Verify the GitHub release/tag and selected packages in the release inventory. Use the named
+   moving release channel, or an intentional immutable pin you have chosen.
 2. Add the `musser-lab` marketplace once for this client and host.
 3. Install Research Core and every selected optional package explicitly.
 4. Ask the agent: **“Set up research core.”** Review the exact instruction destination and diff.
@@ -158,8 +154,8 @@ plugin updates preserve that record. No background monitor is installed.
 Finish with a small job, output readback and a fresh agent session that finds the expected skills
 and instructions. Pending account approval or an unavailable interface remains a named unfinished
 step; later ask to continue. Adding a cluster preserves working earlier connections and installed
-packages. These are candidate procedures: see the compatibility record for what has actually been
-exercised on each interface and host.
+packages. See the compatibility record for what has actually been exercised on each interface and
+host; published guidance does not establish successful remote onboarding.
 
 Globus needs your own CLI authentication and collection access; the package supplies procedures,
 not credentials or access grants. Lux includes catalog interpretation and query guidance. Its
@@ -190,11 +186,11 @@ when PDF support is unavailable.
 
 General cluster, ordinary family and nonmetazoan reports are supported. The specialized
 `family_report1/2` workflow is deferred. Expression Report, cell-type tree/family and WGCNA
-computation skills are also deferred from this candidate; installation does not make them available.
+computation skills are also deferred from this release; installation does not make them available.
 
 ## Investigate sequences and display trees
 
-With Core and Genome available in an authorized trial, use ordinary requests such as “Look up these
+With Core and Genome installed, use ordinary requests such as “Look up these
 accessions,” “Build a protein phylogeny,” “Format this tree,” “Assess sequence completeness,” or
 “Search these sequences for the chosen protein profiles.” The agent checks the actual sequence/tree
 inputs and the project's established lineage, translation code, profiles, thresholds and tree choices.
@@ -218,55 +214,18 @@ anonymous use requires an explicit choice. Verify sharing/retention in the servi
 These agreed corrections are implemented, but no real phylogeny, completeness/profile search, full
 figure rendering or iTOL service compatibility is established by the package checks.
 
-## Install an authorized local candidate
+## Release repository route
 
-This route is for a maintainer-scoped trial in a disposable or otherwise reviewed profile. Replace
-the placeholder with the exact absolute worktree root supplied by the maintainer. Do not guess a
-path, point at the private authoring repository, or replace an existing `musser-lab` source without
-reviewing the affected installed packages.
-
-Codex CLI:
-
-```bash
-codex plugin marketplace add /absolute/path/supplied-by-maintainer --json
-codex plugin add research-core@musser-lab --json
-codex plugin list --marketplace musser-lab --available --json
-```
-
-Claude Code CLI, user scope:
-
-```bash
-claude plugin marketplace add /absolute/path/supplied-by-maintainer --scope user
-claude plugin install research-core@musser-lab --scope user --json
-claude plugin list --json
-```
-
-Repeat the `plugin add` or `plugin install` command once for each additional package actually named
-in the selected manifest. Do not substitute a proposed package name.
-
-These commands installed candidate.1 in isolated macOS profiles for Codex CLI 0.149.0 and Claude
-Code 2.1.268; its 29 skill entries and 53 installed files matched the candidate.1 manifest. That is
-historical technical evidence, not validation of the current candidate. It does not establish editor, desktop,
-Windows or cluster support. See the [dated evidence](research-plugin-compatibility.md).
-
-Candidate.2 passed its build and structural checks. In its bounded Claude trial, explicitly invoked
-data-handling and closeout skills produced an accurate synthetic review, but restricted mode denied
-the plan update. That partial result does not establish a complete student workflow. Candidate.4
-passed a bounded Claude help-discovery check. Native installed-cache lifecycle and ordinary student
-use remain open; the compatibility record above gives the exact versions, evidence and limits.
-
-## Trial repository route
-
-Use the [trial quickstart](research-plugins-trial.md) first. Its moving channel is
-`codex/research-plugins-trial`; the initial immutable recovery ref is `research-plugins-trial-1`.
-Verify the published prerelease and its target before using these commands. A local candidate or
-this document alone does not prove that the remote refs exist. Review an existing `musser-lab`
-source and all its installed packages before changing it.
+Use the [installation quickstart](research-plugins-install.md) first. The moving release channel is
+`codex/research-plugins-release`; the immutable first-release recovery ref is `research-plugins-0.1.0`.
+Verify the actual GitHub release/tag and target before using these commands. Review an existing
+`musser-lab` source and all its installed packages before changing it. For Desktop use the quickstart's
+repository marketplace path; the command examples below are for an existing matching CLI.
 
 Codex CLI command shapes, when the actual client supports them:
 
 ```bash
-codex plugin marketplace add MusserLab/lab-claude-skills --ref codex/research-plugins-trial --json
+codex plugin marketplace add MusserLab/lab-claude-skills --ref codex/research-plugins-release --json
 codex plugin add research-core@musser-lab --json
 codex plugin list --marketplace musser-lab --available --json
 ```
@@ -274,7 +233,7 @@ codex plugin list --marketplace musser-lab --available --json
 Claude Code CLI, user scope:
 
 ```bash
-claude plugin marketplace add "MusserLab/lab-claude-skills#codex/research-plugins-trial" --scope user
+claude plugin marketplace add "MusserLab/lab-claude-skills#codex/research-plugins-release" --scope user
 claude plugin install research-core@musser-lab --scope user --json
 claude plugin list --json
 ```
@@ -302,6 +261,11 @@ bytes, keeps the first backup of an existing file, and preserves every byte outs
 Personal and project guidance outside the block remains in place. Reviewing or installing Research
 Core does not authorize cleanup elsewhere in the instruction file.
 
+On native Windows, do not execute this release's helper against real instruction files. Use the
+[manual exact-block adoption route](research-plugins-install.md#preserve-your-current-setup-and-adopt-the-instructions):
+backup, complete diff, approval, native edit and byte-preservation readback. If helper execution is
+unavailable elsewhere, use that same faithful manual route and report how adoption was verified.
+
 After the verified change, start a fresh task so the client reads the new instructions and skills.
 Installation and readback alone do not establish that the agent follows them in ordinary work.
 
@@ -323,12 +287,9 @@ Paid API calls, credits, other destinations and wider scopes need separate appro
 
 ## Transition from `lab-skills`
 
-Keep `lab-skills` 1.12.1 available while the new packages are evaluated. It shares the
+The legacy `lab-skills` 1.12.1 release remains available during student transitions. It shares the
 `musser-lab` marketplace and overlaps with new package procedures. It also carries existing hook
 and security behavior that Research Core does not replace automatically.
-
-The candidate.3 membership selection changes the proposed new package contents; it does not switch an existing
-installation, remove a legacy skill or hook, or demonstrate a student migration.
 
 Before any student switch, inspect that student's installed scope, overlapping skills,
 instructions, hooks and relied-on protections. Decide which legacy components remain necessary and
@@ -410,7 +371,7 @@ Checks already tried:
 
 If the report needs private package content, private identities, lab paths or unpublished science,
 keep the exact draft private and ask the maintainer for its destination. The private distribution
-has not been selected or released in this candidate. Never fall back to the public tracker or invent
+has not been selected or released. Never fall back to the public tracker or invent
 a private URL. If a report already has a selected private destination, preserve it through
 follow-ups rather than silently redirecting the report.
 
@@ -423,7 +384,7 @@ follow-ups rather than silently redirecting the report.
 **Body:**
 
 ```markdown
-Package/version: research-core 0.1.0-candidate.1
+Package/version: research-core 0.1.0
 Client/version and interface: Codex CLI 0.149.0
 OS / execution host / installation scope: synthetic macOS example / local / user
 Action and minimal reproduction: In a disposable AGENTS.md fixture, leave a
@@ -436,8 +397,7 @@ Checks already tried: Confirmed this draft contains only synthetic text; no user
 
 This is an example of a shareable setup-help request, not evidence of an actual defect. It has not
 been submitted. If the same request depended on an unpublished result, a private style asset or a
-lab-only path, keep the exact draft private while no private distribution is selected in this
-candidate.
+lab-only path, keep the exact draft private while no private distribution has been selected.
 
 ## Remove a package
 
@@ -467,8 +427,9 @@ Changing a catalog ref can move multiple installed packages, so preview the affe
 and expected versions first. Neither current CLI provides a universal `plugin@version` recovery
 command; do not edit plugin caches directly.
 
-Routine installations instead follow the maintainer-named moving release branch/channel so an
-explicit marketplace update can receive later releases. Do not silently move an installation from
+Routine installations follow `codex/research-plugins-release` so an explicit marketplace update can
+receive later releases. The first immutable recovery ref is `research-plugins-0.1.0`. Do not silently
+move an installation from
 that channel to another branch, tag or commit. For an intentional pin or return, the maintainer must
 name the immutable tag/commit and the exact client-specific source/ref change; review all packages
 that share the catalog before applying it. A pinned installation stays pinned; an ordinary update

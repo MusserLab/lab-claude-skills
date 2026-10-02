@@ -1,40 +1,41 @@
 # Changelog
 
 All notable changes to lab-claude-skills are documented here.
-Format: date-based entries (this isn't versioned software).
+Entries are dated and identify the released package versions.
 
 ---
 
-## Unreleased — shared research plugin candidates
+## 2026-10-01 — Research Plugins 0.1.0
 
-- Core candidate.6 contains 21 shared procedures, `plugin-feedback` and `research-core-setup`:
-  23 skills for Claude Code and Codex. It includes bundled help, full package/instruction updates,
+- Four public packages for Claude Code and Codex: Research Core (23 skills), optional Yale
+  Research (3), Single-cell Research (2) and Genome Annotation (5). Every package is version
+  `0.1.0`; scientific packages do not require or automatically install Yale Research.
+- Core supplies common research workflow, setup, help, full package/instruction updates,
   incremental cluster-setup routing and conditional completed-HPC-job resource capture.
-  Candidate.6 adds optional, student-owned Claude subscription permission, with clear private-file
-  scope and preservation through updates and recovery. Installing the plugin grants no consent.
-- Yale candidate.1 contains `hpc`, `globus-transfer` and `lux-collections`, including guided
-  first/later cluster setup, existing SSH helpers, lab-resource defaults and private resource
-  learning. It preserves transfer approval and no-Globus-deletion boundaries.
-- Single-cell candidate.1 contains `deep-research-genelist` and `deep-research-reports`:
-  project-derived marker preparation, original gene IDs, evidence-aware annotation guidance and
-  preserved/validated report metadata. Expression Report and specialized family workflows are
-  deferred. Scientific runtime and biological acceptance remain project responsibilities.
-- Genome candidate.2 contains `gene-lookup`, `protein-phylogeny`, `tree-formatting`, `busco`
-  and `hmmer`, with corrected gene labels, fresh run outputs, explicit project choices and portable
-  resource paths. It applies appropriate-lineage BUSCO interpretation, visible Unclassified taxa and
-  explicit anonymous iTOL selection. Focused fixture/install checks do not establish scientific readiness.
-- `scientific-manuscript`, `feedback-walkthrough`, `collaborator-setup`, `quarto-book-setup`,
-  `quarto-publish` and `handoff` are deferred from Core. Personal sources and legacy copies stay
-  separate. `planning` is maintained; `new-plan` remains its compatibility name. Quarto document
-  guidance and declared-host project synchronization remain available.
-- Both clients use the same selected skill resources with native manifests/catalogs. Student
-  guidance covers setup, update, support and recovery; the compatibility record distinguishes
-  current checks from historical evidence and untested interfaces.
-- The existing `lab-skills` 1.12.1 payload, hooks and security configuration are preserved.
-  Phase 1 was accepted on 2026-10-01. The opt-in trial quickstart names the proposed moving channel
-  `codex/research-plugins-trial` and immutable ref `research-plugins-trial-1`; verify the actual
-  published prerelease before installation. Windows/Desktop and ordinary student use remain
-  trial targets. Public publication and each student's switch have separate review boundaries.
+  Optional student-owned Claude subscription permission remains outside its managed block;
+  installing a plugin grants no permission to share files or spend API credits.
+- Yale supplies HPC, Globus and Lux procedures while preserving exact-transfer approval,
+  no-Globus-deletion rules and each user's own service/account requirements.
+- Single-cell supplies project-derived marker research and report processing with original gene
+  identities and validated report metadata. Genome supplies gene lookup, protein phylogeny, tree
+  formatting, BUSCO and HMMER with appropriate-lineage interpretation, visible Unclassified taxa,
+  fresh run destinations and explicit anonymous iTOL selection.
+- New [installation quickstart](docs/research-plugins-install.md) includes a natural-language
+  Codex Desktop setup prompt, current official OS/authentication guidance, reviewed preservation
+  of existing skills/instructions, and the native Windows manual instruction-edit route.
+  The [compatibility record](docs/research-plugin-compatibility.md) retains dated candidate evidence.
+- Distribution uses the moving Git channel `codex/research-plugins-release` and immutable recovery
+  tag `research-plugins-0.1.0`. Verify the actual GitHub release/tag before installation. Repository
+  publication, client installation and scientific acceptance are recorded separately.
+- Phase 1 was accepted on 2026-10-01 with its documented limits. The accepted candidate's four-package
+  install, changed-Git update, retained-ref recovery and instruction-preservation checks passed in
+  both macOS CLIs. Desktop/Windows/Linux, ordinary student use and real scientific runs still need
+  their own evidence; a normal public release does not convert those gaps into test results.
+- The default branch, legacy `lab-skills` 1.12.1 payload, hooks and security configuration are
+  preserved. A student switch requires review of that installation's overlap and protections.
+  `scientific-manuscript` remains excluded from the new packages. `feedback-walkthrough`,
+  `collaborator-setup`, `quarto-book-setup`, `quarto-publish` and `handoff` remain deferred;
+  `planning` is maintained and `new-plan` is its compatibility name.
 
 ## 2026-08-07 (v1.12.1)
 

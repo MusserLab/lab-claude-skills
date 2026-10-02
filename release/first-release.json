@@ -1,5 +1,5 @@
 {
-  "status": "isolated candidate; not released or accepted",
+  "status": "release inventory; publication and acceptance recorded separately",
   "marketplace": "musser-lab",
   "dependency_installation": "Install Core and selected optional packages explicitly in both clients.",
   "legacy": {
@@ -10,7 +10,7 @@
   "packages": [
     {
       "name": "research-core",
-      "version": "0.1.0-candidate.6",
+      "version": "0.1.0",
       "requires": {},
       "skills": [
         "audit-project",
@@ -38,8 +38,8 @@
         "sync-project"
       ],
       "files_sha256": {
-        ".claude-plugin/plugin.json": "da52b08b25a3e218c504a729728836b2aeb6bcf12752ad9b48bb3e506ac72273",
-        ".codex-plugin/plugin.json": "2bf372e35fd3f5b6984a1ce41018e203175b2b788559ff69f88e263fa3525758",
+        ".claude-plugin/plugin.json": "ee47dad2de71553f8a1993447e248a5ed47e3371176e971b5db8d7da14f1abde",
+        ".codex-plugin/plugin.json": "de9bdf7bc435ac5d9e988169d667ffe3419094b8c6b5db26186c597570ae34c2",
         "instructions/agent-collaboration.md": "c3cf0bdf3513b539147b31e37187adfde2aea884167cd9e83ea1bb86356e085d",
         "scripts/install_instructions.py": "796c8e5e8dde1e8135362a594ff6a60f23fc530d9e1a52fa6608af4316e6f373",
         "skills/audit-project/SKILL.md": "95f0ded755b3ed8341f4a63709788ced48cbdb10863a37287a2bbbe279273225",
@@ -80,9 +80,9 @@
     },
     {
       "name": "yale-research",
-      "version": "0.1.0-candidate.1",
+      "version": "0.1.0",
       "requires": {
-        "research-core": "0.1.0-candidate.6"
+        "research-core": "0.1.0"
       },
       "skills": [
         "globus-transfer",
@@ -90,8 +90,8 @@
         "lux-collections"
       ],
       "files_sha256": {
-        ".claude-plugin/plugin.json": "7a193aad42cbd05973e748cc055344137a7a7421d450b3157ffd64011a1c69bd",
-        ".codex-plugin/plugin.json": "14d4aa1c4bb8c852c9ac8e9c63f4c50d76c4fbe1ae20a61d8b87a74738e28f12",
+        ".claude-plugin/plugin.json": "e2f9182608e52af54fffd9e1b83bb5093ea6aacb1bde10c3b5930a551e3c689e",
+        ".codex-plugin/plugin.json": "2060749aec5bd9e7ac0e696919bf3d9eb8ad35eea1dd23405ab2632fddcb0026",
         "skills/globus-transfer/SKILL.md": "ddf69a01e7032f384c4dce22170c5619a9b8c87f842a3d176f59c88f918053a6",
         "skills/hpc/SKILL.md": "042778bd544ccd34db37e2696b135f6b6df1f924ffcc549a97429c30db5d31ce",
         "skills/hpc/references/gpu-partition-tactics.md": "e7273d8847e621faf35caecc1a9e7c02d74bfc839cd50e0034f22c1630c946c1",
@@ -110,17 +110,17 @@
     },
     {
       "name": "single-cell-research",
-      "version": "0.1.0-candidate.1",
+      "version": "0.1.0",
       "requires": {
-        "research-core": "0.1.0-candidate.6"
+        "research-core": "0.1.0"
       },
       "skills": [
         "deep-research-genelist",
         "deep-research-reports"
       ],
       "files_sha256": {
-        ".claude-plugin/plugin.json": "e7d22664a13578ce9d1b4121a552e9b3261783096c9363b2299ea11f8c13e72d",
-        ".codex-plugin/plugin.json": "8a568c999b148a84cf0807eddfeb756e9ded9f23607fca2e51b409a0c63fc82d",
+        ".claude-plugin/plugin.json": "3594a956c54d59a08603b827392ccbef10e99aa21a9e6aa5a45f52f592652ed5",
+        ".codex-plugin/plugin.json": "1b37b93db066965f9662a200cdc06642e012773f24fbaa9fdb5229ca005a127e",
         "skills/deep-research-genelist/SKILL.md": "2a17a6c4ffe2295c37f73737d2357e6cdd7d59a5c729cd865dd726346cc39c08",
         "skills/deep-research-genelist/references/annotation_methods.md": "bf9caf5e11e393c18b379c10930480125b4991543ace7ba895ab7849e2633471",
         "skills/deep-research-genelist/templates/annotation_profile_example.yaml": "ddcc22b1580eba5ee8fc8a9c2095d3452b9cdfe538136349023a30ebf8a83855",
@@ -133,9 +133,9 @@
     },
     {
       "name": "genome-annotation",
-      "version": "0.1.0-candidate.2",
+      "version": "0.1.0",
       "requires": {
-        "research-core": "0.1.0-candidate.6"
+        "research-core": "0.1.0"
       },
       "skills": [
         "busco",
@@ -145,8 +145,8 @@
         "tree-formatting"
       ],
       "files_sha256": {
-        ".claude-plugin/plugin.json": "db05ce9e29eccb1eec3343321a407b9ecd289b94d77e07c6b15759d8b2b348a1",
-        ".codex-plugin/plugin.json": "3bcd2d617f49e0e1163c76e6edb0b55bbc01a13bd411e125d32b1bb90b897041",
+        ".claude-plugin/plugin.json": "29cd50fc3c88d3363b1a0b7da932ca17c45892ffababcfca76a73cc03bc6a190",
+        ".codex-plugin/plugin.json": "963ea792b986bda5f359ccff0c70ae8b2db293a8e9f7cebcc392524e27fe9298",
         "skills/busco/SKILL.md": "54fa3d5f82ff7d957308f880eb536485592fd606b17296f0460295fc6532084d",
         "skills/busco/references/gotchas.md": "88414d51fe08a1e87e660739f4bd2975847f049732ca2360349ad05502d6e8e0",
         "skills/busco/references/lineage_table.md": "b232405c9db8687f5570f107eac62094aed2bdd78b4956e13601eb7ff30e888f",

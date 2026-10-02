@@ -1,11 +1,22 @@
 # Lab Claude Skills
 
-> **Shared Claude Code/Codex toolkit:** the [opt-in trial quickstart](docs/research-plugins-trial.md)
-> names the trial channel, release check, setup and recovery steps. See the
-> [student guide](docs/research-plugins.md) and [compatibility evidence](docs/research-plugin-compatibility.md).
-> The existing `lab-skills` 1.12.1 plugin remains available; each student chooses their own switch.
+> **Research Plugins 0.1.0 for Claude Code and Codex:** start with the
+> [installation quickstart](docs/research-plugins-install.md), then use the
+> [student guide](docs/research-plugins.md) for ordinary work, updates and recovery.
+> The four public packages contain 33 skills. Yale Research is optional.
 
-Shared [Claude Code](https://docs.anthropic.com/en/docs/claude-code) skills and conventions for the lab. These skills teach Claude Code our lab's standards for data handling, plotting, script organization, reproducibility, and more.
+Shared research procedures help agents follow clear standards for data handling, planning,
+plotting, reproducibility and review. Install Research Core, then choose Single-cell Research,
+Genome Annotation or Yale Research as needed. The quickstart includes a copyable Codex Desktop
+setup prompt and current operating-system/sign-in guidance; the
+[compatibility record](docs/research-plugin-compatibility.md) distinguishes tested routes from
+available but untested interfaces.
+
+The moving release channel is `codex/research-plugins-release`; the immutable first-release tag is
+`research-plugins-0.1.0`. Verify the GitHub release and its inventory before installation. This is a
+Git repository marketplace distribution. The existing `lab-skills` 1.12.1 plugin remains available
+on the default branch. The instructions below describe that legacy Claude Code plugin; use the
+quickstart above for the new packages.
 
 ## What are skills?
 

@@ -1,6 +1,6 @@
 {
   "name": "single-cell-research",
-  "version": "0.1.0-candidate.1",
+  "version": "0.1.0",
   "description": "Dataset-derived marker prompts and structured research report processing.",
   "author": {
     "name": "Musser Lab"

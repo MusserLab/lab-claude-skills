@@ -1,6 +1,7 @@
 # Partition Quick-Reference
 
-Dated Yale profile: official documentation checked 2026-10-01. No live scheduler query ran.
+Dated Yale profile: official documentation checked 2026-10-01. The `agent` entry separately
+retains the source's 2026-09-30 scheduler/QoS evidence; no new scheduler query ran for this package.
 Sources: [Bouchet](https://docs.ycrc.yale.edu/clusters/bouchet/),
 [McCleary](https://docs.ycrc.yale.edu/clusters/mccleary/),
 [Misha](https://docs.ycrc.yale.edu/clusters/misha/) and
@@ -17,6 +18,7 @@ configuration for detailed hardware counts; node counts are not capacity guarant
 |---|---|---|---|
 | `day` | 1 day | 1500 CPUs, 20000G | General batch |
 | `devel` | 6 h | 4 CPUs, 60G; 2 submitted jobs | Interactive |
+| `agent` | 7 days; default 1 h | Per job: 1 CPU, 8G; 2 running jobs/user | Small longer-lived coding-agent allocations; check workload/account eligibility |
 | `week` | 7 days | 96 CPUs, 1.50T | Extended batch |
 | `gpu` | 2 days | 32 GPUs; 12 running jobs | RTX 5000 Ada 32 GB, L40S/A40 48 GB, A5000 24 GB |
 | `gpu_rtx6000` | 2 days | 16 GPUs; 16 running jobs | RTX Pro 6000 Blackwell 96 GB |
@@ -30,6 +32,21 @@ configuration for detailed hardware counts; node counts are not capacity guarant
 
 The older separate `day_AMD` entry is not asserted here: the current public `day` table includes
 Turin and Intel hardware. Absence from the web table does not establish absence from live Slurm.
+
+The source's read-only Bouchet check on 2026-09-30 reported `agent` as `State=UP`,
+`MaxTime=7-00:00:00`, `DefaultTime=01:00:00` and partition QoS `part_agent`.
+`MaxTRESPJ=cpu=1,mem=8G` is a **per-job** cap; `MaxJobsPU=2` limits **running**, not submitted,
+jobs per user. `part_agent` had `DenyOnLimit`; allowed job QoS lacked `OverPartQOS`, so
+[Slurm's partition QoS rules](https://slurm.schedmd.com/qos.html#partition-qos) apply the partition
+limits first. Account/access restrictions can further constrain a request. Recheck before use:
+
+```bash
+scontrol show partition agent
+sacctmgr -P show qos where Name=part_agent,normal,nothrottle,interactive format=Name,Flags,MaxTRESPJ,MaxTRESPU,MaxJobsPU,MaxSubmitJobsPU
+```
+
+No over-limit submission was made to test enforcement; a successful smaller request alone would
+not establish these limits. This partition is not an exception to the documented IDE policy.
 
 ## McCleary
 

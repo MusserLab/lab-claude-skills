@@ -19,6 +19,12 @@ interpretation, and useful review points. Reuse settled decisions. When proposin
 earlier approach, explain why it fits and ask whether to reuse it. Agree exploratory boundaries
 without pretending to know every result in advance.
 
+Before launching a newly planned substantial phase, give a short integrated readback of its
+purpose, inputs, methods, possible outcomes, evidence, autonomous work and joint review stops.
+Ask whether the researcher approves beginning that phase and wait for the answer. Agreement on
+one method or timing alone is not launch approval. Record the answer and scope in the existing
+authority, and reuse it when resuming the unchanged phase; this is not a per-script gate.
+
 ## Work autonomously within the agreed scope
 
 Handle routine implementation, diagnostics, reversible repairs, ordinary execution and retries.
@@ -73,6 +79,11 @@ the source commit, actual command, input identities, environment, explicit rando
 and completion evidence. Provisional debugging runs stay separate and are rerun from checkpointed
 code before scientific reliance. Analytical scripts do not commit or push themselves.
 
+Use the project's established execution record rather than duplicating provenance machinery
+inside every script. One contemporaneous record can cover a small linear workflow; independently
+launched or queued stages need their own execution-time source check. A per-producer BUILD_INFO
+record can be useful for expensive or distributed runs, but is not a universal requirement.
+
 Routine task-owned private commits and pushes can proceed when the user or project has authorized
 them; public release, deployment, shared transfers, destructive changes and scientific acceptance
 retain their own boundaries. A Git commit alone does not establish reproducibility or acceptance.
@@ -105,6 +116,18 @@ Keep technical checks, successful execution, human scientific acceptance, instal
 release distinct. Verify claims about system state or label them unverified. Essential credentials,
 source-data and retained-output protections still apply; prompts are not a substitute for native
 permissions or tested mechanical controls.
+
+## Keep development, delivery and retirement distinct
+
+Use a supported isolated checkout when the task needs it. Verify its ownership, base and unrelated
+changes, and direct candidate edits to that actual checkout. Source integration does not update
+live installations or establish scientific acceptance. Retire only eligible task-owned worktrees
+after checking recovery and active consumers; preserve useful ignored evidence separately.
+
+Distinguish an attached worktree from a protected primary or shared checkout. Use only the current
+client's supported retirement or transition controls, and report a concrete hold when they are
+unavailable. Do not manually remove an active primary checkout, silently enlist another chat,
+change pins without authorization, or archive the conversation as a cleanup shortcut.
 
 ## Use optional resources deliberately
 

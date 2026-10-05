@@ -2,17 +2,17 @@
 name: script-organization
 description: >
   Script organization for data science analysis projects: numbered scripts, data/ vs outs/,
-  section layout, dependencies, and producing-state provenance. Use when creating a new analysis
+  section layout, dependencies, and producing-state records. Use when creating a new analysis
   script, deciding where a script or its outputs belong, numbering or splitting scripts, or
-  setting up BUILD_INFO and git-hash provenance. Do NOT load for documentation projects
+  deciding how a retained run will identify its source and inputs. Do NOT load for documentation projects
   (Quarto books), infrastructure repos, or projects without a data/outs/ structure.
 ---
 
 # Script Organization and Reproducibility
 
 Conventions for script numbering, input/output tracking, directory structure, and build
-provenance. Data flow between scripts is self-documenting through directory structure and path
-references — no manifest files and no pipeline tool.
+provenance. Data flow between scripts should be clear from directory structure and path references;
+no additional manifest or pipeline tool is required merely to describe it.
 
 ---
 
@@ -50,7 +50,7 @@ project/
       01_analysis/            # Outputs from that script only
         mdata.rds
         01_analysis.html
-        BUILD_INFO.txt
+        run-info.txt              # optional when this producer needs its own run record
     transcriptomics/
       01_heatmaps/
     exploratory/
@@ -114,7 +114,7 @@ and **propose it; never split or renumber automatically.** Coherence, not size, 
 | Folder | Contains | Written by |
 |--------|----------|------------|
 | `data/` | External/immutable inputs: raw data, collaborator files, annotations, database exports | Nothing in this project — files arrive from outside |
-| `outs/<script_name>/` | Everything a script produces: data files, plots, rendered HTML, BUILD_INFO.txt | That script only |
+| `outs/<script_name>/` | Everything a script produces: data files, plots, rendered HTML, and any producer-specific run record | That script only |
 
 **Rule:** if your code produced it, it goes in `outs/`. If it came from anywhere else, it goes in
 `data/`. Scripts never write to `data/` — including decompressing an archive; decompress to
@@ -139,17 +139,18 @@ file.
 
 1. **Same topic, same number.** A new topic gets a new number, not a new letter.
 2. **Shared topic root, separate stage directories.** Keep the set together under
-   `outs/XX_topic_name/`; each producer writes only to its own child directory, with its own
-   `BUILD_INFO.txt`. Later stages read upstream files from the appropriate sibling directory.
+   `outs/XX_topic_name/`; each producer writes only to its own child directory. Later stages read
+   upstream files from the appropriate sibling directory. Record execution at the narrowest level
+   needed to distinguish real runs; a project-level run record can cover several small stages.
 3. **The `a` script runs first.** Letters imply execution order within the set.
 4. **Name the set consistently:** `15a_wgcna_threshold.qmd`, `15b_wgcna_modules.qmd`,
    `15c_wgcna_plots.R`, with outputs grouped as:
 
    ```text
    outs/15_wgcna_platynereis/
-     15a_threshold/       # threshold results and this stage's BUILD_INFO.txt
-     15b_modules/         # module results and this stage's BUILD_INFO.txt
-     15c_plots/           # figures and this stage's BUILD_INFO.txt
+     15a_threshold/       # threshold results
+     15b_modules/         # module results
+     15c_plots/           # figures
    ```
 
 This is the default for new lettered workflows. Do not move existing project files or rewrite
@@ -201,45 +202,35 @@ depends on and which upstream script produced each file. No separate DAG documen
 
 ## Provenance
 
-### Committed producing state and BUILD_INFO.txt
+### Retained producing state
 
 Before a retained scientific run, ensure one focused commit contains the producer, wrapper, local
 helpers, small non-secret configuration and environment lock used by the run. The lead or assigned
-worker may inspect and checkpoint those task-owned files according to the current user and project
-authority. Commit or push only when that authority covers the exact repository and operation. Make a new commit only when those relevant files changed. The
-analysis script must never add, commit or push files itself.
+worker handles that checkpoint outside the analysis script. Make a new commit only when relevant
+files changed; unrelated dirty work does not block a scoped producing state.
 
-At execution, confirm every declared relevant file is tracked and matches the named commit; unrelated
-dirty work does not block the run. Write `BUILD_INFO.txt` into the output folder as the last action:
+Verify that those relevant files match the recorded commit at execution and completion. A current
+HEAD hash alone does not bind a run to its source. For a small linear run, the workflow owner can
+check the complete file set at workflow start and completion; separately launched or queued stages
+need their own execution-time check.
 
-```
-completion: complete
-script: scripts/01_analysis.qmd
-date: 2026-02-14 15:30:00
-commit: <full git rev-parse HEAD value>
-seed: 42
-slurm_job_id: 6380027
-input: data/input.tsv | sha256 from INPUTS.tsv: ...
-source: scripts/01_analysis.qmd | content verified against commit
-output: outs/01_analysis/result.tsv
-```
+Record the actual command, producing revision, required input identities, resolved parameters,
+seed, environment, completion checks and outputs in the project's established execution record.
+For a small linear workflow, one contemporaneous run note can cover several scripts. An engine log,
+scheduler log or existing run manifest may already provide most of the evidence; add only what is
+missing. A per-producer `BUILD_INFO.txt` remains useful for independent, expensive or distributed
+stages, but it is not the universal default.
 
-The `seed` line is included when the run uses randomness. The `slurm_job_id` line is written only
-when `$SLURM_JOB_ID` is set. It links the output folder to its log file
-(`logs/slurm-*-<job_id>.out`), which matters when reruns produce several logs.
-
-The commit identifies the declared producing files. Recheck them before writing completion so a
-mid-run edit cannot leave a successful record. Record the invocation, required inputs,
-environment/versions and explicit random seed in the run's ordinary log or BUILD_INFO. Do not
-serialize credentials or commit large inputs merely to satisfy provenance.
+Do not make ordinary scientific scripts interrogate Git, hash their own source, verify font files,
+or duplicate the input registry merely to satisfy provenance. The workflow owner or execution layer
+can bind the retained run to its source. The analysis script must never add, commit or push files.
+Do not commit large inputs merely to satisfy provenance: identify them through the project's
+checksum, immutable release, upstream record or other adequate source identity.
 
 Dirty or untracked code may produce only an explicitly provisional, isolated debugging or
 equivalence check. Save its actual source state with that temporary check, keep its output separate,
 and do not write a completion record, use it in ordinary downstream production, interpret it as a
 scientific result, or share it as one. Commit and rerun before any such reliance.
-
-Follow the project's deliberate tracking and backup choice for `outs/` and `BUILD_INFO.txt`.
-Neither Git tracking nor ignore status establishes output ownership or disposability.
 
 Before ordinary downstream production uses an upstream output, verify that the producing script
 completed on the intended inputs, created the expected outputs and completion evidence, passed
@@ -257,156 +248,70 @@ destinations may be regenerated across sessions after confirming their current u
 or Git-ignored does not make an output disposable. Do not infer preservation from the commit: the same
 code can produce different outputs when its inputs change.
 
-The templates refuse a nonempty producer-owned output directory. Set `OUT_DIR`/`out_dir` to the
-stage's child directory for a lettered workflow; existing sibling outputs do not block it. Use a
-fresh destination, preserve that stage's current directory, or clear it only after confirming its
-specific contents are disposable. Git status does not affect this protection.
+Choose and document the rerun behavior. A public reproduction may replace explicitly disposable
+derived outputs. A retained interpretation run should use a fresh destination or preserve the
+current producer-owned directory first. For a lettered workflow, apply that decision to the stage's
+child directory rather than its siblings. Git status does not determine whether outputs still matter.
+
+The templates below refuse a nonempty producer directory by default. For an explicitly disposable
+reproduction destination, adapt that guard to the agreed replacement behavior after confirming
+ownership and current use; do not remove it merely to make a failed rerun succeed.
 
 ### Rendered HTML
 
 Rendered `.html` goes into `outs/<script_name>/` alongside data outputs, keeping `scripts/` clean.
 See the `quarto-docs` skill for QMD templates.
 
-### `.py` analysis script template
+### Minimal `.py` analysis script shape
 
 ```python
 #!/usr/bin/env python3
-"""Short description of what this script does.
+"""Summarize the stated scientific purpose.
 
-Input:  data/... (external), outs/.../file.tsv (from script XX)
-Output: outs/section/XX_script_name/
-
+Inputs:
+  data/...                     external input and its meaning
+  outs/previous/result.tsv     output from the named upstream analysis
+Outputs:
+  outs/section/XX_analysis/
 """
 
-import os
 import random
-import shlex
-import subprocess
-import sys
-from datetime import datetime
 from pathlib import Path
 
-import matplotlib
-matplotlib.use("Agg")            # headless — saves to files, no display server
-import matplotlib.pyplot as plt
 import pandas as pd
 
-# ── Setup ────────────────────────────────────────────────────────────────────
-PROJECT_ROOT = Path(
-    subprocess.check_output(["git", "rev-parse", "--show-toplevel"], text=True).strip()
-)
-sys.path.insert(0, str(PROJECT_ROOT / "python"))
+# Run from the project root; use an explicit CLI argument when callers need another root.
+PROJECT_ROOT = Path.cwd()
+OUT_DIR = PROJECT_ROOT / "outs" / "section" / "XX_analysis"
+if OUT_DIR.exists() and any(OUT_DIR.iterdir()):
+    raise FileExistsError(f"Preserve existing outputs or choose a fresh destination: {OUT_DIR}")
+OUT_DIR.mkdir(parents=True, exist_ok=True)
 
-# Add every project-local code file used by this run, including its wrapper, helpers,
-# small non-secret configuration, and environment lock when relevant. List files, not directories.
-SCRIPT_PATH = Path(__file__).resolve().relative_to(PROJECT_ROOT)
-RELEVANT_CODE_PATHS = [SCRIPT_PATH]
-INPUT_IDENTITIES = [
-    "data/.../file.tsv | external input; checksum/manifest: <identity>",
-    "outs/.../file.tsv | producer completion record: <path and identity>",
-]
 RANDOM_SEED = 42
 random.seed(RANDOM_SEED)
 
-# This producer's directory; for a lettered stage, e.g. outs/15_topic/15b_modules/.
-# Do not point the nonempty-directory guard at the shared topic root.
-OUT_DIR = PROJECT_ROOT / "outs" / "section" / "XX_script_name"
-if OUT_DIR.exists() and any(OUT_DIR.iterdir()):
-    raise RuntimeError(
-        "Output destination is not empty; use a fresh path or preserve/clear it only after "
-        "confirming the existing producer-owned outputs are disposable"
-    )
-OUT_DIR.mkdir(parents=True, exist_ok=True)
-BUILD_INFO_PATH = OUT_DIR / "BUILD_INFO.txt"
+# ── Inputs and scientific assumptions ────────────────────────────────────────
+data = pd.read_csv(PROJECT_ROOT / "data" / "input.tsv", sep="\t")
+required = {"sample", "value"}
+if missing := required.difference(data.columns):
+    raise ValueError(f"Missing required columns: {sorted(missing)}")
+if data["sample"].isna().any():
+    raise ValueError(f"Missing sample identifiers: {data['sample'].isna().sum():,} rows")
+if data["value"].isna().any():
+    raise ValueError(f"Missing values: {data['value'].isna().sum():,} rows; resolve the missing-data policy before averaging")
+print(f"Loaded {len(data):,} observations from {data['sample'].nunique():,} samples")
 
-RELEVANT_CODE_PATHS = [Path(relative) for relative in RELEVANT_CODE_PATHS]
-if any(relative.is_absolute() or ".." in relative.parts for relative in RELEVANT_CODE_PATHS):
-    raise ValueError("Relevant producing paths must be repository-relative")
-if any(not (PROJECT_ROOT / relative).is_file() for relative in RELEVANT_CODE_PATHS):
-    raise FileNotFoundError("A declared producing file is missing")
+# ── Analysis ─────────────────────────────────────────────────────────────────
+# Explain why each consequential transformation, threshold or exclusion is used.
 
-GIT_COMMIT = subprocess.check_output(
-    ["git", "rev-parse", "HEAD"], cwd=PROJECT_ROOT, text=True
-).strip()
-
-def relevant_blob_ids():
-    committed = []
-    working = []
-    for relative in RELEVANT_CODE_PATHS:
-        committed.append(subprocess.check_output(
-            ["git", "rev-parse", f"{GIT_COMMIT}:{relative.as_posix()}"],
-            cwd=PROJECT_ROOT,
-            text=True,
-            stderr=subprocess.DEVNULL,
-        ).strip())
-        working.append(subprocess.check_output(
-            ["git", "hash-object", str(relative)], cwd=PROJECT_ROOT, text=True
-        ).strip())
-    return committed, working
-
-try:
-    COMMITTED_BLOBS, WORKING_BLOBS = relevant_blob_ids()
-except subprocess.CalledProcessError as error:
-    raise RuntimeError(
-        "Relevant producing files do not match HEAD; make a focused commit before retained execution"
-    ) from error
-if COMMITTED_BLOBS != WORKING_BLOBS:
-    raise RuntimeError(
-        "Relevant producing files do not match HEAD; make a focused commit before retained execution"
-    )
-
-print(f"Producing commit: {GIT_COMMIT}")
-
-# ── Inputs ───────────────────────────────────────────────────────────────────
-# --- Inputs (from other scripts) ---
-# upstream = pd.read_csv(PROJECT_ROOT / "outs/.../file.tsv", sep="\t")
-
-# --- Inputs (external data) ---
-# raw = pd.read_csv(PROJECT_ROOT / "data/.../file.tsv", sep="\t")
-
-# Verify required upstream outputs and their established completion evidence before reading them.
-# Do not rely on file existence alone, and do not commit large inputs as producing code.
-
-# ── Analysis step 1 ──────────────────────────────────────────────────────────
-# Describe WHAT this step does and WHY — the analytical reasoning, not the code
-# mechanics. What question does it answer, and what should the reader look for in
-# the output? This replaces the markdown narrative a .qmd would carry. Every major
-# section gets a block comment like this; also annotate thresholds, assumptions,
-# and any code that would surprise a reader.
-
-# ── BUILD_INFO (last action after output checks) ─────────────────────────────
-EXPECTED_OUTPUTS = [OUT_DIR / "result.tsv"]  # replace with this script's outputs
-missing_outputs = [path for path in EXPECTED_OUTPUTS if not path.is_file()]
-if missing_outputs:
-    raise RuntimeError(f"Expected outputs are missing: {missing_outputs}")
-try:
-    _, FINAL_WORKING_BLOBS = relevant_blob_ids()
-except subprocess.CalledProcessError as error:
-    raise RuntimeError("Relevant producing files changed during execution") from error
-if FINAL_WORKING_BLOBS != COMMITTED_BLOBS:
-    raise RuntimeError("Relevant producing files changed during execution")
-
-lines = [
-    "completion: complete",
-    f"script: {SCRIPT_PATH}",
-    f"date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
-    f"commit: {GIT_COMMIT}",
-    f"environment: {sys.version.splitlines()[0]}",
-    f"invocation: {shlex.join([sys.executable, *sys.argv])}",
-    f"seed: {RANDOM_SEED}",
-]
-slurm_job_id = os.environ.get("SLURM_JOB_ID")
-if slurm_job_id:
-    lines.append(f"slurm_job_id: {slurm_job_id}")
-lines.extend(f"input: {identity}" for identity in INPUT_IDENTITIES)
-lines.extend(f"source: {relative} | content verified against commit" for relative in RELEVANT_CODE_PATHS)
-lines.extend(f"output: {path.relative_to(PROJECT_ROOT)}" for path in EXPECTED_OUTPUTS)
-BUILD_INFO_PATH.write_text("\n".join(lines) + "\n")
-print("BUILD_INFO.txt written")
+# ── Outputs ──────────────────────────────────────────────────────────────────
+result = data.groupby("sample", as_index=False)["value"].mean()
+result.to_csv(OUT_DIR / "result.tsv", sep="\t", index=False)
+print(f"Wrote {len(result):,} rows to {OUT_DIR / 'result.tsv'}")
 ```
 
-Stdout is the execution log — redirect with `python script.py | tee log.txt` when running outside
-SLURM.
+The project's run record captures source and execution identity outside this script. Redirect
+stdout when a persistent execution log is useful.
 
 ---
 

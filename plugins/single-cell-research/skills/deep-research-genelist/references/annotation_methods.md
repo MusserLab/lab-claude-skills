@@ -4,9 +4,9 @@ Reference descriptions for gene annotation methods used in scRNAseq gene lists.
 The deep-research-genelist skill consults this file when generating the Annotation
 Source Guide for deep research prompts.
 
-**Usage:** The skill detects which methods are present in the data (from column
-names, data patterns, suffixes, or the annotation profile), then ALWAYS asks the
-user to confirm before using any of these descriptions. Never silently assume.
+**Usage:** Column names, patterns and suffixes suggest possible methods; confirm their actual
+source evidence from project records or the user before first use. Reuse a valid confirmed
+dataset profile for subsequent prompts. Do not assign evidence from name syntax alone.
 
 ---
 

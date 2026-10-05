@@ -1,6 +1,6 @@
 {
   "name": "genome-annotation",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Gene lookup, sequence completeness, profile search and phylogeny.",
   "author": {
     "name": "Musser Lab"

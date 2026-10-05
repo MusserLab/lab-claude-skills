@@ -2,9 +2,8 @@
 name: quarto-docs
 description: >
   Quarto document conventions for data science analysis scripts (.qmd). Use when creating or
-  rendering .qmd analysis scripts in data science projects with numbered scripts,
-  producing-state capture, and BUILD_INFO.txt. Do NOT load for Quarto books, websites, or documentation
-  projects — those use standard Quarto conventions without numbered script prefixes or BUILD_INFO.txt.
+  rendering .qmd analysis scripts in data science projects with numbered scripts and retained
+  outputs. Do NOT load for Quarto books, websites, or ordinary documentation projects.
 ---
 
 # Quarto Documents
@@ -17,64 +16,78 @@ not inherit those analysis requirements.
 
 ## Rendering (CRITICAL)
 
-**Always use `quarto render`, never use `rmarkdown::render()`** for `.qmd` files.
+**Use `quarto render`, never `rmarkdown::render()`** for `.qmd` files.
+
+The commands below are standalone examples: no Quarto project configuration, launched from
+repository root. Replace the example paths and environment names for the actual analysis.
+For a declared Quarto project, use its existing configuration and layout as described below.
 
 ```bash
-# CORRECT: Use quarto CLI
-quarto render scripts/01_analysis.qmd --output-dir outs/01_analysis/
-
-# WRONG: Do NOT use rmarkdown
-Rscript -e "rmarkdown::render('script.qmd')"  # Will fail with pandoc error
+quarto render scripts/01_analysis.qmd --execute-dir "$PWD" --output-dir "$PWD/outs/01_analysis/"
 ```
 
 If Quarto is not in `PATH`, use the executable declared by the project environment or optional site profile. Do not assume a host-specific installation path.
 
-### Python QMDs require conda activation
+### Use the declared compatible runtime
 
-**CRITICAL:** For Python `.qmd` files, the project's conda environment must be active before rendering. Otherwise Quarto will use the wrong Python or fail to find packages.
+Use the project's selected R runtime with renv or its other declared package setup, or its
+selected Python runtime with Conda, venv or another established setup. renv manages R packages;
+it does not itself select the R executable. Check the actual R version/location or Python
+interpreter and selected Jupyter kernel before relying on execution.
+
+When Python uses Conda, setup, activation and rendering must stay in the **same Bash invocation**:
 
 ```bash
-# R QMD — use the project's declared R/renv environment
-quarto render scripts/01_analysis.qmd --output-dir outs/01_analysis/
-
-# Python QMD — setup, activation, and render stay in one shell call
-source "$(conda info --base)/etc/profile.d/conda.sh" && conda activate PROJECT_ENV && quarto render scripts/02_plots.qmd --output-dir outs/02_plots/
+# Python QMD — when the project selects Conda; setup and render share one shell
+source "$(conda info --base)/etc/profile.d/conda.sh" && conda activate PROJECT_ENV && quarto render scripts/02_plots.qmd --execute-dir "$PWD" --output-dir "$PWD/outs/02_plots/"
 ```
 
-If `conda` is not initially discoverable, prepend the setup command declared by the project or
-selected site profile. Do not invent a module or installation path.
+If Conda is not initially discoverable, prepend the project's declared setup command.
+Do not invent a module or installation path.
+
+Activation alone does not prove that a named Jupyter kernel uses that interpreter. See the
+kernel troubleshooting below; preserve an established non-Conda runtime.
 
 ## Rendering Options
 
 ```bash
-# Render to default format, output to outs/
-quarto render scripts/XX_name.qmd --output-dir outs/XX_name/
+# Standalone render to the document's default format
+quarto render scripts/XX_name.qmd --execute-dir "$PWD" --output-dir "$PWD/outs/XX_name/"
 
-# Render to specific format
-quarto render scripts/XX_name.qmd --to html --output-dir outs/XX_name/
-quarto render scripts/XX_name.qmd --to pdf --output-dir outs/XX_name/
+# Standalone render to a specific format
+quarto render scripts/XX_name.qmd --to html --execute-dir "$PWD" --output-dir "$PWD/outs/XX_name/"
+quarto render scripts/XX_name.qmd --to pdf --execute-dir "$PWD" --output-dir "$PWD/outs/XX_name/"
 
-# Render with execution
-quarto render scripts/XX_name.qmd --execute --output-dir outs/XX_name/
+# Enable execution; this still renders the document
+quarto render scripts/XX_name.qmd --execute --execute-dir "$PWD" --output-dir "$PWD/outs/XX_name/"
 ```
 
 ## Rendering Output Location
 
-**CRITICAL:** Always use `--output-dir` to render HTML directly into the script's `outs/` folder. Never leave rendered HTML next to the `.qmd` source file.
+Keep rendered analysis documents in the producer's output area. Resolve the artifact path for
+the actual rendering mode rather than assuming `--output-dir` is relative to the caller:
+
+- **Standalone document (no Quarto project):** for a nested source such as
+  `scripts/01_analysis.qmd`, a relative `--output-dir outs/01_analysis/` can land under
+  `scripts/outs/01_analysis/`. From repository root, the quoted absolute destination below
+  writes the standalone HTML to `outs/01_analysis/01_analysis.html`.
+- **Declared Quarto project:** honor `_quarto.yml` and the project's existing render/output
+  layout. Quarto can preserve the source's `scripts/` nesting under the chosen output directory,
+  even when that directory is absolute. An absolute path does not flatten a project layout;
+  do not change project configuration or move files merely to match the standalone example.
 
 ```bash
-# CORRECT: Render directly to outs/ folder
-quarto render scripts/01_analysis.qmd --output-dir outs/01_analysis/
+# Standalone document, launched from repository root
+quarto render scripts/01_analysis.qmd --execute-dir "$PWD" --output-dir "$PWD/outs/01_analysis/"
 
-# CORRECT: With the R executable declared for this project
-QUARTO_R=/path/to/project/R/bin/R \
-  quarto render scripts/01_analysis.qmd --output-dir outs/01_analysis/
-
-# WRONG: Do NOT render in place (pollutes scripts/ with HTML)
-quarto render scripts/01_analysis.qmd
+# Same standalone case, with a compatible declared R executable when needed
+QUARTO_R=/path/to/project/R/bin/R quarto render scripts/01_analysis.qmd --execute-dir "$PWD" --output-dir "$PWD/outs/01_analysis/"
 ```
 
-The `--output-dir` path is relative to the project root (where you run the command from).
+After rendering, check the command's exit status and the actual expected HTML/PDF path and
+content. A successful computational chunk or run record does not certify the rendered
+document; report the whole QMD run complete only after the renderer succeeds and that artifact
+is verified.
 
 ## Format Choice
 
@@ -85,34 +98,36 @@ The `--output-dir` path is relative to the project root (where you run the comma
 
 **Recommendation:** Use HTML for GitHub/web. Use PDF only when print is required.
 
-## Running Code Without Rendering
+## Development Checks Without Rendering
 
-When you just need outputs, not the rendered document:
-
-**R:**
-- Extract R code and run with `Rscript` directly
-- Or use `quarto render script.qmd --execute`
-
-**Python:**
-- Extract Python code and run with `python` directly (with conda env active)
-- Or use `quarto render script.qmd --execute` (with conda env active)
+Extracted R or Python code may run directly with `Rscript` or `python` in the selected project
+runtime for a bounded development check. These outputs are **provisional**: record the actual
+extraction/launch command, code state and inputs, and replace the template's `quarto render`
+invocation with the command that really ran. Do not report a complete QMD render from extracted
+code. Before retained scientific use, rerun the checkpointed saved producer through its agreed
+workflow. `quarto render --execute` executes code **and renders**; it is not a code-only command.
 
 ---
 
 ## QMD Templates
 
-Templates bind retained outputs to a commit containing the declared producing files and write
-BUILD_INFO.txt provenance.
-See the `script-organization` skill for input/completion checks and output preservation.
-For new lettered workflows, `out_dir` and the render destination name the producer's child
-directory under the shared topic root (for example, `outs/15_topic/15b_modules/`). Each stage
-has its own completion record and may read upstream files from siblings. Preserve existing
-project paths pending separately scoped adoption; the generic directory guard is not suitable
-for a legacy flat directory shared by multiple producers without adapting its ownership checks.
+Templates keep the analysis readable and write outputs to the producer's directory. Adapt source
+paths, output names and the seed to the actual analysis and random APIs. The project's established
+run record, workflow engine or execution log binds retained outputs to source, inputs and runtime;
+do not duplicate that machinery inside every QMD. The examples assume a standalone render from
+repository root. See `script-organization` for provenance, rerun behavior and output preservation.
+For lettered workflows, `out_dir` and the render destination name the producer's child directory
+under the shared topic root (for example, `outs/15_topic/15b_modules/`).
+
+The setup refuses a nonempty producer directory, including an earlier rendered document. Preserve
+that run or choose a fresh destination before rendering again. An explicitly disposable reproduction
+destination can use a documented replacement policy instead; do not bypass the guard just to retry.
 
 ### Shared YAML Header
 
-The YAML header is identical for R and Python, except Python adds `jupyter: python3`:
+The YAML header is similar for R and Python; Python adds the selected Jupyter kernel.
+`python3` below is an example, not proof of the intended runtime. If the intended registered
+kernel is `PROJECT_ENV`, set `jupyter: PROJECT_ENV` rather than leaving `python3`.
 
 **R:**
 ```yaml
@@ -142,7 +157,7 @@ execute:
 ---
 ```
 
-**Python** — same, but add `jupyter: python3` and drop `message: false` (not applicable):
+**Python** — same, but select the intended kernel and drop the R-specific `message: false`:
 ```yaml
 ---
 title: "Script Title"
@@ -174,7 +189,9 @@ execute:
 
 ### AI Attribution Block
 
-When an agent generates substantial code for a new QMD script, include an attribution callout immediately after the YAML header. Record the actual agent and model; do not infer human review from the YAML author field.
+When an agent generates a QMD script, include an attribution callout immediately after the YAML
+header (before any content). Record the actual agent and model when known; say the model is
+unknown when it is not exposed. Attribution records authorship, not a reproducibility guarantee.
 
 ````markdown
 ::: {.callout-note title="Code generation"}
@@ -184,11 +201,13 @@ This script was generated by **[actual agent and model]**. Human review is pendi
 
 **Rules:**
 
-- Include the callout for substantial agent-generated code, using the actual agent and model.
-- Record completed review only when it occurred; otherwise retain the pending statement.
-- For minor agent edits to human-authored code, note the contribution near the edit when useful.
-- Preserve an existing accurate attribution and update it only when its recorded state changes.
-- Keep the provenance visible in rendered output.
+- **Always include** when Codex, Claude or another agent writes a new QMD script
+- **Use truthful agent/model attribution**; requested settings are not evidence of the serving model
+- **Record completed review only when it occurred.** Replace the pending statement with the
+  actual reviewer's name after review; the YAML author alone is not evidence of review.
+- **Do NOT include** when a human wrote the script and an agent only made minor edits — instead, note the agent's contributions in a comment near the edited code
+- **Do NOT remove** an existing attribution block when editing an agent-generated script
+- The callout renders visibly in the HTML output so readers know the provenance at a glance
 
 ---
 
@@ -204,60 +223,17 @@ suppressPackageStartupMessages({
   # ... other packages
 })
 
-# Declare the committed producer, sourced helpers, non-secret configuration and environment lock.
-relevant_source_paths <- c("scripts/XX_script_name.qmd")
-input_identities <- c(
-  "data/.../file.tsv | external input; checksum/manifest: <identity>",
-  "outs/.../file.tsv | producer completion record: <path and identity>"
-)
-invocation <- "quarto render scripts/XX_script_name.qmd --output-dir outs/XX_script_name/"
-
 options(stringsAsFactors = FALSE)
 random_seed <- 42
 set.seed(random_seed)
 
-# This producer's directory, e.g. outs/15_topic/15b_modules/ for a lettered stage.
+# This producer's directory; document whether a rerun replaces or preserves existing outputs.
 out_dir <- here("outs/XX_script_name")
 if (dir.exists(out_dir) && length(list.files(out_dir, all.files = TRUE, no.. = TRUE)) > 0) {
-  stop(
-    "Output destination is not empty; use a fresh path or preserve/clear it only after ",
-    "confirming the existing producer-owned outputs are disposable"
-  )
+  stop("Preserve existing outputs or choose a fresh destination: ", out_dir)
 }
 dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
-build_info_path <- file.path(out_dir, "BUILD_INFO.txt")
-
-relevant_files <- file.path(here(), relevant_source_paths)
-if (!all(file.exists(relevant_files) & !dir.exists(relevant_files))) {
-  stop("A declared producing file is missing")
-}
-git_commit <- system2("git", c("-C", shQuote(here()), "rev-parse", "HEAD"), stdout = TRUE)
-
-git_value <- function(arguments) {
-  value <- suppressWarnings(system2(
-    "git", c("-C", shQuote(here()), arguments), stdout = TRUE, stderr = TRUE
-  ))
-  if ((!is.null(attr(value, "status")) && attr(value, "status") != 0L) || length(value) != 1) {
-    return(NA_character_)
-  }
-  unname(value)
-}
-committed_blobs <- vapply(
-  relevant_source_paths,
-  function(relative) git_value(c("rev-parse", shQuote(paste0(git_commit, ":", relative)))),
-  character(1)
-)
-working_blobs <- vapply(
-  relevant_source_paths,
-  function(relative) git_value(c("hash-object", shQuote(relative))),
-  character(1)
-)
-if (anyNA(committed_blobs) || anyNA(working_blobs) || !identical(committed_blobs, working_blobs)) {
-  stop("Relevant producing files do not match HEAD; make a focused commit before retained execution")
-}
-cat("Producing commit:", git_commit, "\n")
-
-# source(here("R/helpers.R"))  # include it in relevant_source_paths above
+# source(here("R/helpers.R"))
 ```
 ````
 
@@ -276,34 +252,11 @@ gene_names <- read_tsv(here("data/gene_naming/names.tsv"))
 **Final chunk** (after all outputs are written):
 
 ````
-```{r build-info}
+```{r output-checks}
 expected_outputs <- c(file.path(out_dir, "result.tsv")) # replace with this script's outputs
 missing_outputs <- expected_outputs[!file.exists(expected_outputs)]
 if (length(missing_outputs) > 0) stop("Expected outputs are missing: ", paste(missing_outputs, collapse = ", "))
-final_working_blobs <- vapply(
-  relevant_source_paths,
-  function(relative) git_value(c("hash-object", shQuote(relative))),
-  character(1)
-)
-if (anyNA(final_working_blobs) || !identical(committed_blobs, final_working_blobs)) {
-  stop("Relevant producing files changed during execution")
-}
-
-session_evidence <- capture.output(sessionInfo())
-build_lines <- c(
-  "completion: complete",
-  "script: scripts/XX_script_name.qmd",
-  paste("date:", format(Sys.time(), "%Y-%m-%d %H:%M:%S")),
-  paste("commit:", git_commit),
-  paste("environment:", R.version.string),
-  paste("invocation:", invocation),
-  paste("seed:", random_seed),
-  paste("input:", input_identities),
-  paste("source:", relevant_source_paths, "| content verified against commit"),
-  paste("output:", expected_outputs),
-  paste("session:", session_evidence)
-)
-writeLines(build_lines, build_info_path)
+cat("Wrote", length(expected_outputs), "outputs to", out_dir, "\n")
 ```
 ````
 
@@ -317,29 +270,18 @@ writeLines(build_lines, build_info_path)
 ```{python}
 #| label: setup
 
-import subprocess
 import sys
 import random
-import platform
 from pathlib import Path
-from datetime import datetime
 
 import numpy as np
 import pandas as pd
-import matplotlib
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-PROJECT_ROOT = Path(subprocess.check_output(["git", "rev-parse", "--show-toplevel"]).decode().strip())
+# The documented render command sets Quarto's execution directory to the repository root.
+PROJECT_ROOT = Path.cwd()
 sys.path.insert(0, str(PROJECT_ROOT / "python"))
-
-# Declare the committed producer, imported helpers, non-secret configuration and environment lock.
-RELEVANT_CODE_PATHS = [Path("scripts/XX_script_name.qmd")]
-INPUT_IDENTITIES = [
-    "data/.../file.tsv | external input; checksum/manifest: <identity>",
-    "outs/.../file.tsv | producer completion record: <path and identity>",
-]
-INVOCATION = "quarto render scripts/XX_script_name.qmd --output-dir outs/XX_script_name/"
 
 # ---- Options ----
 RANDOM_SEED = 42
@@ -349,54 +291,12 @@ pd.set_option("display.max_columns", None)
 sns.set_theme(style="whitegrid")
 
 # ---- Paths ----
-# This producer's directory, e.g. outs/15_topic/15b_modules/ for a lettered stage.
+# This producer's directory; document whether a rerun replaces or preserves existing outputs.
 out_dir = PROJECT_ROOT / "outs/XX_script_name"
 if out_dir.exists() and any(out_dir.iterdir()):
-    raise RuntimeError(
-        "Output destination is not empty; use a fresh path or preserve/clear it only after "
-        "confirming the existing producer-owned outputs are disposable"
-    )
+    raise FileExistsError(f"Preserve existing outputs or choose a fresh destination: {out_dir}")
 out_dir.mkdir(parents=True, exist_ok=True)
-build_info_path = out_dir / "BUILD_INFO.txt"
-
-RELEVANT_CODE_PATHS = [Path(relative) for relative in RELEVANT_CODE_PATHS]
-if any(relative.is_absolute() or ".." in relative.parts for relative in RELEVANT_CODE_PATHS):
-    raise ValueError("Relevant producing paths must be repository-relative")
-if any(not (PROJECT_ROOT / relative).is_file() for relative in RELEVANT_CODE_PATHS):
-    raise FileNotFoundError("A declared producing file is missing")
-
-GIT_COMMIT = subprocess.check_output(
-    ["git", "rev-parse", "HEAD"], cwd=PROJECT_ROOT, text=True
-).strip()
-
-def relevant_blob_ids():
-    committed = []
-    working = []
-    for relative in RELEVANT_CODE_PATHS:
-        committed.append(subprocess.check_output(
-            ["git", "rev-parse", f"{GIT_COMMIT}:{relative.as_posix()}"],
-            cwd=PROJECT_ROOT,
-            text=True,
-            stderr=subprocess.DEVNULL,
-        ).strip())
-        working.append(subprocess.check_output(
-            ["git", "hash-object", str(relative)], cwd=PROJECT_ROOT, text=True
-        ).strip())
-    return committed, working
-
-try:
-    COMMITTED_BLOBS, WORKING_BLOBS = relevant_blob_ids()
-except subprocess.CalledProcessError as error:
-    raise RuntimeError(
-        "Relevant producing files do not match HEAD; make a focused commit before retained execution"
-    ) from error
-if COMMITTED_BLOBS != WORKING_BLOBS:
-    raise RuntimeError(
-        "Relevant producing files do not match HEAD; make a focused commit before retained execution"
-    )
-print(f"Producing commit: {GIT_COMMIT}")
-
-# from helpers import ...  # include the module path in RELEVANT_CODE_PATHS above
+# from helpers import ...
 ```
 ````
 
@@ -447,45 +347,13 @@ plt.show()
 
 ````
 ```{python}
-#| label: build-info
+#| label: output-checks
 
 EXPECTED_OUTPUTS = [out_dir / "result.tsv"]  # replace with this script's outputs
 missing_outputs = [path for path in EXPECTED_OUTPUTS if not path.is_file()]
 if missing_outputs:
     raise RuntimeError(f"Expected outputs are missing: {missing_outputs}")
-try:
-    _, FINAL_WORKING_BLOBS = relevant_blob_ids()
-except subprocess.CalledProcessError as error:
-    raise RuntimeError("Relevant producing files changed during execution") from error
-if FINAL_WORKING_BLOBS != COMMITTED_BLOBS:
-    raise RuntimeError("Relevant producing files changed during execution")
-
-# Collect session evidence before writing the completion record. These values use only the
-# standard library and packages already required by this script.
-session_evidence = [
-    f"python: {sys.version.splitlines()[0]}",
-    f"executable: {sys.executable}",
-    f"platform: {platform.platform()}",
-    f"numpy: {np.__version__}",
-    f"pandas: {pd.__version__}",
-    f"matplotlib: {matplotlib.__version__}",
-    f"seaborn: {sns.__version__}",
-]
-
-lines = [
-    "completion: complete",
-    "script: scripts/XX_script_name.qmd",
-    f"date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
-    f"commit: {GIT_COMMIT}",
-    f"environment: {sys.version.splitlines()[0]}",
-    f"invocation: {INVOCATION}",
-    f"seed: {RANDOM_SEED}",
-]
-lines.extend(f"input: {identity}" for identity in INPUT_IDENTITIES)
-lines.extend(f"source: {relative} | content verified against commit" for relative in RELEVANT_CODE_PATHS)
-lines.extend(f"output: {path.relative_to(PROJECT_ROOT)}" for path in EXPECTED_OUTPUTS)
-lines.extend(f"session: {item}" for item in session_evidence)
-build_info_path.write_text("\n".join(lines) + "\n")
+print(f"Wrote {len(EXPECTED_OUTPUTS)} outputs to {out_dir}")
 ```
 ````
 
@@ -495,14 +363,14 @@ build_info_path.write_text("\n".join(lines) + "\n")
 
 | Convention | R | Python |
 |------------|---|--------|
-| **Project root** | `here::here()` | `PROJECT_ROOT` (from git) |
+| **Project root** | `here::here()` | `Path.cwd()` with `quarto render ... --execute-dir "$PWD"` from repository root |
 | **Read CSV** | `read_csv(here("data/file.csv"))` | `pd.read_csv(PROJECT_ROOT / "data/file.csv")` |
 | **Read TSV** | `read_tsv(here("data/file.tsv"))` | `pd.read_csv(PROJECT_ROOT / "data/file.tsv", sep="\t")` |
 | **Read Parquet** | `arrow::read_parquet(here(...))` | `pd.read_parquet(PROJECT_ROOT / ...)` |
 | **Read RDS** | `readRDS(here(...))` | N/A (use Parquet for cross-language) |
 | **Save figure** | `ggsave(file.path(out_dir, "fig.pdf"))` | `fig.savefig(out_dir / "fig.pdf")` |
 | **Random seed** | `set.seed(42)` | `random.seed(42)` + `np.random.seed(42)` |
-| **Session info** | `sessionInfo()` captured in `BUILD_INFO.txt` | Python/platform/imported package versions captured in `BUILD_INFO.txt` |
+| **Runtime diagnostics** | `sessionInfo()` + `R.home()` | `sys.version` + `sys.executable`; optional `session_info.show()` |
 | **Suppress startup** | `suppressPackageStartupMessages()` | N/A (Python imports are quiet) |
 | **Chunk label** | `{r label-name}` or `#| label:` | `#| label:` only |
 | **Helper loading** | `source(here("R/helpers.R"))` | `sys.path.insert(0, str(PROJECT_ROOT / "python"))` |
@@ -519,35 +387,44 @@ for interchange. Preserve the project's agreed workflow; do not infer shared-mem
 
 ## What Shows in the Rendered Output
 
-Validation is noisy and belongs out of the rendered document; data summaries are the point of it
-and belong in. Put checks in a chunk marked `#| include: false` and keep the summary chunk visible.
+Keep routine startup/validation detail quiet, but print substantive data summaries and anomaly
+summaries in visible chunks. `#| include: false` hides **all** cell output, including warnings
+and messages; consequential failed checks should stop execution, but a hidden warning is not
+guaranteed to reach the reader.
 
-**R** — `cat()` for verbose diagnostics (hidden by `include: false`), `message()` for warnings that
-must appear during rendering, `print()` and `glimpse()` for summaries you want in the document.
+The example YAML suppresses messages/warnings globally. Override those defaults in a visible
+cell when a warning or message matters. For R, use `#| include: true`, `#| warning: true` and
+`#| message: true` as relevant; for Python/Jupyter use a visible cell with `#| warning: true`.
+Print the substantive summary as well, so it appears with the results.
 
-**Python** — `print()` for diagnostics, `warnings.warn()` for warnings that must surface in the
-render, `df.info()` / `df.head()` / `df.describe()` for summaries you want in the document.
+````
+```{r anomaly-summary}
+#| include: true
+#| warning: true
+#| message: true
+print(summary_table)  # actual counts/coverage and unresolved cases
+if (n_unmatched > 0) warning("Unmatched inputs remain; see the summary above")
+```
+````
 
-What to validate, and what counts as a summary worth showing, belongs to the `data-handling` skill.
+Use R `print()`/`glimpse()` or Python `print()`/`df.info()`/`df.describe()` for visible summaries.
+What to validate and which anomalies need attention belongs to the `data-handling` skill.
 
 ---
 
 ## Troubleshooting Quarto Rendering
 
-### Python QMD: prefer `subprocess` for portable shell commands
-Quarto's [shell-command documentation](https://quarto.org/docs/computations/execution-options.html#shell-commands)
-distinguishes its execution engines. Jupyter Python cells support shell magic such as `!command`;
-the Knitr route uses `{bash}` cells and can execute Python through reticulate, where IPython syntax
-is not valid Python. Use `subprocess` when the command belongs in Python code that should work
-across those contexts:
+### Shell commands in Python cells
+
+Quarto's **Jupyter engine supports `!command` shell syntax**; its Python kernel is not
+universally plain Python. See [Quarto shell commands](https://quarto.org/docs/computations/execution-options.html#shell-commands).
+Prefer `subprocess` when the same code should also run as an extracted plain-Python script.
+Jupyter shell syntax is not portable to plain Python or a Python chunk executed by Knitr/reticulate.
 
 ```python
-# Portable Python
+# Portable to Jupyter and plain Python
 import subprocess
-git_head = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
-
-# Jupyter-specific shell magic; valid only when the document uses the Jupyter engine
-git_head = !git rev-parse HEAD
+subprocess.run(["tool", "--version"], check=True)
 ```
 
 ### Triple backticks inside a Python string break the code fence
@@ -560,41 +437,67 @@ than embedding it as a Python string literal in the `.qmd`.
 
 ### Python QMD: `__file__` is not defined
 **Cause:** Quarto runs Python QMDs via Jupyter, where `__file__` doesn't exist.
-**Fix:** Use `git rev-parse --show-toplevel` for PROJECT_ROOT (already in the template above). Never use `Path(__file__)` in QMD files.
+**Fix:** For the root-launched examples in this skill, set Quarto's computation directory with
+`--execute-dir "$PWD"`, then use `Path.cwd()`. If a project supports launching elsewhere, pass its
+root explicitly or use its established project-root helper. Never use `Path(__file__)` in QMD files.
 
 ```python
-# CORRECT — works in Jupyter and standalone
-PROJECT_ROOT = Path(subprocess.check_output(
-    ["git", "rev-parse", "--show-toplevel"], text=True
-).strip())
+# Correct when the render command uses --execute-dir "$PWD"
+PROJECT_ROOT = Path.cwd()
 
 # WRONG — fails in Jupyter/Quarto
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 ```
 
 ### Missing `nbformat`, `nbclient`, or `ipykernel`
-**Cause:** Quarto needs these packages in the active Conda environment to execute Python QMDs.
-**Fix:** Add all three to the project's environment specification, reconcile the lock or exported
-environment, then install through the declared environment workflow. For a temporary diagnosis:
+
+Diagnose the actual interpreter and selected Jupyter kernel first; a missing package may mean
+the wrong runtime was selected. Check these execution dependencies in the declared environment.
+If a dependency change is necessary, coordinate it through the lead and the project's existing
+environment/specification procedure. Do not blindly install packages, create an environment or
+register a global kernel as a rendering remedy.
+
+### HTML output lands under `scripts/` or in an unexpected nested directory
+
+Check whether this is a standalone document or a declared Quarto project and inspect the actual
+artifact path. For the standalone root-launched case, use:
+
 ```bash
-source "$(conda info --base)/etc/profile.d/conda.sh" && conda activate PROJECT_ENV && python -m pip install nbformat nbclient ipykernel
+quarto render scripts/XX_name.qmd \
+  --execute-dir "$PWD" \
+  --output-dir "$PWD/outs/XX_name/"
 ```
 
-### HTML output lands in `scripts/` instead of `outs/`
-**Cause:** Forgot `--output-dir` flag.
-**Fix:** Always specify output directory:
+For a Quarto project, honor the configured layout and any preserved source-directory nesting;
+see Rendering Output Location above. Check exit status and the expected artifact's content.
+
+### Quarto uses the wrong Python kernel
+
+Inspect the selected environment's `sys.executable`, the document's `jupyter` metadata and the
+intended kernelspec. See [Quarto kernel selection](https://quarto.org/docs/computations/python.html#kernel-selection).
+When the project uses Conda, activate it in the same Bash invocation as diagnostics/rendering;
+using the declared setup, for example when Conda is discoverable:
+
 ```bash
-quarto render scripts/XX_name.qmd --output-dir outs/XX_name/
+source "$(conda info --base)/etc/profile.d/conda.sh" && conda activate PROJECT_ENV && python -c 'import sys; print(sys.executable)'
 ```
 
-### Quarto uses wrong Python kernel
-**Cause:** Conda env not activated before `quarto render`, or wrong kernel registered.
-**Fix:** Activate the declared Conda environment first. If the project requires a named
-kernel, register it deliberately, then render in the same environment:
+Only if an intended named kernel is missing and user-level registration is authorized, register
+it from the selected runtime. `--user` changes host-level Jupyter state; it is not an automatic
+step of creating a QMD. Conditional Conda examples:
+
 ```bash
 source "$(conda info --base)/etc/profile.d/conda.sh" && conda activate PROJECT_ENV && python -m ipykernel install --user --name PROJECT_ENV
-source "$(conda info --base)/etc/profile.d/conda.sh" && conda activate PROJECT_ENV && quarto render scripts/XX_name.qmd --output-dir outs/XX_name/
 ```
+
+Registration alone does not select that kernel. Choose it in the QMD metadata:
+
+```yaml
+jupyter: PROJECT_ENV
+```
+
+Then render with the same runtime setup as above and verify the actual interpreter reported by
+the executed document. Apply the project's equivalent procedure for a non-Conda runtime.
 
 ---
 
@@ -602,4 +505,4 @@ source "$(conda info --base)/etc/profile.d/conda.sh" && conda activate PROJECT_E
 
 | Topic | File |
 |-------|------|
-| Publication-quality YAML templates (HTML and PDF) | `references/pdf-formatting.md` |
+| Narrative structure and publication-quality HTML/PDF options; read when drafting those parts | [references/pdf-formatting.md](references/pdf-formatting.md) |

@@ -1,16 +1,39 @@
 # Research plugin compatibility and evidence
 
+> **Codex Research Plugins 0.1.1, 2026-10-05:** the accepted maintenance release keeps four
+> packages and 33 skills. Verify the release tag and matching inventory before installation.
+> Claude stays on the unchanged shared 0.1.0 refs. The
+> [release notes](research-plugins-codex-candidate.md) separate content checks from client trials.
+
+The current [release inventory](../release/first-release.json) identifies all four Codex packages
+at `0.1.1`, with optional packages still accepting Core `0.1.0`. Codex's moving release ref is
+`codex/research-plugins-codex-release`; its immutable ref is `research-plugins-codex-0.1.1`.
+Claude's moving `codex/research-plugins-release` and immutable `research-plugins-0.1.0` remain
+unchanged, as do default `main` and legacy `lab-skills` 1.12.1.
+
+On 2026-10-05, a disposable macOS profile with Codex CLI 0.149.0 exercised switching from the
+held shared ref to a separate Codex ref, a changed upgrade, and same-profile immutable 0.1.0
+recovery. Seven complete 93-file readbacks matched local fixture payloads. Reinstallation enabled
+a previously disabled package; explicit preference restoration was required. Subsequent upgrades
+preserved that restored choice. Unrelated preferences and the adopted `RESEARCH-CORE` block stayed
+unchanged. No model/account session or final 0.1.1 native installation ran. Content/build checks
+cover the accepted 0.1.1 payload separately; Desktop, Windows, Linux, clusters, ordinary student
+use and real scientific execution remain unverified.
+
+## Retained 0.1.0 release evidence
+
 > **Research Plugins 0.1.0, 2026-10-01:** all four public packages contain 33 skills. Phase 1
 > was accepted with the limits recorded below; normal public release was subsequently authorized.
 > The accepted candidate's four-package macOS CLI install/update/recovery and instruction-preservation
 > checks passed. Desktop, Windows/Linux, ordinary student use and real scientific execution remain
 > separate evidence targets. Use the [installation quickstart](research-plugins-install.md).
 
-The [release inventory](../release/first-release.json) identifies all four packages at `0.1.0`.
+The [retained 0.1.0 inventory](https://github.com/MusserLab/lab-claude-skills/blob/research-plugins-0.1.0/release/first-release.json)
+identifies all four packages at `0.1.0`.
 Its SHA-256 is `5cf8048f2b4bfee979e18ec4050a4044b5386dfd743c7ecf59576a7404e37dcf`.
 The release build changed eight client manifest versions and the inventory; all 85 procedure/resource
 files remained unchanged. Exact build/export checks passed. Candidate hashes below describe their
-historical snapshots, not this release inventory. Verify actual GitHub release/tag publication
+historical snapshots, not the current 0.1.1 inventory. Verify actual GitHub release/tag publication
 before installation; build, publication, client use and scientific acceptance are separate records.
 
 Compatibility has two dimensions: the computer/interface where the client runs and the execution
@@ -25,7 +48,7 @@ Official client guidance was fetched on 2026-10-01. Availability is distinct fro
 | Desktop on macOS | The current [desktop guide](https://learn.chatgpt.com/docs/app) names the ChatGPT app with Codex mode and an Apple Silicon download. | No package lifecycle test in Desktop; use the quickstart's reviewed repository route. |
 | Desktop on Windows | [Native PowerShell/sandbox or WSL2](https://learn.chatgpt.com/docs/windows/windows-app); agent and terminal settings are separate. | No native Windows test. Use manual exact-block instruction adoption; do not execute the helper against real instructions. |
 | Desktop on Linux | [Preview](https://learn.chatgpt.com/docs/linux/linux-app) for supported Ubuntu, Debian, Fedora and Arch desktop distributions, x64/ARM64. | No Linux Desktop or helper lifecycle test. |
-| Codex CLI | [CLI installation](https://learn.chatgpt.com/docs/codex/cli) and [Windows native/WSL guidance](https://learn.chatgpt.com/docs/windows/windows-sandbox). | 0.149.0 macOS candidate lifecycle passed. Windows, WSL2 and generic Linux remain untested. |
+| Codex CLI | [CLI installation](https://learn.chatgpt.com/docs/codex/cli) and [Windows native/WSL guidance](https://learn.chatgpt.com/docs/windows/windows-sandbox). | 0.149.0 macOS 0.1.0 lifecycle and October 5 routing fixtures passed; final 0.1.1 content was not native-installed. Windows, WSL2 and generic Linux remain untested. |
 | IDE extension, including a proposed Positron route | [Official plugin guidance](https://learn.chatgpt.com/docs/plugins) currently says plugins are unavailable in the IDE extension. | Use Desktop or CLI for these plugins. An embedded terminal is a CLI route; no Positron integration claim. |
 | Browser/cloud | Local Git marketplace installation is a separate distribution context. | No browser/cloud import or execution check; local install supplies no cloud deployment. |
 
@@ -57,13 +80,14 @@ the first proposed lab adoption; this target does not hold the first release for
 
 ## Retained candidate checkpoints and interface targets
 
-The following table retains candidate-stage evidence and then-proposed targets. Pending statements
-are historical to their checkpoints. The release summary and current availability table above govern
-today's claims; no candidate test has been relabelled as a new 0.1.0 Desktop or scientific run.
+The following table and retained sections preserve September 27 through October 1, 2026
+candidate-stage evidence and then-proposed targets. Pending and "current" statements are historical
+to those checkpoints. The dated release summaries and availability table above govern today's
+claims; no older trial has been relabelled as a final 0.1.1 installation, Desktop or scientific run.
 
 | Client, interface and host | Status | Evidence now | Smallest next evidence |
 |---|---|---|---|
-| Codex CLI 0.149.0 and Claude Code 2.1.287, macOS, all four current candidates | Current native lifecycle verified | Both install all 93 package files exactly; changed Git v1→v2 update, same-profile retained-v1 recovery and pin preservation pass. Installed helpers preserve unrelated instructions through setup/update/rollback/removal; registrations removed and loopback service stopped. | Ordinary student/model use, real remote authentication, automatic activation and other interfaces/hosts remain unverified. |
+| Codex CLI 0.149.0 and Claude Code 2.1.287, macOS, all four accepted 0.1.0 candidates, 2026-10-01 | Native lifecycle verified for that checkpoint | Both install all 93 package files exactly; changed Git v1→v2 update, same-profile retained-v1 recovery and pin preservation pass. Installed helpers preserve unrelated instructions through setup/update/rollback/removal; registrations removed and loopback service stopped. | Ordinary student/model use, real remote authentication, automatic activation and other interfaces/hosts remain unverified. |
 | Claude Code 2.1.287, Core candidate.6 via `--plugin-dir` | Prompted output-review composition verified | Actual Opus 5.5, requested xhigh; data-handling/done read a fixed four-row result, explained input/version choice and newer alternative, saved review/ordinary docs plan with human acceptance pending. Lead ran the producer; restricted Claude shell attempts were denied. | Fully autonomous execution in that harness and ordinary interactive `.claude/` plan editing remain unverified; no student-use claim. |
 | Core candidate.6 on macOS | Student-owned delegation guidance built and checked | Existing checks pass; disposable CLAUDE.md and AGENTS.md lifecycle preserves personal permission; native Claude manifest validation and all source/export hashes pass. Bounded Opus wording review informed lead corrections. | Optional-permission discovery, actual student choice and cross-client invocation remain unverified; scoped current Core output-review behavior is recorded above. |
 | Genome candidate.2 on macOS | Agreed interpretation/privacy corrections checked | Unknown-taxon classification and explicit upload-mode fixtures pass; BUSCO stops on an unspecified lineage and accepts a configured choice. Source/export agreement and strict Claude manifest validation pass. | Full rendering, real scientific runs, service/API compatibility and complete Phase 1 acceptance remain unverified. |
@@ -374,5 +398,6 @@ exact installed block, complete diff, byte-for-byte backup, approval, native edi
 readback. If exact preservation cannot be verified, stop without writing. A WSL2 or macOS result is
 not native Windows evidence, and the setup must not silently change the student's chosen environment.
 
-The public 0.1.0 release retains the reviewed helper; a future compatibility repair can be delivered
-through a normal package update. Manual adoption is a separate verified result, not helper success.
+Both the held 0.1.0 and Codex 0.1.1 releases retain the reviewed helper; a future compatibility
+repair can be delivered through a normal package update. Manual adoption is a separate verified
+result, not helper success.

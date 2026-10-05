@@ -102,8 +102,10 @@ for that R version. Treat a release change as an environment change and review i
 ### Failed package installation
 → Try `renv::install("package", rebuild = TRUE)`
 
-### Reinitializing a project
-Do not remove `renv/`, `.Rprofile`, or `renv.lock` as a troubleshooting shortcut. First inspect
-`renv::diagnostics()` and `renv::status()`. If reinitialization is deliberately chosen, preserve
-the current lock and activation files on a reversible branch or backup, review the environment
-change, then initialize and compare the resolved packages before replacing the project state.
+### Starting fresh
+→ Reset only when explicitly requested after diagnosing the problem. Preserve `renv.lock`, the
+project library and unrelated `.Rprofile` content before changing activation.
+`renv::deactivate(clean = FALSE)` removes renv's autoloader while retaining the lockfile/library
+([official documentation](https://pkgs.rstudio.com/renv/reference/activate.html)). Do not delete
+`renv/` or the whole `.Rprofile` as routine troubleshooting; review reinitialization against the
+existing lockfile before proceeding.

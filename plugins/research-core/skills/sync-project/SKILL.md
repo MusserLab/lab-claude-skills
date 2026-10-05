@@ -91,7 +91,7 @@ Reached only when both sides have commits.
    git merge-tree --write-tree HEAD <resolved-upstream>   # exit 0 = clean; exit 1 = conflicts
    ```
 2. **Recommend an approach:**
-   - Local commits verified **unpublished and unshared** → **rebase explicitly**:
+   - Local commits verified **unpublished, unshared and not cited as producing retained results** → **rebase explicitly**:
      `git rebase <resolved-upstream>`. Before recommending this, inspect whether the local-only
      commits are reachable from any remote-tracking ref and ask about sharing not visible in Git.
    - Any local commit already published/shared, or uncertain sharing → **merge explicitly**:
@@ -209,7 +209,7 @@ When this skill reads `environment.yml`, flag these issues:
 | A channel is present without a declared dependency or site reason | Note for review; do not remove it automatically |
 
 These are warnings only — the skill does not auto-fix `environment.yml` during arrival.
-Fixes happen at departure time (in `/done`) when exporting the environment.
+Fix them deliberately in the dependency specification (see `conda-env`), not during arrival.
 
 ---
 

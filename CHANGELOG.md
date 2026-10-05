@@ -5,6 +5,26 @@ Entries are dated and identify the released package versions.
 
 ---
 
+## 2026-10-05 - Codex Research Plugins 0.1.1
+
+- Selective updates to the same four packages and 33 skills; each Codex package is 0.1.1.
+  Optional packages still accept Core 0.1.0. No additional scientific or private packages.
+- Clearer runtime, output preservation, provenance, input review and project-workflow guidance.
+  Existing released diagram resources, teaching-output protection and synchronization repairs stay.
+- Marker prompts reuse confirmed dataset provenance; explicit report-file intake no longer requires
+  a pre-existing batch directory. The ordinary report parser and unsupported-family boundary stay.
+- Protein phylogeny retains explicit seeds and fresh runs with clearer Quarto execution/report
+  destinations. Released HMMER choices and output safeguards remain unchanged.
+- Yale guidance is reconciled without personal collection IDs or host-maintenance hooks.
+- Codex release refs are `codex/research-plugins-codex-release` for ordinary updates and
+  `research-plugins-codex-0.1.1` for an immutable pin. Claude remains on the unchanged shared
+  0.1.0 refs; default `main` and legacy `lab-skills` are untouched. Verify the release tag and
+  matching inventory before installing.
+- Existing Codex installations need a separately approved whole-marketplace source switch,
+  with enabled/disabled preferences snapshotted and restored after reinstallation. Ordinary
+  updates do not rewrite adopted collaboration instructions. See the
+  [release notes](docs/research-plugins-codex-candidate.md) for evidence and recovery limits.
+
 ## 2026-10-01 — Research Plugins 0.1.0
 
 - Four public packages for Claude Code and Codex: Research Core (23 skills), optional Yale

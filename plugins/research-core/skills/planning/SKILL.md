@@ -79,9 +79,15 @@ Directly testable software/system work can use short build–try–adjust cycles
 scientific interview when purpose and checks are already clear. An already agreed phase does not
 need a new interview unless new evidence changes a consequential premise.
 
-Before launch, explain the integrated approach back to the user from purpose and inputs through
-methods, possible outcomes, evidence, discussions, and acceptance. Resolve substantive mismatch;
-routine implementation detail remains agent-owned.
+Before launching a newly planned substantial phase, give a short integrated readback: its purpose,
+inputs and scope, methods and possible outcomes, expected outputs/evidence, autonomous work, and
+joint review/acceptance stops. Resolve substantive mismatch; routine implementation detail remains
+agent-owned. End by explicitly asking whether the researcher approves beginning that phase, then
+wait for their answer before starting its execution. Agreement on an individual method, release scope or
+timing does not close this gate. An ordinary "yes" is sufficient when it answers the clear launch
+question; no special wording is required. Record the answer and its scope in the existing authority,
+not just an assistant-authored claim that approval occurred. Reuse that approval when resuming the
+unchanged phase; this is not a per-script gate or phase-completion acceptance.
 
 ## Write the smallest useful contract
 
@@ -160,6 +166,11 @@ The review should let the user understand and explain the work. Begin with the q
 and principal findings; show actual inputs, producers/helpers, transformations, outputs, figures,
 and downstream uses. Distinguish planned work, what ran, retained and dismissed findings,
 influential exploration, and proposed future work.
+
+Make input selection part of that review: identify the actual versions and contents used, why
+they fit the question, and consequential exclusions or substitutions. Investigate relevant newer
+or alternative inputs without silently replacing a deliberately frozen comparison. Return any
+choice that changes validity, comparability or interpretation before dependent work.
 
 Follow the order: what was done, what it means, whether the scientific approach is right, then
 whether the code implements it faithfully. Show actual plots and evidence and invite the user's

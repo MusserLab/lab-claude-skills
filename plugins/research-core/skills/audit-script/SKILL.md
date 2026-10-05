@@ -70,6 +70,8 @@ Evaluate what is relevant from these connected questions.
   denominator?
 - Are inclusions, exclusions, thresholds, transformations, controls, models, and alternatives
   visible and justified?
+- Do the actual input versions and contents remain appropriate for the question? Explain relevant
+  alternatives or newer inputs and any substitutions, preserving a justified frozen comparison.
 - Could a technically correct operation support a misleading interpretation?
 - Are negative, partial, and Unknown outcomes distinguished from broken lineage or missing checks?
 

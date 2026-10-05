@@ -9,7 +9,7 @@ write permission by itself.
 Resolve `<new-project-skill-dir>` from the installed `new-project/SKILL.md` location, then run
 `python3 <new-project-skill-dir>/scripts/coordination.py --cwd <actual-project-directory>`
 with an available compatible Python interpreter. The path is inside the skill, not the project.
-This reader and reference also support planning, closeout, project audit and collaborator setup.
+This reader and reference also support planning, closeout and project audit.
 For setup before Git initialization, use `--root <exact-target-root>`. The reader is read-only and
 returns `model`, resolved `root`, declaration `sources`, and a diagnostic `reason`; invalid input
 exits 2.

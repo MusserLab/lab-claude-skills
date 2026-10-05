@@ -50,13 +50,13 @@ dev.off()
 
 ## PDF Font Embedding
 
-Use `cairo_pdf` instead of the default `pdf()` device. The default PDF device cannot find non-standard fonts (e.g., Arial) and will error with "failed to find or load PDF CID font". `cairo_pdf` embeds fonts as outlines.
+Use `cairo_pdf` instead of the default `pdf()` device. The default PDF device may fail for fonts outside its configured PDF font families (e.g., Arial), with "failed to find or load PDF CID font". `cairo_pdf` supports font embedding; inspect the exported PDF's font properties when this matters.
 
 ```r
 # CORRECT
 ggsave("plot.pdf", plot = p, device = cairo_pdf)
 
-# WRONG — will fail with Arial or other non-default fonts
+# May fail with Arial or other fonts not configured for the default PDF device
 ggsave("plot.pdf", plot = p)  # uses default pdf() device
 ```
 

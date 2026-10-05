@@ -1,27 +1,12 @@
 ---
 name: hpc
 description: >
-  Use for Yale YCRC HPC clusters (McCleary, Bouchet, Misha), including
-  first-time cluster setup or adding another cluster,
-  when writing SLURM batch scripts, configuring job resources, or for ANY
-  question about cluster storage — quotas, PI/project/scratch/home space,
-  shared data or database folders, Palmer vs Gibbs, /vast vs /gpfs vs /nfs,
-  or purge policy. Use it whenever someone is out of space or trying to make
-  space — a full or nearly-full quota, a getquota warning, a YCRC storage
-  notice, "cleaning up", "freeing up space", deciding what is safe to delete,
-  or archiving data off the cluster to the lab NAS (Globus transfer, verifying
-  a transfer completed, then deleting the cluster copy). Also use when running
-  bioinformatics tools on HPC, setting
-  up Snakemake pipelines, managing the cluster software environment (module
-  load vs conda, conda envs, renv on HPC), transferring data to or from the
-  cluster (rsync, scp, Globus, between-cluster transfer), or retrieving YCGA
-  sequencing data (ycgaFastq, URLFetch, archived/Glacier fastq retrieval,
-  the -p ycga partition). Also use when connecting to the cluster remotely or
-  running Claude Code on a compute node (SSH setup, Positron/VS Code Remote
-  SSH, interactive sessions, "Claude Code on the cluster", Duo 2FA +
-  ControlMaster connection multiplexing, Windows/WSL vs macOS/Linux remote
-  setup). Covers lab-specific storage paths, partition tables, and tool
-  resource templates.
+  Use for Yale YCRC HPC work on Bouchet, McCleary or Misha: first-time setup
+  or adding a cluster; coding agents on compute nodes; Positron/VS Code access;
+  Slurm jobs, allocations, partitions and resource sizing; storage, quotas,
+  cleanup, archival and purge policy; modules, conda, renv and Snakemake;
+  scoped SSH or Globus transfers; and YCGA sequencing data retrieval.
+  Includes persistent allocation guidance. Do not use for unrelated local computing.
 ---
 
 # Musser Lab HPC Reference
@@ -34,10 +19,29 @@ For first-time setup or adding a cluster, begin with the guided
 host and lab/project settings, preserves completed setup, and reports pending steps honestly.
 Lab paths below are useful defaults, not proof of access. Confirm the researcher's own NetID,
 chosen cluster, project/environment and archive policy before adopting them.
+Resolve the target from the user/project record, then check Slurm's `ClusterName` when connected.
+If they disagree, stop before cluster-specific actions. A working SSH alias, available modules or
+a compute-node hostname alone does not identify the cluster or establish scheduler limits.
 
 ---
 
 ## 1. Getting Started
+
+### First setup or an additional cluster
+
+Reuse the user's working access and ask only for missing choices: selected cluster, laptop OS,
+client/interface and actual agent execution host. For an additional cluster, inspect and change
+only its entries and necessary shared prerequisites. Preserve working SSH aliases, key choices,
+allocation names and client instructions; adding a cluster does not authorize resetting others.
+Preview the exact configuration changes and rollback before installation. Account applications,
+authentication, MFA and private-key passphrases remain the user's actions.
+
+Follow the selected client's guide below and verify the actual compute host, client and loaded
+instructions there. A local app or working CLI does not establish another interface's remote
+behavior. Reuse setup completed earlier and report the next missing step when access is pending.
+For plugin setup, use the selected release's installation guide and preserve existing personal
+guidance. Installation does not itself adopt instructions or configure a remote execution host.
+Agree archive and working-copy locations through the storage section before staging data.
 
 ### Account setup
 
@@ -77,6 +81,15 @@ the full template and setup order — it covers two tiers: a **basic** session, 
 **persistent** one that survives VPN/laptop disconnects (the allocation is held in `tmux` on
 the login node, so a dropped connection no longer kills it).
 
+**Coding-agent execution:** Use the selected client's supported SSH route and verify the
+actual compute host, RUNNING allocation and loaded instructions before launching it. A working
+local app or CLI does not establish another interface's remote behavior. For the bundled
+helper-based route, read [hold-node.sh](scripts/hold-node.sh) and
+[positron-node.sh](scripts/positron-node.sh) before adapting it. Their job-name arguments must
+match; the SSH alias may differ. The Positron guide's Windows/WSL instructions describe that
+IDE workflow, not every client's SSH requirements. This package installs no agent CLI updater
+or personal maintenance companion.
+
 ### First job
 
 After logging in, test with a minimal job:
@@ -101,16 +114,26 @@ Check status with `squeue --me`, view output in `slurm-<jobid>.out`.
 
 | Cluster | Primary use | Status |
 |---------|------------|--------|
-| **McCleary** | YCGA-affiliated workloads during the transition | Being reduced to YCGA-only service; check the current migration notice |
+| **McCleary** | Life sciences, YCGA data analysis | Non-YCGA downsizing in fall 2026/early 2027; YCGA hardware expected through at least late 2027 |
 | **Bouchet** | General HPC, GPU workloads | Active — primary cluster going forward |
 | **Misha** | Wu Tsai Institute | Active |
+
+Dated lifecycle guidance checked 2026-09-30:
+[McCleary transition](https://docs.ycrc.yale.edu/clusters/grace-mccleary-decommission/).
+Recheck the notice before choosing a cluster for new work.
+YCGA compute access does not establish permanent retention of Palmer storage.
 
 ### Which cluster to use
 
 - **YCGA sequencing data analysis** → McCleary (while available) — the `ycga` partition is exempt from compute charges
 - **GPU jobs** (training, PROST structure search) → Bouchet (H200, RTX Pro 6000 Blackwell, RTX 5000 Ada)
-- **General compute** (phylogenetics, alignment, mapping) → McCleary or Bouchet
+- **General compute** (phylogenetics, alignment, mapping) → an eligible McCleary, Bouchet or Misha partition; inspect current capacity and installed inputs
 - **Wu Tsai affiliated work** → Misha
+
+Split CPU preprocessing from GPU inference when the tool supports reusable intermediate
+inputs. Keep source/reference identities and validated handoffs explicit. An idle-node
+snapshot is not a reservation: review aggregate CPUs/GPUs, concurrency, storage and I/O
+before a whole-proteome or similarly large launch.
 
 ### Open OnDemand (web portal)
 
@@ -149,15 +172,16 @@ scp). **Do not use them to run tools** — they often have older CPUs that cause
 
 | Cluster | PI storage (canonical) | Home symlink (lab convention) | Scratch |
 |---------|-----------|-------------------------------|---------|
-| **McCleary** | `/vast/palmer/pi/musser` | — | `/vast/palmer/scratch/musser/` |
-| **Bouchet** | `/nfs/roberts/project/pi_jm284/` | `~/project_pi_jm284/` (= `/home/<netid>/project_pi_jm284/`) | `/nfs/roberts/scratch/pi_jm284` |
-| **Misha** | `/gpfs/radev/project/musser` | — | `/gpfs/radev/scratch` |
+| **McCleary** | `/vast/palmer/pi/musser` | — | `/vast/palmer/scratch/musser/<netid>` |
+| **Bouchet** | `/nfs/roberts/project/pi_jm284/` | `~/project_pi_jm284/` (= `/home/<netid>/project_pi_jm284/`) | `/nfs/roberts/scratch/pi_jm284/<netid>` |
+| **Misha** | `/gpfs/radev/project/musser` | `~/project` (verify target) | `/gpfs/radev/scratch/musser/<netid>` |
 
 > **McCleary has two lab storage roots — check access and quotas before choosing:**
 > `/vast/palmer/pi/musser` (Palmer VAST) is the lab default for bulky raw/shared data.
 > `/gpfs/gibbs/project/musser` is a separate Gibbs allocation. Do not assume their quotas,
-> free space or permissions are interchangeable. Check `getquota` and project guidance;
-> confirm a different root when the project or tool needs it.
+> free space or permissions are interchangeable. Check `getquota`, `mydirectories` and project guidance
+> for both byte and file-count headroom; YCGA work storage is another allocation, not a Palmer alias.
+> Quotas and usage are not permanently fixed here. Confirm a different root when the project or tool needs it.
 
 ### Shared lab data folder (raw sequencing data, cross-cluster)
 
@@ -217,23 +241,33 @@ on a non-Bouchet machine, or to a different location for testing, without editin
 
 ### Storage policies
 
-| Type | Backed up? | Purge policy | Use for |
-|------|-----------|-------------|---------|
-| **Home** (`~/`) | Yes (snapshots) | None | Scripts, configs, small files. 125 GiB quota. |
-| **PI storage** | Yes (snapshots) | None | Raw data, important results, conda environments |
-| **Project** | Yes (snapshots) | None | Active project directories |
-| **Scratch** | No | **60-day purge** | Temporary/intermediate files, large job outputs |
+| Storage | Retention / protection | Use for |
+|---------|------------------------|---------|
+| **Home** | No scratch purge; quota and protection vary by site | Scripts, configs, small files |
+| **PI/project/work** | Persistent, but backups are allocation-specific | Repositories, environments, reference originals, retained results |
+| **Bouchet scratch** | No backup; **30-day purge** | Temporary working inputs, intermediates and active outputs |
+| **McCleary / Misha scratch** | No backup; **60-day purge** | Temporary working inputs, intermediates and active outputs |
+
+Dated policy guidance checked 2026-09-30; it is not a live readback of the researcher's
+allocation. Recheck the site's current policy before relying on a purge deadline. Snapshots
+are not an independent backup: the source review reported no backup for Palmer PI and Misha
+project storage. Check the actual allocation instead of extending one cluster's backup flag
+to every site. See [YCRC backups](https://docs.ycrc.yale.edu/data/backups/).
 
 **Important:**
-- **Never store conda environments on scratch** — they will be purged after 60 days
+- **Never store conda environments or the only repository copy on scratch**
 - **Never store raw data only on scratch** — keep originals in PI storage
-- You will receive email notification one week before scratch files are purged
+- Copy validated batches of active outputs to the approved persistent destination promptly;
+  do not use the purge window as a backup schedule or depend on a warning email
 - Do not artificially modify file timestamps to circumvent the purge policy
-- Check quotas: `getquota` (McCleary) | List paths: `mydirectories`
+- Check quotas: `getquota`; list accessible allocation paths with `mydirectories` on YCRC
 
-> **Verify the current purge window before relying on it.** Read `getquota` and current
-> YCRC storage notices for the selected filesystem. Do not assume the bundled summary is live
-> state; remove temporary files deliberately only within an approved cleanup scope.
+For scratch-first CPU/GPU workflows, retain the reusable CPU-enriched inputs as well
+as final structures/results, confidence/QC files, logs and producing-state evidence
+when the project calls for them. Palmer `Data/` can be the primary persistent copy;
+agree a separate verified backup (for example NAS) for important retained results.
+Use `globus-transfer` for exact path selection, write approval and complete verification.
+This storage pattern does not itself approve a directory, transfer, overwrite or deletion.
 
 ### Archiving to the lab NAS to free cluster space
 
@@ -241,45 +275,79 @@ on a non-Bouchet machine, or to a different location for testing, without editin
 fragments a project. Raise it only when the user is **actually trying to free space** — they mention a
 full quota, a `getquota` warning, a YCRC storage notice, or ask how to clean up.
 
-**Recommended lab model:** use the lab NAS as the durable authoritative archive, with its
-backup arrangement confirmed during setup. A project may document a different archive policy.
-The cluster copy becomes disposable only after the entire intended archive is verified and the
-researcher explicitly authorizes removal of the exact host-local paths. Confirm access, archive
-root and relative-path mapping; no private NAS endpoint or account inventory ships here.
-NAS↔cluster transfers use **Globus**; do not assume a NAS mount on the cluster.
+**Recommended lab model:** use the agreed lab NAS destination as the retained archive, with
+its protection/secondary-copy arrangements confirmed during setup. A project may document a
+different archive policy. The cluster copy becomes disposable only after the entire intended
+archive is verified and the researcher explicitly authorizes removal of the exact host-local paths.
+Confirm access, archive root and relative-path mapping; no private NAS endpoint or account
+inventory ships here. NAS↔cluster transfers use **Globus**; do not assume a cluster NAS mount.
 
 Mirror the project layout under its confirmed archive root where practical so archived paths
 remain understandable. Use the project's existing custody record when one is required.
 
 #### The procedure
 
-1. **Define the complete source universe before transfer.** Use the owning project's manifest or
-   a scoped listing of every intended relative path and size, including an explicit disposition
-   for symlinks and exclusions. Directory counts and aggregate bytes are useful summaries but
-   cannot prove that the right files were selected or that a matching subset is a complete archive.
-2. **Use the included `globus-transfer` workflow** for the exact approved source, destination,
-   selection and overwrite behavior. Agent writes use literal direct CLI commands. Keep encryption
-   and checksum verification enabled; authentication/MFA remain the researcher's actions.
-3. **Verify integrity and completeness separately.** A successful task establishes the outcome of
-   that submitted task, not the unsubmitted universe. Follow `globus-transfer` through terminal
-   status/options/faults/skips and a full mapped destination path-and-size comparison against every
-   intended file. Content verification of transferred files does not verify existing files skipped
-   by `exists`; establish their checksum equivalence separately or report them unverified.
-4. **Hold removal until verification and separate authority are complete.** Confirm that the source
-   universe has not changed and preserve required evidence promptly in the owning record. No Globus
-   deletion or purge is permitted. Host-local removal needs explicit exact-path approval and the
-   project's custody/retention requirements. If a specialized owner workflow is required, including
-   a YCGA intake/archive-removal workflow, hold that removal until it is available and completed;
-   this package does not substitute for it.
+**1. Inventory the intended source *before* transferring.** Keep every relative file path
+and size in the owning workflow's existing inventory/record. Resolve included symlinks and
+record exclusions explicitly; a matching subset cannot prove the complete intended archive.
+Show the user concise file-count/byte totals rather than thousands of entries. These
+commands provide sanity totals only, not the complete inventory:
 
-GNU and BSD `find` differ (`-printf` is GNU-only); on a Mac use the appropriate `stat` syntax.
-Report Finder metadata (`.DS_Store`, `._*`) separately from the intended scientific file universe;
-never silently change the approved selection to make summaries match.
+```bash
+# GNU find (cluster)
+SRC=outs/remap
+find "$SRC" -type f | wc -l
+find "$SRC" -type f -printf '%s\n' | awk '{s+=$1} END{print s+0}'
+```
 
-When freeing space, consider large regenerable intermediates before small or curated material.
-A copy on another cluster also needs complete identity/integrity evidence and retention authority;
-its mere existence does not authorize removal. Preserve the archive path, mapped comparison,
-request and task evidence in the existing project record when custody or later removal relies on it.
+**2. Transfer with Globus.** Agent-mediated writes use [globus-transfer](../globus-transfer/SKILL.md) and its exact-approval,
+direct-CLI and verification workflow; the web app is user-operated, not an agent fallback. Keep
+encryption and checksum verification enabled. Follow the included workflow's exact source,
+destination, selection and overwrite approval; authentication/MFA remain the researcher's actions.
+
+**3. Verify integrity and completeness; use aggregate totals as sanity checks:**
+
+| Check | What it proves | What it misses |
+|---|---|---|
+| **Globus task `SUCCEEDED`, verified checksums, resolved faults/skips** | Integrity of files actually transferred | Nothing about unselected files or pre-existing files skipped by an `exists` transfer |
+| **Every intended relative path and size matches its mapped destination** | Coverage of the entire selected file universe | Content equivalence of pre-existing skipped files: establish checksum equivalence separately or report unverified |
+
+**Both are needed.** File count plus total bytes alone cannot prove completeness: different
+files can have the same totals. A task with a whole subdirectory missing from the selected
+source still reports SUCCEEDED. Follow `globus-transfer` for the complete comparison;
+these macOS commands are only a quick sanity check:
+
+```bash
+# BSD find (macOS, NAS mounted) — NOT the same as the cluster command above
+NAS="/Volumes/<share>/<...>/outs/remap"
+find "$NAS" -type f ! -name '.DS_Store' ! -name '._*' | wc -l
+find "$NAS" -type f ! -name '.DS_Store' ! -name '._*' -exec stat -f%z {} + | awk '{s+=$1} END{printf "%d\n", s}'
+```
+
+**Two traps here, both of which have actually bitten:**
+
+- **macOS `find` has no `-printf`.** It is BSD, not GNU. Use `-exec stat -f%z {} +`. Copying the cluster
+  command to a Mac fails.
+- **Report Finder metadata separately.** Browsing a mounted share can add `.DS_Store` and `._*`.
+  Keep the approved scientific file universe explicit; never silently change the selection to make
+  aggregate totals match.
+
+**4. Hold removal until complete verification and separate authority are complete.** Confirm
+that the source universe has not changed and preserve required evidence promptly in the owning
+record. No Globus deletion or purge is permitted. Host-local removal needs explicit exact-path
+approval and the project's custody/retention requirements. If a specialized owner workflow is
+required, including a YCGA intake/archive-removal workflow, hold removal until it is available and
+completed; this package does not substitute for it.
+
+**5. Preserve evidence when it supports archive custody or removal.** Keep the exact source,
+destination, selection, task ID and full mapped comparison in the owning workflow's existing
+record, promptly enough to retain Globus's per-file task history. Summaries alone cannot
+support a later complete-backup claim. Routine staging needs no new permanent transport ledger.
+
+**What to archive first**, when freeing space: large regenerable intermediates (aligner BAMs,
+reconstructed fastqs, per-run tool output) before anything small or hand-curated. Check whether the data
+is **duplicated on another cluster** first — a verified complete copy with agreed durable
+custody may avoid another archive transfer; it never supplies deletion approval.
 
 ### Project organization on the cluster
 
@@ -297,8 +365,9 @@ Mirror the local project structure in PI storage or project space:
   environment.yml    # Conda environment specification
 ```
 
-Use scratch only for large temporary files (sort buffers, intermediate alignments) that
-can be regenerated. Never store the project itself on scratch — use PI storage.
+Keep the repository, environment and reference originals persistent. Large working copies,
+intermediates and active outputs may use scratch with an explicit validated-copy destination
+and enough time to transfer before purge. Never make scratch the sole retained copy.
 
 ### Dual-environment projects (local + cluster)
 
@@ -490,16 +559,24 @@ pending job's partition to a faster queue, see `references/gpu-partition-tactics
 
 ### Interactive jobs
 
-**Interactive work belongs in `devel`.** YCRC makes `devel` the **default partition for
-`salloc`**, and interactive jobs are normally permitted on `devel` (or `gpu_devel` for a GPU) or
-on a private partition you have been explicitly authorized to use — **not** generally on the
-other public partitions. Do not reach for `day` just because an interactive job wants more time
-or more cores; that is a signal to write a batch script.
+**Interactive work normally belongs in `devel`.** YCRC makes `devel` the **default partition for
+`salloc`**, and interactive jobs are normally permitted on `devel` (or `gpu_devel` for a GPU).
+Use another partition only when that interactive workload is explicitly authorized there.
+Do not reach for `day` just because an interactive job wants more time or more cores; absent
+such authorization, that is a signal to write a batch script.
 
 **IDE sessions — Positron or VS Code, including Claude Code running inside them — are covered by
 a stricter, explicit rule.** YCRC states that VS Code jobs found outside the devel partitions
 **may be terminated without notice**; this skill treats Positron Remote-SSH as the same kind of
 IDE workload, so the same rule is assumed to apply to it.
+
+Do not infer another coding client's partition policy from the Positron/VS Code rule.
+Bouchet's `agent` partition has dated scheduler/QoS evidence for small, longer-lived allocations
+in [the partition reference](references/partitions.md#bouchet). Use a partition authorized for
+the actual workload and account; another researcher's special permission is not transferable.
+Confirm CPU, memory and walltime requests rather than inferring them from partition limits.
+In the helper-based route, choose or retain the allocation's job name and pass that same name
+to both helpers; the SSH alias may differ.
 
 ```bash
 # Quick interactive session (testing, short tasks)
@@ -563,11 +640,22 @@ permanent background noise, and why the obvious version-rollback diagnosis was w
 
 ### Resource efficiency
 
-Check resource usage after completed or failed jobs using the
-[active-session resource learning procedure](references/resource-learning.md). Record observations
-with existing project run evidence and use comparable private profiles for later requests.
-Unknown metrics and failed/OOM jobs do not prove an allocation was adequate. Request resources
-that the workload needs; wasteful allocations slow scheduling for everyone.
+Follow the [active-session resource learning procedure](references/resource-learning.md),
+using the project's existing private run evidence rather than editing installed package files.
+
+Use `jobstats`, or the host's available `sacct`/`seff` equivalent, for completed jobs already
+associated with the current project. Compare actual completion, tool/version, input scale and
+complexity, parameters, hardware and requested resources before reusing an observation. Missing
+accounting is unknown, not zero; OOM, timeout or incomplete output does not establish an adequate
+allocation. Retain array/task variation and distinguish host RAM from GPU memory and per-task
+from total usage. Diagnose low utilization before reducing CPUs and time together.
+
+Keep useful measurements and the next request with its rationale in the project's existing run
+record. Consult an already declared private cross-project resource record when available; do not
+create a new store, rewrite the installed skill, install a monitor or synchronize private records
+as a side effect. Keep private job/project evidence out of public packages. Routine sizing within
+the agreed scale is agent-owned; consequential aggregate increases or scientific changes retain
+their discussion boundary. Summarize useful changes at the next substantive review.
 
 ### Job arrays
 
@@ -688,7 +776,7 @@ conda activate myenv
 ```
 
 - Use **conda-forge** as the primary channel, add **bioconda** for bioinformatics tools
-- **Store environments in PI storage or home** — never in scratch (60-day purge)
+- **Store environments in PI storage or home** — never in scratch (site-specific purge; §3)
 - Use `pip` only as a fallback when a package is not available in conda-forge
 
 ### Tools environment (recommended)
@@ -752,7 +840,7 @@ existing completion evidence; do not add a cache or checkpoint framework without
 
 ## 9. Data Transfer
 
-### rsync (preferred for large transfers)
+### rsync (scoped SSH transfers)
 
 ```bash
 # Local to cluster
@@ -771,12 +859,17 @@ scp file.fasta <netid>@mccleary.ycrc.yale.edu:/vast/palmer/pi/musser/project/dat
 ### Globus (very large datasets)
 
 For multi-GB transfers, use the included `globus-transfer` skill and current
-[YCRC Globus guidance](https://docs.ycrc.yale.edu/data/transfer/globus/).
-Discover the selected cluster collection by name and verify its ID/access; do not infer an endpoint.
+[YCRC Globus guidance](https://docs.ycrc.yale.edu/data/globus/).
+Discover the selected collection by name and verify its ID/access and exact path; no personal
+collection inventory ships here. Follow its user-consent and complete path/size verification
+boundaries. Aggregate counts or task success do not establish complete custody. Never delete
+through Globus.
 
 ### Between clusters
 
-Use Globus or direct transfer between cluster login nodes (they can reach each other).
+Prefer Globus for bulk cross-cluster staging/retention. Small code/input selections may
+use a verified SSH route within the approved scope. Do not assume login-node reachability
+or treat login nodes as unrestricted bulk-transfer resources; use the site's documented route.
 
 ---
 
@@ -871,22 +964,33 @@ it is running.
 
 ### Local mode (agent on laptop)
 
-1. Generate the batch script (`.sh`) in the project directory
+1. Generate the batch script (`.sh`) in the project's `batch/` directory
 2. Show the full script for review
-3. Provide the transfer and submit commands:
+3. Preserve the producing state as described below, then synchronize the committed repository using
+   the project's guarded branch, upstream, worktree and incoming-history checks.
+   If the separate Research Core package is installed, its `git-conventions` skill supplies that
+   procedure; otherwise follow the repository's own instructions. Do not infer push permission. Verify the receiving checkout is at the producing
+   commit with its wrapper, producer, helpers and configuration. Provide the complete Section 4
+   submission example to run from that receiving project repository:
    ```bash
-   rsync -avz batch/my_job.sh <netid>@mccleary.ycrc.yale.edu:/vast/palmer/pi/musser/project/batch/
-   ssh mccleary "sbatch /vast/palmer/pi/musser/project/batch/my_job.sh"
+   EXPECTED_COMMIT=$(git rev-parse HEAD)
+   sbatch --export=ALL,EXPECTED_COMMIT="$EXPECTED_COMMIT" batch/my_job.sh
    ```
-4. Also transfer any required input data or scripts referenced by the batch script
+4. Transfer required input data separately through the approved data-transfer workflow;
+   the committed repository supplies the batch script and its companion code.
 
 ### Cluster mode (agent on compute node via interactive session)
 
 1. Generate the batch script in the project's `batch/` directory
 2. Check that the method, inputs, outputs and resource scale are within the agreed work. Discuss
    potentially large aggregate CPU/GPU, memory, concurrency, storage/I/O or arrays before launch.
-3. Preserve the actual producing state and submit an ordinary job or retry with
-   `sbatch batch/my_job.sh` without another permission request.
+3. Preserve the producing state as described below, then use the same complete Section 4 example
+   from the committed project repository for an ordinary submission or retry without another
+   permission request:
+   ```bash
+   EXPECTED_COMMIT=$(git rev-parse HEAD)
+   sbatch --export=ALL,EXPECTED_COMMIT="$EXPECTED_COMMIT" batch/my_job.sh
+   ```
 4. Report the job ID and monitoring command (`squeue --me`, `jobstats <id>`)
 
 ### Analysis and scheduler setup
@@ -935,10 +1039,10 @@ dependent job starts.
 YCRC policy hard-values live at their topical homes; this index points to them so the
 numbers have a single source of truth (update them there, not here):
 
-- **Scratch 60-day purge** (+ no conda envs / no sole-copy raw data on scratch, email one
-  week before, no timestamp-gaming) — see §3 Storage policies.
+- **Site-specific scratch purge, backups and quotas** (+ no environments / sole retained
+  copies on scratch, no timestamp-gaming) — see §3 Storage policies; verify current allocation policy.
 - **Job rate limit — 200 submissions/hour** — see §4 Job arrays.
 - **Max 4 concurrent OOD interactive apps per user** — see §2 Open OnDemand.
-- **McCleary transition to YCGA-only / Bouchet primary for general work** — see §2 and current [YCRC migration guidance](https://docs.ycrc.yale.edu/clusters/grace-mccleary-decommission/).
+- **McCleary staged transition / YCGA exception** — see §2 and current [YCRC migration guidance](https://docs.ycrc.yale.edu/clusters/grace-mccleary-decommission/).
 - **`ycga` partition compute-charge exemption** (`-p ycga`, McCleary, YCGA data) — see §2 and §10.
 - **Module system** (`module load` / `module avail` / always `module purge` first) — see §7/§12.

@@ -1,6 +1,6 @@
 # Lab Claude Skills
 
-> **Research Plugins 0.1.0 for Claude Code and Codex:** start with the
+> **Research Plugins: Codex 0.1.1, Claude Code 0.1.0:** start with the
 > [installation quickstart](docs/research-plugins-install.md), then use the
 > [student guide](docs/research-plugins.md) for ordinary work, updates and recovery.
 > The four public packages contain 33 skills. Yale Research is optional.
@@ -12,9 +12,13 @@ setup prompt and current operating-system/sign-in guidance; the
 [compatibility record](docs/research-plugin-compatibility.md) distinguishes tested routes from
 available but untested interfaces.
 
-The moving release channel is `codex/research-plugins-release`; the immutable first-release tag is
-`research-plugins-0.1.0`. Verify the GitHub release and its inventory before installation. This is a
-Git repository marketplace distribution. The existing `lab-skills` 1.12.1 plugin remains available
+Codex uses moving channel `codex/research-plugins-codex-release` or fixed tag
+`research-plugins-codex-0.1.1`. Claude Code remains on `codex/research-plugins-release` or fixed tag
+`research-plugins-0.1.0`. Existing Codex installations on the shared channel need the reviewed
+[one-time source switch](docs/research-plugins-codex-candidate.md), including preservation of their
+installed packages and enabled/disabled choices; an ordinary upgrade does not switch channels.
+Verify the selected GitHub release and its inventory before installation. This is a Git repository
+marketplace distribution. The existing `lab-skills` 1.12.1 plugin remains available
 on the default branch. The instructions below describe that legacy Claude Code plugin; use the
 quickstart above for the new packages.
 

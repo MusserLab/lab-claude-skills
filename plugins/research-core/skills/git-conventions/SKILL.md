@@ -15,15 +15,24 @@ git branch
 # Pull only after checking that the branch, upstream, worktree and incoming history are compatible
 git fetch
 git status
+```
+
+When the current branch has an upstream, compare incoming and outgoing history:
+
+```bash
 git log --oneline --decorate --left-right HEAD...@{upstream}
 ```
+
+Without an upstream, inspect the intended base and destination. Do not create or change
+tracking merely to make this comparison run.
 
 ## Committing Changes
 
 1. **Commit frequently** — after completing each logical unit of work
 2. **Write descriptive commit messages** — explain the "what" and "why"
-3. **Follow the repository's attribution policy.** Add a co-author trailer only when the user or
-   project requests one, using the identity they specify; do not invent a client identity.
+3. **Use truthful co-author attribution.** Follow the repository's or active client's policy.
+   Add a trailer only for an actual contributor using its approved identity; omit one when
+   none is defined rather than inventing a name, email or client identity.
 4. **Check what will be committed** before committing:
    ```bash
    git status
@@ -36,18 +45,18 @@ Prefer multiple `-m` flags for short, reviewable commit messages. If a longer bo
 a literal body file or another non-interpolating method supported by the current client and project.
 Do not assume one client's shell-approval rules apply everywhere.
 
-Single-line message:
+Title only:
 ```bash
 git commit -m "Title line here"
 ```
 
-Multi-paragraph message:
+Title and body:
 ```bash
 git commit -m "Title line here" -m "Body paragraph explaining the why."
 ```
 
-Each `-m` flag adds a separate paragraph to the commit message. Add any requested attribution
-trailer as another paragraph.
+Each `-m` flag adds a separate paragraph. Add any truthful, approved attribution trailer as
+another paragraph.
 
 ## Don't Commit
 
@@ -61,9 +70,9 @@ trailer as another paragraph.
 
 When the current task and native user or project instructions authorize Git writes, make coherent
 task-owned commits and working-branch pushes without asking again merely because a logical unit is
-ready. This public skill grants no Git write authority by itself. Inspect status and the complete staged diff,
-stage only owned paths, preserve unrelated dirty or staged work, and report what was committed and
-pushed.
+ready. This public skill grants no Git write authority by itself. Inspect status and the complete staged
+diff, stage only owned paths, preserve
+unrelated dirty or staged work, and report what was committed and pushed.
 
 When the user or project authorizes integration of accepted work, complete it without another
 permission question. Use the repository's normal route, preparing or updating a PR where used;

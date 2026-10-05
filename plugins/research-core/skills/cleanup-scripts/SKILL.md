@@ -3,8 +3,9 @@ name: cleanup-scripts
 description: >
   Consolidate scratch or exploratory code from the current work when its retained role is known.
   Use when the user asks to clean up scripts, when session-owned scratch files need disposition,
-  or when a changed workflow has unclear helper/output ownership. Do not use as a mandatory
-  project-wide closeout scan or to enforce numbering, lifecycle labels, or one script format.
+  or when a changed workflow has unclear helper/output ownership. Selecting and simplifying a
+  complete publication or durable handoff path needs its own agreed scope. Do not use as a
+  mandatory project-wide closeout scan or to enforce numbering, lifecycle labels, or one script format.
 ---
 
 # Consolidate Session-Owned Scientific Code
@@ -39,7 +40,7 @@ fixed `scripts/`/`outs/` correspondence on projects that do not use them.
 - **Preserve as evidence:** influential or cited exploration no longer executes routinely but must
   remain recoverable with its disposition and relevant output/evidence links.
 - **Remove:** confirmed disposable, session-owned material with no retained consumer or evidence
-  value. Verify recoverability or obtain the required file-safety approval before irreversible loss.
+  value. Verify recoverability; obtain explicit approval before deletion would cause irreversible loss.
 - **Leave unresolved:** authority, scientific meaning, ownership, or consumers remain ambiguous.
   Report the ambiguity rather than guessing.
 
@@ -77,6 +78,9 @@ After editing:
 
 - read the retained workflow in data-flow order;
 - check changed imports, links, launcher paths, and output references;
+- for moved or integrated executable logic, run the smallest existing test, small fixture or smoke
+  check that establishes the intended behavior; use fresh or explicitly disposable outputs. If this
+  requires an unapproved scientific rerun, report the verification gap;
 - confirm unique rationale and influential exploration remain discoverable;
 - inspect the exact diff and preserved/removed paths;
 - update only the affected active-file or decision record when its role changed.

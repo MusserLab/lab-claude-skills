@@ -10,7 +10,7 @@
   "packages": [
     {
       "name": "research-core",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "requires": {},
       "skills": [
         "audit-project",
@@ -38,49 +38,49 @@
         "sync-project"
       ],
       "files_sha256": {
-        ".claude-plugin/plugin.json": "ee47dad2de71553f8a1993447e248a5ed47e3371176e971b5db8d7da14f1abde",
-        ".codex-plugin/plugin.json": "de9bdf7bc435ac5d9e988169d667ffe3419094b8c6b5db26186c597570ae34c2",
-        "instructions/agent-collaboration.md": "c3cf0bdf3513b539147b31e37187adfde2aea884167cd9e83ea1bb86356e085d",
+        ".claude-plugin/plugin.json": "4f07db54334d2108a3f137e2345ed6b90f9cef592e267ba7d1b604cbf5858027",
+        ".codex-plugin/plugin.json": "2f1574c4a20cb8c3d55da3aa5c82d4a5462eb2ea01c577403041d7085d573aa9",
+        "instructions/agent-collaboration.md": "1343d836b9457f67a7c4bdbaa96a731bb25f8d20e2feac9c5f4046cf857bc3be",
         "scripts/install_instructions.py": "796c8e5e8dde1e8135362a594ff6a60f23fc530d9e1a52fa6608af4316e6f373",
         "skills/audit-project/SKILL.md": "95f0ded755b3ed8341f4a63709788ced48cbdb10863a37287a2bbbe279273225",
-        "skills/audit-script/SKILL.md": "fd9ba009587ec6e5982d11c5d9a14d5d08e8dccd3a56714b5864ca14f744785d",
+        "skills/audit-script/SKILL.md": "cf6347f006fd24b6ecb5f1e5dc3b9ae9fd1917118f644d20404c355900c9fad7",
         "skills/audit-script/templates/auditor-prompt.md": "bc00edecca5fce7ecae51fb6a45aeb774c5e4b4ff6b13df1fddabf12cb537f10",
-        "skills/cleanup-scripts/SKILL.md": "6fe3834cdb63b6c7c52fcc95f1a923ddad8a194a45d59f827069f9678c1e5ea6",
-        "skills/conda-env/SKILL.md": "b0868bed8109890810d3e90e907224027783b4b1093d6bf6401b1cf39d32f1de",
-        "skills/data-handling/SKILL.md": "c086a9051201a53d01888cc74407a4014d62ba7a4fa7390c0f0fb83cbc279563",
-        "skills/debugging-before-patching/SKILL.md": "aa185ec00f26b5f66574463568fae6dc9d470fb3fcdc05fa45f6bc78e553d148",
-        "skills/done/SKILL.md": "bfbb368a21c04031331779623dbb487842b9fa19a2dfaa42aa314d16af21ec4e",
+        "skills/cleanup-scripts/SKILL.md": "86f09409d3242b08147e5af85cef720c71b93836c001f486e27a7ff077dbbac6",
+        "skills/conda-env/SKILL.md": "a55348f1647922647857086d14c548c017913863570c5d06937d87bb9bd2a27c",
+        "skills/data-handling/SKILL.md": "ef7e7d0c1c74ea821162621282b4593708cc1dd6da2817474a8ed13d1a77968a",
+        "skills/debugging-before-patching/SKILL.md": "5dd79186c61bf0dda62e0a115496e3ee26bd91ad721985a7fe1c396212e1bafe",
+        "skills/done/SKILL.md": "27821fcfcde7f66f8204d0ca66dc35346973f2b4cdca8af3af302f42813cb03c",
         "skills/done/references/github-closeout.md": "ba7937ae543fe6304febb4341aea0622b7e6f102abadd849a0b653a229dfc3f9",
-        "skills/figure-export/SKILL.md": "315e65f83d9399db8c9e5df8c07bac7075bcc58713687945952c1a59b8735891",
+        "skills/figure-export/SKILL.md": "9b8d7407221492041f0cdb678a7dbd4c4b3bfa2392d48a9ac7274d4f9bb7c4ba",
         "skills/file-safety/SKILL.md": "d6234cd2699d85c075375d2fbd1f0a062bd6cda870f01ee9781c19417d91e477",
-        "skills/git-conventions/SKILL.md": "5dd983f4521d527bdde9128274a9eed86b6ed8b92813ba1300c3e1ad6f61b928",
+        "skills/git-conventions/SKILL.md": "6f9dd459f238868192778f579dbe30a5fa1b36b6c752bda5c818b9062758230d",
         "skills/learn-code/SKILL.md": "8477cb91af73dc9391e5d02934061673614207e9fc44a804479080fa7373af8f",
         "skills/new-plan/SKILL.md": "37b32c094a40c545b4c4d2b18eba33e9688295f1c07e6f5d65651819807b63ee",
         "skills/new-project/SKILL.md": "96b86e83427b71c5b696c4fae60fce6696af836eb3ffefc209acde9d9acfc354",
-        "skills/new-project/references/work-coordination.md": "3933bbafc59b5077a8a4034d312b199850ec60b01e118c45e9c0b398647e7fa6",
-        "skills/new-project/scripts/coordination.py": "cdfc5b40968e5fe8f472100be2a1a5d2f1ee2cf76a6b5138607b7a68076c80e1",
+        "skills/new-project/references/work-coordination.md": "99acfcc398b144d2bdbaa4be0bade9d5dcd003192e40d3e81a6e13c1be289919",
+        "skills/new-project/scripts/coordination.py": "7434bd5f78893101e0b5d3fe3e62f6d4869b48ba7459959377b6cea3fd49cf20",
         "skills/new-project/templates/claude_md_data_science.md": "19d730adf213ff65f7440e64b64fc2dd682d6833535695c65db5026771520f0e",
         "skills/new-project/templates/claude_md_general.md": "9e181a5553abd1f7acbe3a0449f850dc6d982e4335c2f1ed16aad52ba29344ee",
         "skills/pipeline-diagram/SKILL.md": "a7e7b7bc0d4740291bcaf717c2eab4eb8f58806210914e1bd7ed7af2cddef8fa",
         "skills/pipeline-diagram/templates/pipeline_spec.example.yaml": "448cbf1ce13d3c7492dd854db2f3c67e5dde22f6f4741c5d37742bb06dcd7e52",
         "skills/pipeline-diagram/templates/render_pipeline.py": "1247d2707c13d9b09a1d22b95fb870d0dfa01804e901045637b37d6f28a811c6",
-        "skills/planning/SKILL.md": "96ac9227f9f9751e630ef7b8cc25e45eb78775974d2bed879148fbb0412500d7",
+        "skills/planning/SKILL.md": "30ea8a97cdbe6ab4666313dbb88a9784b276191809c17e64e0b8f9185c311fe3",
         "skills/planning/references/upgrading-existing-plans.md": "d1572689585fc723fcd9fa57de65715964062031b91ca9e8894d0d7877af76e6",
         "skills/plugin-feedback/SKILL.md": "af6fecc74c9200e4a7b1e77a2689c6570dda7eca9c677530e1040df5ca522cb6",
-        "skills/quarto-docs/SKILL.md": "d29c45ec22165592a6e3455c54a28590c28389ce6b38fda720805ae0b8f2fe11",
-        "skills/quarto-docs/references/pdf-formatting.md": "7f26b96740f36f56b54d0c81b1dd691433b455af865d77d01d4c3941577060eb",
-        "skills/r-plotting-style/SKILL.md": "90c10c9397ae133293c80e8b039f90386b38d83ca5e8fbb8e8b81894be2c924d",
-        "skills/r-renv/SKILL.md": "288becac8ce209832b06826add2ca70f2391ac7fe21f17f4a6b1d63c9752205c",
+        "skills/quarto-docs/SKILL.md": "ef1f187916c058816186a4db9da6eba502916715faa9720122f06a736b6375af",
+        "skills/quarto-docs/references/pdf-formatting.md": "c20909eaf790626dbafed3a8ded537f4710cc13347b0f17d1e6f1f61c73f8c5c",
+        "skills/r-plotting-style/SKILL.md": "71dea245574b88adb9c6f0ec6b4711ea4089c238f562e3dbbbe7bdf1718b1789",
+        "skills/r-renv/SKILL.md": "32d53a040daad9a2e0c0baab5b7c334785559f7d9da5f7f6f9ce8a25094b261b",
         "skills/research-core-setup/SKILL.md": "fdffb8ed78434aa32e85eeac2319fc7e4f771eb0cfc93fcc0253cbc40cf3adcc",
         "skills/research-core-setup/references/help.md": "a5547f3440fedbd74ffa3464154256d1e90c0c7816657b2c22eca9e989f463ab",
-        "skills/script-organization/SKILL.md": "6a0f72ca4cfe942029ca58e818c9a44d4e7fda013b5f6bdeb221c50f290cc0ac",
+        "skills/script-organization/SKILL.md": "b16c954559a7c66fa0fa33491d51650391266af8cd709a3b3a3784f1314b3114",
         "skills/security-setup/SKILL.md": "360af8544ccec2f72a091b8fac1ed80655a1d013aac0ae433ca7def200fc7fac",
-        "skills/sync-project/SKILL.md": "9adf46bd3715d1af0b31202c23e0d541ac1909e09ea2ad5155c1a089ee76b015"
+        "skills/sync-project/SKILL.md": "bbf69e0a49c0f411bf84f672afc2f71031044b160b0acd9732ac022e5bc1e171"
       }
     },
     {
       "name": "yale-research",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "requires": {
         "research-core": "0.1.0"
       },
@@ -90,13 +90,13 @@
         "lux-collections"
       ],
       "files_sha256": {
-        ".claude-plugin/plugin.json": "e2f9182608e52af54fffd9e1b83bb5093ea6aacb1bde10c3b5930a551e3c689e",
-        ".codex-plugin/plugin.json": "2060749aec5bd9e7ac0e696919bf3d9eb8ad35eea1dd23405ab2632fddcb0026",
-        "skills/globus-transfer/SKILL.md": "ddf69a01e7032f384c4dce22170c5619a9b8c87f842a3d176f59c88f918053a6",
-        "skills/hpc/SKILL.md": "042778bd544ccd34db37e2696b135f6b6df1f924ffcc549a97429c30db5d31ce",
+        ".claude-plugin/plugin.json": "1f31008603efcb3c9613a553d2d83c084f2d04970671ae5582a65f2efb0351a9",
+        ".codex-plugin/plugin.json": "bfc6d349579accb9d2974b75be1a20c974fde5c396b8b77a7ca9eda966455efa",
+        "skills/globus-transfer/SKILL.md": "87773ad66aba5d9f9a83eead88ca65b835658afa99bcdeb3c120e7ec83ca1e26",
+        "skills/hpc/SKILL.md": "d3635646013546588d917076b51080b787ce888cadfc86e09b077d441d030214",
         "skills/hpc/references/gpu-partition-tactics.md": "e7273d8847e621faf35caecc1a9e7c02d74bfc839cd50e0034f22c1630c946c1",
-        "skills/hpc/references/partitions.md": "fe907aec701c88e8cf592fb45882460fae05ff3b3a34acaef2dfc7799691a161",
-        "skills/hpc/references/positron-ssh-setup.md": "f597c5e994560587b4e626eb865dcefb06332546f6d2036955eb9026b138f635",
+        "skills/hpc/references/partitions.md": "683d7cadb0ac0fd941edb1fba5649c012a0189a65e899a6960d8422313cb50fb",
+        "skills/hpc/references/positron-ssh-setup.md": "1662896514a1e97d5064d64c627bb518542f9215711259281612c73134a79ca4",
         "skills/hpc/references/resource-learning.md": "073b8e7a034e9732075ae75383aa3231e5db40463635362e1db76256549e2897",
         "skills/hpc/references/snakemake.md": "2348bf4ff7dbff20b2ddb058c391fed5855c3805997fe117479233ed3a4a1f03",
         "skills/hpc/references/student-setup.md": "4f572b3c9890bda379ccbe904cc4c5232b104ba24af9cf2744690a8afc457285",
@@ -110,7 +110,7 @@
     },
     {
       "name": "single-cell-research",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "requires": {
         "research-core": "0.1.0"
       },
@@ -119,21 +119,21 @@
         "deep-research-reports"
       ],
       "files_sha256": {
-        ".claude-plugin/plugin.json": "3594a956c54d59a08603b827392ccbef10e99aa21a9e6aa5a45f52f592652ed5",
-        ".codex-plugin/plugin.json": "1b37b93db066965f9662a200cdc06642e012773f24fbaa9fdb5229ca005a127e",
-        "skills/deep-research-genelist/SKILL.md": "2a17a6c4ffe2295c37f73737d2357e6cdd7d59a5c729cd865dd726346cc39c08",
-        "skills/deep-research-genelist/references/annotation_methods.md": "bf9caf5e11e393c18b379c10930480125b4991543ace7ba895ab7849e2633471",
+        ".claude-plugin/plugin.json": "3f311536c58a58099c18666b04f6e4f84aee047a504370571aa555e6e567433e",
+        ".codex-plugin/plugin.json": "1b867ae57fd6afc28228da937add96e4830b8ac8a476e081f9f048ad2d549189",
+        "skills/deep-research-genelist/SKILL.md": "083691ee1634aa48f82c6ec9a2f12eeea35e3275c000a7237d1f3739759fcbd9",
+        "skills/deep-research-genelist/references/annotation_methods.md": "745bd13a90182f2c79ae5505a8f1cd6cda62021ed9fd9a191a26c1f2c44302fa",
         "skills/deep-research-genelist/templates/annotation_profile_example.yaml": "ddcc22b1580eba5ee8fc8a9c2095d3452b9cdfe538136349023a30ebf8a83855",
         "skills/deep-research-genelist/templates/family-report-template.md": "00ecfe50cea7e7349493b7be154bfccf1e33622fbda71e0ffaa747c56a1d5694",
         "skills/deep-research-genelist/templates/report-prompt-template.md": "4c825618c8eab19cb3ef00abcb9da263db7f3192e24abebc0f8ed9214026a35f",
-        "skills/deep-research-reports/SKILL.md": "84f0a655a8d2c0a3248fabfebaddeab12d0338c09b86f1762b38f34935348b16",
+        "skills/deep-research-reports/SKILL.md": "58488d0117124fce2290c126fe7fc5f0694e95b346fab68a807cc1e0bc287c7a",
         "skills/deep-research-reports/templates/cleaning-patterns.md": "fa783ec211096863f2af82fb93b3a7a2a752c90e9811d27cba5133f2ad962e03",
         "skills/deep-research-reports/templates/report-style.css": "70cd51d92544669e86a8ebb674a6728d27f56a0f37603feff5e9e39b2096072d"
       }
     },
     {
       "name": "genome-annotation",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "requires": {
         "research-core": "0.1.0"
       },
@@ -145,8 +145,8 @@
         "tree-formatting"
       ],
       "files_sha256": {
-        ".claude-plugin/plugin.json": "29cd50fc3c88d3363b1a0b7da932ca17c45892ffababcfca76a73cc03bc6a190",
-        ".codex-plugin/plugin.json": "963ea792b986bda5f359ccff0c70ae8b2db293a8e9f7cebcc392524e27fe9298",
+        ".claude-plugin/plugin.json": "402433f02ab530b77ad0050e820668aedf50d3bf1fc135deddb2d15eecd5d7f6",
+        ".codex-plugin/plugin.json": "58b11c8e3c7a781e1297132acf5ab8843711c585801f1738b15bd4ef1c8c1f29",
         "skills/busco/SKILL.md": "54fa3d5f82ff7d957308f880eb536485592fd606b17296f0460295fc6532084d",
         "skills/busco/references/gotchas.md": "88414d51fe08a1e87e660739f4bd2975847f049732ca2360349ad05502d6e8e0",
         "skills/busco/references/lineage_table.md": "b232405c9db8687f5570f107eac62094aed2bdd78b4956e13601eb7ff30e888f",
@@ -155,7 +155,7 @@
         "skills/busco/templates/busco_environment.yml": "57184f899f1c31083ef889ea6bcd0b6271be5941b60cc720ebe8f66bdc4fbd19",
         "skills/busco/templates/busco_local.sh": "a3e4de0ab13d01054120a693eaa6872d04f0bc41d3b4647831863476536ebc0f",
         "skills/busco/templates/busco_samples.tsv": "2533294d6732c1071493552797c7acb49c579ff34b2202bf2276ee642ec617ba",
-        "skills/busco/templates/busco_setup.sh": "8d5f97e58be425e12d889f4a0e2b9672233999866edeb318fe508a6e165f99e5",
+        "skills/busco/templates/busco_setup.sh": "c2914322ff3f0ddc8931703c5bff319020ff315c597a8f24520a613003a64ed5",
         "skills/gene-lookup/SKILL.md": "7ea950c0ba31677d63af848296baa18226eb66dda0f5dac3bc38478018e51eda",
         "skills/hmmer/SKILL.md": "8607cceb768c19309aeb52f8b80362bdd3c625b9ebea4cc720c1232756a306a6",
         "skills/hmmer/references/custom_hmms.md": "d6173a2efb53e56fa2c140373c1c6f8045031d5c7c414cfe7518cf27ff7d1f40",
@@ -168,7 +168,7 @@
         "skills/hmmer/templates/hmmer_local.sh": "033c23e73e339b71d4ef544ae62e3cc36fee6c528ec490d4b1c65e85fff2031b",
         "skills/hmmer/templates/hmmer_samples.tsv": "0121f2fd46a8a633b7dd6d432a4fc0c38f5682649455500f8ff63b453bc3764a",
         "skills/hmmer/templates/hmmer_setup.sh": "30eb43e3de83b4ae3e16aaf41642e27199afde4d509bed136309809434081f2d",
-        "skills/protein-phylogeny/SKILL.md": "b01ffa141ddd51e0b3d7d1ce3fa5313ffb8bb73a5a55814f80439cc68d2e1681",
+        "skills/protein-phylogeny/SKILL.md": "587ede05c1b7bed7b3c57848f5e8c5c451198ecdfaee06545c5d17a2367ba79d",
         "skills/tree-formatting/SKILL.md": "b98b32cabbc2ba14ed1923571eff6a71bcaffb26a2942789e95f94e595b60521",
         "skills/tree-formatting/templates/ggtree/collapsed_circular.qmd": "7cc3b35e34899d57ec21527270783ea15cafbd8ba0d3b6a646525523dbdc0f04",
         "skills/tree-formatting/templates/ggtree/collapsed_rectangular.qmd": "fe53816bb77f1600eaced7e69d1a56d7d9f01c9caabbfa542dd0c39b2631eb2a",

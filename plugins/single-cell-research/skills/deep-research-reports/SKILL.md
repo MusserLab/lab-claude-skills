@@ -26,7 +26,9 @@ Accept one of:
 - **"all"** — glob `outs/deep_research*/**/*.md` (note the `*` after `deep_research` — catches `deep_research/`, `deep_research_platynereis/`, etc.), skip files ending in `_clean.md`, `_raw.md`, or `_prompt.md`
 - **"new"** — glob `outs/deep_research*/**/*.md`, same exclusions, then resolve canonical identities in Step 2 and skip reports with a corresponding `_clean.md`
 
-If no `outs/deep_research*/` directories exist, tell the user and stop.
+For `all` or `new`, stop if the requested batch search finds no eligible reports. For an
+explicit input file, validate its identity and supported report type before choosing
+destinations; a separate `outs/deep_research*/` input directory is not required.
 
 #### Directory structure
 
@@ -41,6 +43,7 @@ outs/deep_research/
 │   ├── 260304_chatgpt_clade6sub25_clean.md
 │   ├── 260304_chatgpt_clade6sub25_report.pdf
 │   ├── 260304_chatgpt_clade6sub25_report.html
+│   ├── 260304_claude_clade6sub25_raw.md
 │   ├── 260304_claude_clade6sub25_clean.md
 │   ├── 260304_claude_clade6sub25_report.pdf
 │   └── 260304_claude_clade6sub25_report.html
@@ -48,7 +51,9 @@ outs/deep_research/
     └── ...
 ```
 
-Create the subdirectory `outs/deep_research/{module_id}/` if it doesn't exist. All output files for that module go inside it.
+After Step 2 validates the identity and destinations, create the module's subdirectory if
+needed. All output files for that module go inside it; family and nonmetazoan destinations
+follow their report-specific rules below.
 
 ### Step 2: Read Metadata, Confirm Platform, and Clean the Body
 
@@ -329,7 +334,7 @@ for the render title's `Family {family_identity}`.
 
 ### Step 4: Ask Output Format
 
-Ask the user to choose:
+Use the current client's structured-input tool when available, or ask in conversation:
 - **Both** (Recommended) — PDF for sharing, HTML for browsing with clickable DOIs
 - **PDF only** — LaTeX-rendered, good for sharing/printing
 - **HTML only** — Standalone, nice table styling, clickable links

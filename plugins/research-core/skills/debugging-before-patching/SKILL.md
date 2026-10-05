@@ -11,7 +11,12 @@ When something doesn't work or the user reports an error, **diagnose first — n
 
 1. **Diagnose first** — Write diagnostic scripts, print intermediate values, trace data flow. Understand WHY it fails before writing any fix.
 2. **Share findings** — Tell the user what you found and what the root cause is.
-3. **Propose, don't patch** — Describe the fix and check before implementing *when the fix is a judgment call*: the diagnosis is uncertain, more than one reasonable fix exists, or the fix would change results already reviewed. When the cause is unambiguous and the fix is mechanical — a typo, a wrong path, an off-by-one — make it and say what you changed.
+3. **Propose, don't patch** — Continue bounded investigation while the diagnosis is uncertain;
+   do not patch an unexplained failure. Describe the fix and check before implementing when
+   resolving uncertainty needs information or judgment only the user can supply, reasonable
+   alternatives differ materially for results, scope or relied-on behavior, or the fix would
+   materially change results already reviewed. Make an understood mechanical repair within
+   the authorized scope and say what changed.
 4. **Never force values** — If names/labels/data don't match, find where the mismatch originates. Don't paper over it with forced assignments.
 5. **Check what the fix touched** — If the bug could have changed any output the user has already looked at, name the downstream outputs that are now stale and rerun them before moving on. A reviewed conclusion must not be left resting on outputs the code no longer produces.
 
@@ -69,7 +74,9 @@ When possible, isolate the problem to a small reproducible example before attemp
 2. Identify which line/operation failed
 3. Check the state of inputs to that operation (types, dimensions, values)
 4. Report what you found before proposing any change
-5. If the cause is ambiguous, describe the possibilities and ask the user
+5. Investigate routine ambiguity within the agreed scope. Bring the user the evidence and
+   competing explanations when an unresolved consequential choice remains or you need
+   information only they can supply.
 
 ## Edge Cases That Require Extra Caution
 

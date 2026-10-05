@@ -234,8 +234,31 @@ worktree once version, deployment, recovery, evidence, and pending acceptance ar
 deletion is separate. Keep conversation history visible; never archive or delete a task/chat unless
 the user explicitly asks.
 
-If the calling task cannot move itself or retirement is not authorized, name the exact pending
-action rather than declaring cleanup complete.
+Changing chat pins or other user organization needs the current user's authorization; this
+public skill grants no standing unpin permission. A worker closing only its assigned subtask
+does not manage the parent chat. Preserve the conversation and all recovery, integration and
+dependency checks above.
+
+For Codex Desktop, inspect `list_artifacts` and distinguish an agent-created attached worktree
+from the chat's primary checkout. After the checks above, use `archive_worktree` with the exact
+owned attachment identity. It saves recovery state and removes eligible attached checkouts while
+keeping the chat open. Read back the recovery attachment, filesystem absence and Git worktree
+inventory; branch deletion remains separate and requires verified tips, integration and no other
+worktree use. Check task/process/job/installed consumers before removal. Preserve useful ignored
+files separately, since the archive snapshot does not include them.
+
+A primary, shared or pinned checkout is protected. Unpinning, when authorized, or attaching a
+primary checkout afterward does not remove its primary status. If the chat runs inside its primary worktree, prepare an exact
+supported transition with source, destination and Git/file effects, or report the concrete hold.
+The calling chat cannot use `handoff_thread` on itself. Do not manually remove its active checkout,
+silently enlist another chat, promise an unavailable self-handoff or move Git state into live
+configuration without reviewed scope. On other clients, use only their supported route and name
+any unavailable operation. Never use chat archival as a cleanup shortcut.
+
+Report private Git integration, original-checkout file updates, live installation, acceptance and
+worktree/branch retirement separately when applicable. A merged PR does not update live files.
+If transition or retirement is unavailable or unauthorized, name the exact pending action and
+preserve the checkout rather than declaring cleanup complete.
 
 ## 9. Report the actual outcome
 
@@ -246,6 +269,7 @@ Give a concise factual handback:
 - checks run and their limits;
 - dependency specification/environment disposition;
 - commits, pushes, integrations, Issue actions, and readbacks;
+- whether the chat was unpinned and the worktree retired, or why either remains pending;
 - held, failed, pending, or unverified actions;
 - next substantive question or resumption cue.
 

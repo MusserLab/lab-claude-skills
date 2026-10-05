@@ -2,7 +2,7 @@
 name: globus-transfer
 description: >-
   Use when copying, staging, restoring, or verifying files between Globus
-  collections, including NAS, Bouchet, McCleary, Wasabi, and Yale Google Drive
+  collections, including NAS, Mac, Bouchet, McCleary, Misha, Wasabi, and Yale Google Drive
   or Shared Drives. Covers scoped preflight, direct CLI transfer, task status,
   and complete destination checks. Do not use to decide retention, local
   removal, vendor QC, or scientific suitability.
@@ -31,6 +31,26 @@ the **same Bash invocation** as each direct command. If Yale reauthentication,
 MFA, or collection consent is required, the researcher completes it in their terminal;
 never request a code or token in chat. An unchanged write approval survives an
 authentication refresh.
+
+### Cluster, NAS and Mac collection selection
+
+Discover the collection by its current name using `globus endpoint search`, then verify its
+identity, authorized access and exact path with scoped read-only listings. For Bouchet, use the
+current HA collection rather than assuming an older collection is still supported. Confirm NAS
+share/project mapping and the researcher's Mac collection instead of choosing another person's
+guest collection. Do not derive a destination by replacing a source cluster's filesystem prefix.
+The public lab roots in `hpc` are configurable defaults, not proof of collection access.
+
+Use a controller with an existing authorized CLI session; transfers run between collections and
+do not require installing the CLI on every cluster. Load the host's compatible Globus CLI in the
+same invocation as each command. If a Mac route is disconnected, the researcher opens their
+existing Globus Connect Personal application. Missing consent, MFA or a disconnected collection
+is a user-action boundary, not permission to copy tokens or bypass authentication.
+
+For scratch-first production, `hpc` carries dated storage/purge guidance and quota checks. The
+owning project chooses validated batches and reusable intermediates to retain. Persistent Palmer
+storage is not itself an independent backup; exact final directories still need write approval.
+See [YCRC Globus guidance](https://docs.ycrc.yale.edu/data/globus/).
 
 ### Yale Google Drive collections
 

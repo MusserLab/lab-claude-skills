@@ -5,7 +5,12 @@ description: Conda environment activation for Python commands. Use when running 
 
 # Conda Environment Management
 
-Agent shells are often non-interactive, so activation state does not persist between commands. Use the project's declared Conda installation and keep setup, activation, and the dependent command in one shell invocation.
+Use the project's existing compatible declared runtime. Apply this skill's Conda commands when
+the project selects Conda or the chosen tool requires it; preserve an established alternative
+runtime rather than replacing it because a task uses Python.
+
+Initialize and activate Conda in the same shell invocation as the command that needs it. Activation
+does not persist between tool calls; source the host's setup script before activating.
 
 ## Activation Pattern
 
@@ -24,23 +29,26 @@ do not invent a scheduler, module, installation path, or environment name.
 
 ## Before Running Commands
 
-1. **Check if the project has a Conda environment:**
-   - Read the project's native instructions and `environment.yml` or `environment.yaml`
-   - Use the declared environment name; do not guess from the directory name when they differ
+1. **Read the project's declared runtime and environment:**
+   - Check its instructions and dependency specification; reuse the existing compatible setup.
+   - For Conda, look for `environment.yml`, `environment.yaml`, or an environment name in the
+     project's native instructions.
+   - A name matching the project directory is a discovery hint, not a requirement to create or
+     rename an environment.
 
 2. **List available environments after the declared setup:**
    ```bash
    source "$(conda info --base)/etc/profile.d/conda.sh" && conda env list
    ```
 
-3. **If the project specifies a conda environment**, always activate it before running:
+3. **When the selected runtime is Conda**, activate that environment in the same invocation before running:
    - Python scripts
    - Shell commands that depend on conda packages
    - Tools like quarto (in some setups)
 
 ## Package Installation
 
-**Always install packages into the project's conda environment, never into the system Python or base env.**
+**For Conda work, install packages into the selected project environment, never into the system Python or base env.**
 
 1. **Prefer `conda install`** — it resolves dependencies against the full environment:
    ```bash
@@ -71,13 +79,16 @@ do not invent a scheduler, module, installation path, or environment name.
    source "$(conda info --base)/etc/profile.d/conda.sh" && conda list -n ENV_NAME | awk 'NR>3 && $NF=="pypi" {print $1"=="$2}'
    ```
 
-## One-Time Configuration
+## Separately Requested Global Configuration
 
-Apply machine-wide Conda configuration only when the project or site policy calls for it.
-Review the current configuration first; channel order can be scientifically consequential.
+Global Conda settings affect other projects. Change them only as a separately requested machine
+setup operation, after inspecting the current settings. Do not run this configuration as a side
+effect of activation, package installation or project scaffolding. Example settings for that setup:
 
 ```bash
-conda config --show channels channel_priority solver
+conda config --set channel_priority strict
+conda config --set solver libmamba
+conda config --add channels conda-forge
 ```
 
 - **strict channel priority**: When a package exists in multiple channels, conda uses only the highest-priority channel. Prevents mixing incompatible builds.

@@ -27,6 +27,8 @@ theme_clean <- function(base_size = 12) {
       axis.ticks = element_line(linewidth = 0.3, color = "grey30"),
       axis.text = element_text(size = base_size * 0.9, color = "grey20"),
       axis.title = element_text(size = base_size, color = "grey20"),
+      legend.position = "top",
+      legend.justification = "left",
       legend.title = element_text(size = base_size * 0.9),
       legend.text = element_text(size = base_size * 0.85),
       strip.text = element_text(face = "bold", size = base_size),

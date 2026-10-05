@@ -11,7 +11,7 @@ description: >
 
 Prepare dataset-specific markers through the project's established calculation, then generate a
 customized deep research prompt for cell type annotation. A suitable existing marker table can
-be reused; the student does not need to supply an externally prepared or separately approved list.
+be reused; the user does not need to supply an externally prepared or separately approved list.
 The prompt is designed for a deep research tool such as Claude or ChatGPT. Literature-based
 annotations are hypotheses to review against the dataset, not validated cell identities.
 
@@ -30,7 +30,9 @@ report processor. Specialized WGCNA `family_report1/2` workflows are deferred in
 
 ### Step 1: Gather Basic Inputs
 
-Use the client's supported question tool or ordinary conversation to gather missing information. Reuse supplied inputs and settled choices.
+Recover the following information from project records and the supplied inputs, then ask for
+what is still missing. Use the current client's structured-input tool when available, or ordinary
+conversation. Reuse answers the user has already provided.
 
 **Required:**
 
@@ -74,7 +76,7 @@ Use the client's supported question tool or ordinary conversation to gather miss
 
 ### Step 1b: Calculate or Reuse the Dataset's Markers
 
-The normal student route is dataset → marker calculation → lab filtering → annotation → prompt.
+The normal route is dataset → marker calculation → lab filtering → annotation → prompt.
 Read the project's registered active-file record and existing marker producer before selecting an
 input. Identify the actual object/version, expression assay or layer, cluster column, comparison
 (vs all cells, within a family, or both), statistical test, adjustment, positive-marker/effect-size
@@ -91,8 +93,7 @@ per-list approval. Do not silently rerun clustering or substitute a new normaliz
 Keep the complete marker statistics with stable gene IDs. In the prompt and substantive review,
 state which dataset and grouping were used, how markers were calculated, why that input is current,
 which filters applied, and the numbers before and after filtering/annotation selection. An existing
-plain gene list remains usable when that is the requested task; external-list intake is not the
-default onboarding route.
+plain gene list remains usable when that is the requested task.
 
 ### Step 2: Detect Input Type and Read Gene List
 
@@ -195,7 +196,8 @@ here to get it right — errors propagate to all prompts generated from this pro
 
 2. **Present detected categories** with counts and examples to the user.
 
-3. **Ask which annotation sources were used**, using the client's question tool or conversation:
+3. **Confirm which annotation sources were used.** Reuse established project provenance and
+   resolve any remaining gaps through the current client's question tools or conversation:
    - eggNOG-mapper (identify the actual annotation or orthology output used)
    - OrthoFinder (orthology)
    - Custom phylome pipeline (orthology)
@@ -628,8 +630,8 @@ or its bundled reference during ordinary project work.
 
 **Format varies by project.** Even for the same method (e.g., eggNOG), the actual
 column layout and name formatting may differ between projects. The library provides
-recognition hints and default descriptions, but the skill must always ask the user
-to confirm the specific format in their data.
+recognition hints and default descriptions. Confirm new or changed conventions; reuse a valid
+dataset profile without asking the same questions for each prompt.
 
 ---
 

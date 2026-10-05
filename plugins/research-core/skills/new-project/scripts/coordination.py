@@ -35,7 +35,8 @@ def declarations(path):
             token = match.group(1)
             if fence is None:
                 fence = token
-            elif token[0] == fence[0] and len(token) >= len(fence):
+            elif (token[0] == fence[0] and len(token) >= len(fence)
+                  and not line[match.end():].strip(' \t')):
                 fence = None
             continue
         if fence or line.startswith(('    ', '\t')):
@@ -61,11 +62,12 @@ def inspect(cwd, discover_git=True):
         canonical_paths = [root / '.claude/CLAUDE.md', root / 'CLAUDE.md']
         canonical = [item for path in canonical_paths for item in declarations(path)]
         adapter = declarations(root / 'AGENTS.md')
-        overrides = [item for name in ['CLAUDE.local.md', '.claude/CLAUDE.local.md',
-                                      'AGENTS.override.md', '.claude/AGENTS.override.md']
-                     for item in declarations(root / name)]
-        result['sources'] = canonical + adapter + overrides
-        if overrides:
+        override = declarations(root / 'AGENTS.override.md')
+        local = [item for name in ['CLAUDE.local.md', '.claude/CLAUDE.local.md',
+                                  '.claude/AGENTS.override.md']
+                 for item in declarations(root / name)]
+        result['sources'] = canonical + adapter + override + local
+        if local:
             raise ValueError('A local/override declaration needs an explicit project-level reconciliation')
         if len(canonical) > 1 or len(adapter) > 1:
             raise ValueError('Duplicate coordination declarations')
@@ -81,6 +83,8 @@ def inspect(cwd, discover_git=True):
             model = adapter[0]['model']
         else:
             model = 'undeclared'
+        if override:
+            raise ValueError('A local/override declaration needs an explicit project-level reconciliation')
         result.update(model=model, reason='')
     except (OSError, UnicodeError, ValueError) as error:
         result['reason'] = str(error)

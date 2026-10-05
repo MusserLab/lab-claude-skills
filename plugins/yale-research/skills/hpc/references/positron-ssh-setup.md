@@ -1,5 +1,10 @@
 # Working on HPC Compute Nodes with Positron and Coding Agents
 
+This is the Positron / VS Code Remote SSH workflow. Its Windows/WSL requirement below concerns
+that IDE route, not every coding client's SSH support. This package does not bundle the separate
+personal Codex Desktop guide; use the selected client's supported connection route and confirm
+its actual execution host before launching a coding agent.
+
 Two ways to use Claude Code on a Bouchet **or** McCleary compute node:
 
 1. **CLI over plain SSH** — use the selected allocation alias to request/hold the job, then

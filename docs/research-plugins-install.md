@@ -1,13 +1,21 @@
-# Install Research Plugins 0.1.0
+# Install Research Plugins
+
+> **Codex 0.1.1; Claude Code 0.1.0.** These clients now use separate release refs.
+> Verify the exact release tag and matching inventory before installing.
+> No existing installation or student source switch is authorized by this documentation.
+> See the [Codex release notes](research-plugins-codex-candidate.md) for scope and evidence.
 
 Research Plugins are shared research procedures for Claude Code and Codex. Start with Research
-Core, then select the optional packages you need. All four public packages are version `0.1.0`
-and contain 33 skills in total; Yale Research is optional for users of Yale services.
+Core, then select the optional packages you need. All four packages are version `0.1.1` on the
+Codex release refs and remain `0.1.0` on Claude's held refs, with 33 skills in either set.
+Optional packages accept Core `0.1.0` or later; Yale Research is optional for users of Yale services.
 
 ## Check the release and choose your packages
 
-Open the [Research Plugins 0.1.0 release](https://github.com/MusserLab/lab-claude-skills/releases/tag/research-plugins-0.1.0)
-and verify its tag/commit and [release inventory](../release/first-release.json) before installing.
+For Codex, verify `research-plugins-codex-0.1.1` and the matching
+[release inventory](../release/first-release.json) before installing. For Claude Code, use the
+[retained Research Plugins 0.1.0 release](https://github.com/MusserLab/lab-claude-skills/releases/tag/research-plugins-0.1.0)
+and its [0.1.0 inventory](https://github.com/MusserLab/lab-claude-skills/blob/research-plugins-0.1.0/release/first-release.json).
 If the release or ref is missing, stop and ask the maintainer; do not substitute the default branch.
 The inventory identifies versions, dependencies and payload hashes. Publication and programme
 acceptance are recorded separately from the inventory's build status.
@@ -15,8 +23,10 @@ acceptance are recorded separately from the inventory's build status.
 | Item | Selection |
 |---|---|
 | Repository | `https://github.com/MusserLab/lab-claude-skills.git` |
-| Moving release channel for ordinary updates | `codex/research-plugins-release` |
-| Immutable first-release ref for a deliberate pin or recovery | `research-plugins-0.1.0` |
+| Codex moving release channel for ordinary updates | `codex/research-plugins-codex-release` |
+| Codex immutable 0.1.1 ref for a deliberate pin | `research-plugins-codex-0.1.1` |
+| Claude Code moving release channel (held at 0.1.0) | `codex/research-plugins-release` |
+| Retained shared 0.1.0 ref for Claude pinning or reviewed Codex recovery | `research-plugins-0.1.0` |
 | `research-core` | 23 skills: common research workflow, setup, help and updates. Install first. |
 | `single-cell-research` | 2 skills: marker research and report processing. Optional. |
 | `genome-annotation` | 5 skills: gene lookup, phylogeny, tree formatting, BUSCO and HMMER. Optional. |
@@ -44,10 +54,10 @@ normal ChatGPT sign-in for this guide; account entitlements and workspace contro
 Open a local project or a small setup folder in Codex and paste this prompt:
 
 ```text
-Help me install Research Plugins 0.1.0 from
+Help me install Research Plugins 0.1.1 from
 https://github.com/MusserLab/lab-claude-skills.git using the moving release
-channel codex/research-plugins-release. First verify the published
-research-plugins-0.1.0 release and its inventory. I want research-core;
+channel codex/research-plugins-codex-release. First verify the
+research-plugins-codex-0.1.1 ref and its inventory. I want research-core;
 help me choose among optional single-cell-research, genome-annotation,
 and yale-research before installing extras.
 
@@ -59,6 +69,10 @@ scan unrelated projects or upload private files. Show the exact source/ref,
 selected packages, changes, backups and return path before changing my setup.
 Use this Desktop client's supported repository marketplace route; do not
 install a separate CLI unless this environment actually requires it.
+If musser-lab is already installed, inventory every package using that
+marketplace and obtain separate approval for the exact source switch.
+Snapshot and restore enabled/disabled choices after reinstallation;
+do not treat an upgrade on the old channel as a switch to the Codex channel.
 
 Then set up Research Core, preserving my existing instructions. Show the
 active instruction destination and complete RESEARCH-CORE block diff for
@@ -85,6 +99,13 @@ switch. The existing `lab-skills` 1.12.1 plugin shares the marketplace name and 
 security behavior. Review all affected packages and relied-on protections before changing its
 source or removing overlap; no blanket switch or uninstall is implied.
 
+An existing Codex installation on `codex/research-plugins-release` does not move to 0.1.1 by
+upgrading that held branch. Use the separately approved
+[whole-marketplace source-switch procedure](research-plugins.md#switch-an-existing-codex-marketplace).
+Snapshot enabled/disabled preferences before removal and restore them after reinstallation, which
+otherwise re-enables disabled packages. Review every installed package using `musser-lab`, not
+only the four packages listed here.
+
 Research Core adopts only the block between `<!-- BEGIN RESEARCH-CORE -->` and
 `<!-- END RESEARCH-CORE -->` in the active client's user instruction file. Review the exact
 file path and complete diff before writing. Personal and project guidance outside the block
@@ -101,7 +122,8 @@ identify which agent is running. [Official Windows guidance](https://learn.chatg
 
 Start a fresh chat after installation and adoption. Ask it to explain a small existing script or
 review a small table with unchanged inputs, and check which skills and instructions it finds.
-Our macOS CLI checks do not establish Desktop, Positron, Windows or Linux behavior. External
+The October 5 routing checks used macOS Codex CLI 0.149.0 fixtures, not final 0.1.1 native
+installation. They do not establish Desktop, Positron, Windows, Linux or cluster behavior. External
 scientific programs, databases, account access and project methods remain separate setup
 requirements. Installation alone does not establish scientific validity or toolchain readiness.
 
@@ -115,17 +137,22 @@ optional package explicitly; dependencies are not automatically installed. Then 
 - Ask **“How do I use these research plugins?”** for help.
 - Ask **“Update my research plugins, including their collaboration instructions.”** for a full
   update. It checks installed packages and separately previews changes to the adopted block.
+  Existing Codex installations on the old channel need an approved source switch first;
+  Claude keeps the held channel.
+  An ordinary marketplace upgrade does not rewrite an adopted `RESEARCH-CORE` block.
   Repeat for each client and host you use; one installation does not update all others.
 - If setup fails before a switch, keep the working setup. To undo an approved switch, use its
   recorded instruction backup and package/source restoration steps. Uninstalling a plugin does
   not itself remove the collaboration block.
-- For deliberate recovery or pinning, use `research-plugins-0.1.0` through the
-  [retained-release procedure](research-plugins.md#return-to-a-retained-release). Review every
-  package sharing the marketplace. Never move the tag or edit installed caches to recover.
+- For a deliberate Codex 0.1.1 pin, use `research-plugins-codex-0.1.1`. Claude 0.1.0 pinning
+  or reviewed Codex recovery to 0.1.0 uses `research-plugins-0.1.0` through the
+  [retained-release procedure](research-plugins.md#return-to-a-retained-release), including
+  preference restoration after Codex reinstall. Review every package sharing the marketplace.
+  Never move the tag or edit installed caches to recover.
 - Review reports before submission and remove private information; the
   [student guide](research-plugins.md#report-a-problem) explains sanitized public reports.
 
 See the [student guide](research-plugins.md) for ordinary workflows and the
-[compatibility record](research-plugin-compatibility.md) for dated evidence. The accepted candidate's
-macOS CLI lifecycles passed; broader client/host checks and real scientific acceptance remain
-separate from public release.
+[compatibility record](research-plugin-compatibility.md) for dated evidence. Retained 0.1.0 macOS
+CLI lifecycles and the October 5 Codex routing fixtures passed; final 0.1.1 native installation,
+broader client/host checks and real scientific acceptance remain separate from public release.

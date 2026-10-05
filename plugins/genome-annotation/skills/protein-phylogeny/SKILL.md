@@ -30,7 +30,7 @@ commands directly. The workflow is:
    model tier, trimming, etc.)
 2. **Generate** — Write a complete `.qmd` script encoding all decisions as configuration
    variables, following quarto-docs and script-organization skill conventions
-3. **Render** — User renders with `quarto render` (or the active agent renders it), producing analysis
+3. **Render** — User or agent renders with `quarto render`, producing analysis
    outputs in a fresh `outs/<subdirectory>/XX_script_name/<run_name>/` directory
 
 One script per major deliverable (one protein family or domain tree). All pipeline steps
@@ -150,7 +150,7 @@ Follow the script-organization skill:
 Generate a Python `.qmd` with these sections in order:
 
 1. YAML frontmatter (standard quarto-docs Python template)
-2. Setup chunk (PROJECT_ROOT, out_dir, git_hash, imports)
+2. Setup chunk (PROJECT_ROOT, out_dir, RANDOM_SEED, imports)
 3. **Configuration chunk** — all user decisions as named variables, followed by the fresh-run
    setup below before any analysis writes
 4. Inputs chunk (FASTA path, clearly labeled)
@@ -160,7 +160,9 @@ Generate a Python `.qmd` with these sections in order:
 8. [Optional] Trimming chunk (controlled by config flag)
 9. Tree inference chunk (IQ-TREE, tier from config)
 10. Summary chunk (alignment stats, model, support values)
-11. Build info chunk (standard BUILD_INFO.txt)
+11. Output and completion checks (retain the command, source, inputs, resolved settings, seed,
+    runtime and tool logs in the project's run record; a separate stage record is useful for
+    independent or expensive inference)
 
 ### Key patterns
 
@@ -171,7 +173,7 @@ Generate a Python `.qmd` with these sections in order:
 
 # ---- Pipeline Configuration ----
 # Resolved during discussion; change here to re-run with different options.
-# IQ-TREE uses RANDOM_SEED from the standard setup chunk; BUILD_INFO records it.
+# IQ-TREE uses RANDOM_SEED from the setup chunk; record it with the command and tool logs.
 
 RUN_NAME = "run_01"              # Choose a new name for each execution; never reuse retained output
 INPUT_FASTA = PROJECT_ROOT / "data/phylogenetics/sequences.fasta"
@@ -209,7 +211,7 @@ print(f"Fresh analysis output directory: {out_dir}")
 ```
 
 Record the actual input identity/hash, resolved configuration, seed, environment/tool versions
-and producing source commit in the run's build information. Preserve the rendered report too
+and producing source commit in the project's run record. Preserve the rendered report too
 when it is retained or shared; choose a fresh report destination rather than overwriting it.
 
 **FASTA validation chunk** — runs before any analysis:
@@ -432,15 +434,20 @@ The rendered script produces these files in `outs/<subdirectory>/XX_name/<run_na
 | `pmsf.sitefreq` | PMSF site frequency profiles |
 | `guide.treefile` | Pass 1 guide tree (Tier 2) |
 | `aligned.fasta` | MAFFT alignment |
-| `BUILD_INFO.txt` | Script provenance |
+| `BUILD_INFO.txt` | Optional stage record for independent or expensive inference; otherwise use the workflow record |
 
 ### How to render
 
 ```bash
 # Activate the project's declared environment in this same shell.
 # On a cluster, use its supported module/Conda setup and an appropriate allocation.
-quarto render scripts/<subdirectory>/XX_name.qmd --output-dir outs/<subdirectory>/XX_name/reports/<fresh_report_name>
+quarto render scripts/SUBDIRECTORY/XX_name.qmd --execute-dir "$PWD" --output-dir "$PWD/outs/SUBDIRECTORY/XX_name/reports/run_01/"
 ```
+
+Run from repository root after activating the declared environment; replace `SUBDIRECTORY` and the script name. Follow
+`quarto-docs` for a declared Quarto project or cluster runtime. Match the report's `run_01` to
+`RUN_NAME` and use a fresh report destination for each render. Analysis outputs remain in the
+separate `<run_name>/` directory, so report creation cannot occupy the fresh analysis destination.
 
 For long-running Tier 2 analyses, consider rendering in a screen/tmux session.
 

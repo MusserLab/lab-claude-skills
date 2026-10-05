@@ -139,11 +139,16 @@ These produce a confidently wrong number with no error and no warning. Check for
 
 **R**
 
-- `lm()`, `glm()`, `lmFit()` — complete-case analysis; any row with an NA is dropped
+- `lm()` / `glm()` — the usual `na.action = na.omit` omits observations missing variables in the
+  model; the configured action can differ. Check actual omissions, not NAs in unrelated columns.
+- `limma::lmFit()` — accepts missing expression values and fits each gene with its available
+  observations; it does not discard every gene row containing an NA. Check per-gene missingness
+  and estimability before interpreting the fit.
 - `cor(use = "complete.obs")` — excludes incomplete cases
 - Many functions default to `na.action = na.omit`
 - `as.numeric()` on character — introduces NAs
-- Factor levels are dropped when subsetting
+- Factor subsetting retains unused levels by default (`drop = FALSE`). Explicit `drop = TRUE`,
+  `droplevels()` or re-factoring can remove them; check the intended categories before dropping levels.
 
 **Python**
 

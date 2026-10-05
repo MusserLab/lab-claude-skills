@@ -5,9 +5,9 @@ Entries are dated and identify the released package versions.
 
 ---
 
-## 2026-10-05 - Codex Research Plugins 0.1.1
+## 2026-10-05 - Research Plugins 0.1.1 for Claude Code and Codex
 
-- Selective updates to the same four packages and 33 skills; each Codex package is 0.1.1.
+- Selective updates to the same four packages and 33 skills; each package is 0.1.1 in both clients.
   Optional packages still accept Core 0.1.0. No additional scientific or private packages.
 - Clearer runtime, output preservation, provenance, input review and project-workflow guidance.
   Existing released diagram resources, teaching-output protection and synchronization repairs stay.
@@ -16,14 +16,17 @@ Entries are dated and identify the released package versions.
 - Protein phylogeny retains explicit seeds and fresh runs with clearer Quarto execution/report
   destinations. Released HMMER choices and output safeguards remain unchanged.
 - Yale guidance is reconciled without personal collection IDs or host-maintenance hooks.
-- Codex release refs are `codex/research-plugins-codex-release` for ordinary updates and
-  `research-plugins-codex-0.1.1` for an immutable pin. Claude remains on the unchanged shared
-  0.1.0 refs; default `main` and legacy `lab-skills` are untouched. Verify the release tag and
-  matching inventory before installing.
-- Existing Codex installations need a separately approved whole-marketplace source switch,
-  with enabled/disabled preferences snapshotted and restored after reinstallation. Ordinary
-  updates do not rewrite adopted collaboration instructions. See the
-  [release notes](docs/research-plugins-codex-candidate.md) for evidence and recovery limits.
+- Both clients use `codex/research-plugins-release` for ordinary updates and
+  `research-plugins-0.1.1` for an immutable pin. The existing Codex moving ref
+  `codex/research-plugins-codex-release` remains a compatible alias. Existing Research Plugins
+  installations on either moving ref can update normally; no source switch is required.
+  Intentional pins stay pinned. Verify the release tag, ref and matching inventory before installing.
+- The historical `research-plugins-codex-0.1.1` publication and shared `research-plugins-0.1.0`
+  ref remain fixed. Default `main` and legacy `lab-skills` 1.12.1 are untouched; legacy users
+  are not migrated to the new packages. A requested source switch, pin or recovery still reviews
+  all marketplace packages and preserves enabled/disabled choices. Ordinary updates do not rewrite
+  adopted collaboration instructions. See the [release notes](docs/research-plugins-codex-candidate.md)
+  for dated client evidence and recovery limits.
 
 ## 2026-10-01 — Research Plugins 0.1.0
 

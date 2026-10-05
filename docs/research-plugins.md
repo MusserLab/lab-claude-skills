@@ -1,7 +1,7 @@
 # Research plugins: student guide
 
-> **Research Plugins: Codex 0.1.1; Claude Code 0.1.0.** Both contain the same four selected
-> packages and 33 skills, but use separate release refs. Claude's existing sources remain unchanged.
+> **Research Plugins 0.1.1 for Claude Code and Codex.** Both contain the same four selected
+> packages and 33 skills and use the shared release channel.
 > Start with the [installation quickstart](research-plugins-install.md) for the exact release,
 > Codex Desktop setup prompt and client requirements. Verify the release tag and matching
 > inventory before installation. The
@@ -14,8 +14,9 @@ scientific or institutional procedures without replacing project instructions, a
 styles, credentials or host configuration.
 
 The [release inventory](../release/first-release.json) identifies exact packages, versions, files
-and dependencies for Codex `0.1.1`. Claude's held release remains `0.1.0`, with its
-[retained inventory](https://github.com/MusserLab/lab-claude-skills/blob/research-plugins-0.1.0/release/first-release.json).
+and dependencies for `0.1.1` in both clients. The
+[retained 0.1.0 inventory](https://github.com/MusserLab/lab-claude-skills/blob/research-plugins-0.1.0/release/first-release.json)
+remains available for that fixed release.
 Optional packages retain minimum Core `0.1.0`. Earlier candidate evidence remains historical;
 inventory, publication, installation and programme acceptance have separate records.
 
@@ -25,7 +26,7 @@ inventory, publication, installation and programme acceptance have separate reco
 | `single-cell-research` | Marker research and research-report processing. | 2 skills; expression reports and specialized family workflows deferred. |
 | `genome-annotation` | Sequence analysis and tree display. | `gene-lookup`, `protein-phylogeny`, `tree-formatting`, `busco` and `hmmer`: 5 skills. |
 | `yale-research` | Optional Yale service guidance. | `hpc`, `globus-transfer` and `lux-collections`: 3 skills. |
-| `lab-skills` | Existing legacy Claude Code plugin. | Version 1.12.1 remains available on the default branch. |
+| `lab-skills` | Existing legacy all-in-one Claude Code plugin in this same repository. | Version 1.12.1 stays on the default branch; no automatic migration to the new packages. |
 
 ## Choose the packages you need
 
@@ -85,9 +86,9 @@ for a status check without installing an update. The setup skill handles all thr
 
 ## Use the same toolkit in Claude and Codex
 
-Install your selected packages from each client's named release refs, then run Core setup for each.
-Codex uses 0.1.1 on `codex/research-plugins-codex-release`; Claude remains on 0.1.0 at
-`codex/research-plugins-release`. Do not switch Claude to the Codex ref. Both receive adaptations
+Install your selected packages from the shared `codex/research-plugins-release` channel, then run
+Core setup for each client. Both use 0.1.1. Existing Codex installations on the compatible
+`codex/research-plugins-codex-release` alias can keep it and update normally. Both receive adaptations
 of shared procedure sources; each maintains its own installed state and
 adopted instructions: CLAUDE.md for Claude Code and AGENTS.md for Codex. Updating one client does
 not establish that the other is current. Ask for the full update, including collaboration rules,
@@ -222,10 +223,11 @@ figure rendering or iTOL service compatibility is established by the package che
 
 ## Release repository route
 
-Use the [installation quickstart](research-plugins-install.md) first. Codex's moving 0.1.1 channel is
-`codex/research-plugins-codex-release`, with immutable ref `research-plugins-codex-0.1.1`.
-Claude's held 0.1.0 channel remains `codex/research-plugins-release`, with immutable ref
-`research-plugins-0.1.0`; that immutable ref also supports reviewed Codex recovery.
+Use the [installation quickstart](research-plugins-install.md) first. Both clients use the moving
+`codex/research-plugins-release` channel for 0.1.1, with immutable ref `research-plugins-0.1.1`
+for a deliberate pin. The existing Codex moving ref `codex/research-plugins-codex-release` remains
+a compatible alias. Historical `research-plugins-codex-0.1.1` and `research-plugins-0.1.0` refs
+remain fixed for existing pins or reviewed recovery.
 Verify the actual remote release ref and target before using these commands. Review an existing
 `musser-lab` source and all its installed packages before changing it. For Desktop use the quickstart's
 repository marketplace path; the command examples below are for an existing matching CLI.
@@ -233,7 +235,7 @@ repository marketplace path; the command examples below are for an existing matc
 Codex CLI command shapes, when the actual client supports them:
 
 ```bash
-codex plugin marketplace add MusserLab/lab-claude-skills --ref codex/research-plugins-codex-release --json
+codex plugin marketplace add MusserLab/lab-claude-skills --ref codex/research-plugins-release --json
 codex plugin add research-core@musser-lab --json
 codex plugin list --marketplace musser-lab --available --json
 ```
@@ -254,15 +256,17 @@ updates follow the named moving channel and never silently change a student's pi
 
 ### Switch an existing Codex marketplace
 
-An installation on the held shared 0.1.0 channel needs a separately approved source switch;
-`marketplace upgrade` on that branch does not select the new Codex channel. First inventory the
-entire `musser-lab` installed set, current repository/ref and scope, every enabled/disabled choice,
-unrelated preferences and adopted instructions. Include any legacy package sharing the catalog;
-an unaccounted-for package is a hold. Review the exact switch and return path before approval.
+Ordinary updates from Research Plugins 0.1.0 on the shared moving channel need no source switch.
+Existing Codex installations on the compatible Codex moving alias also update normally.
+Use this procedure only for a requested source/ref change, deliberate pin, migration or recovery.
+First inventory the entire `musser-lab` installed set, current repository/ref and scope, every
+enabled/disabled choice, unrelated preferences and adopted instructions. Include any legacy package
+sharing the catalog; an unaccounted-for package is a hold. Review the exact switch and return path
+before approval.
 
 Codex CLI 0.149.0 on macOS exposed no in-place ref-switch command. The tested route removes each
 affected installed package, removes the marketplace, re-adds the same repository with the approved
-`--ref codex/research-plugins-codex-release`, then reinstalls the same selected set. Recheck the
+`--ref <approved-ref>`, then reinstalls the same selected set. Recheck the
 actual client's native help before applying that sequence. Do not substitute this CLI route for
 an unverified Desktop, Windows, Linux or cluster interface.
 
@@ -319,8 +323,10 @@ Paid API calls, credits, other destinations and wider scopes need separate appro
 
 ## Transition from `lab-skills`
 
-The legacy `lab-skills` 1.12.1 release remains available during student transitions. It shares the
-`musser-lab` marketplace and overlaps with new package procedures. It also carries existing hook
+The legacy all-in-one `lab-skills` 1.12.1 release stays on this repository's default `main` branch.
+Research Plugins 0.1.1 is a separate four-package distribution in the same repository. A legacy
+installation on `main` is not upgraded or migrated to those packages by this release. The sets
+share the `musser-lab` marketplace and overlap in procedures; Lab Skills also carries existing hook
 and security behavior that Research Core does not replace automatically.
 
 Before any student switch, inspect that student's installed scope, overlapping skills,
@@ -338,7 +344,7 @@ adopted agent collaboration instructions in the active client's `CLAUDE.md` or `
 Package updates alone do not replace those adopted instructions. The agent checks both, applies
 approved instruction changes and reports the outcome of each part; an unchanged block needs no edit.
 
-For a Git-backed marketplace already registered at the correct client-specific moving ref,
+For a Git-backed marketplace already registered at the shared moving ref or existing Codex alias,
 the CLI path is:
 
 ```bash
@@ -353,11 +359,12 @@ claude plugin list --json
 ```
 
 The agent first reads the actual marketplace source, installation scope and installed package
-versions. Existing Codex installations on the old channel need an approved
-[source switch](#switch-an-existing-codex-marketplace) to `codex/research-plugins-codex-release`
-first; an old-channel upgrade does not perform that switch. Claude continues on
-`codex/research-plugins-release` and repeats `plugin update` for each selected package. The agent
-then reads back the versions and previews the newly installed collaboration block against the
+versions. Existing Research Plugins 0.1.0 installations on `codex/research-plugins-release`
+can update to 0.1.1 normally in either client, without a source switch. Codex installations on
+`codex/research-plugins-codex-release` can keep that compatible alias and update normally.
+Claude repeats `plugin update` for each selected package. An intentionally pinned tag/commit
+stays pinned; a requested Codex [source change](#switch-an-existing-codex-marketplace) needs its
+own review. The agent then reads back the versions and previews the newly installed collaboration block against the
 adopted block. An identical block is a no-op; a changed block needs review before application. Start a fresh task
 after a successful update.
 
@@ -463,9 +470,10 @@ Changing a catalog ref can move multiple installed packages, so preview the affe
 and expected versions first. Neither current CLI provides a universal `plugin@version` recovery
 command; do not edit plugin caches directly.
 
-Routine Codex installations follow `codex/research-plugins-codex-release`; Claude continues on
-the held `codex/research-plugins-release` channel. Codex's immutable 0.1.1 ref is
-`research-plugins-codex-0.1.1`; the retained shared 0.1.0 recovery ref is `research-plugins-0.1.0`.
+Routine installations in both clients follow `codex/research-plugins-release`. Existing Codex
+installations can retain the compatible `codex/research-plugins-codex-release` alias. The shared
+immutable 0.1.1 ref is `research-plugins-0.1.1`; historical `research-plugins-codex-0.1.1` and
+`research-plugins-0.1.0` refs remain fixed for existing pins or reviewed recovery.
 Do not silently move an installation to another branch, tag or commit. For an intentional pin or
 return, the maintainer must name the immutable tag/commit and the exact client-specific source/ref
 change; review all packages that share the catalog before applying it. A pinned installation stays

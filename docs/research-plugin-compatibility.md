@@ -1,24 +1,46 @@
 # Research plugin compatibility and evidence
 
-> **Codex Research Plugins 0.1.1, 2026-10-05:** the accepted maintenance release keeps four
+> **Research Plugins 0.1.1 for Claude Code and Codex, 2026-10-05:** the maintenance release keeps four
 > packages and 33 skills. Verify the release tag and matching inventory before installation.
-> Claude stays on the unchanged shared 0.1.0 refs. The
+> Both clients use the shared moving channel. The
 > [release notes](research-plugins-codex-candidate.md) separate content checks from client trials.
 
-The current [release inventory](../release/first-release.json) identifies all four Codex packages
-at `0.1.1`, with optional packages still accepting Core `0.1.0`. Codex's moving release ref is
-`codex/research-plugins-codex-release`; its immutable ref is `research-plugins-codex-0.1.1`.
-Claude's moving `codex/research-plugins-release` and immutable `research-plugins-0.1.0` remain
-unchanged, as do default `main` and legacy `lab-skills` 1.12.1.
+The current [release inventory](../release/first-release.json) identifies all four packages
+at `0.1.1` in both clients, with optional packages still accepting Core `0.1.0`. The shared moving
+release ref is `codex/research-plugins-release`; the shared immutable ref is `research-plugins-0.1.1`.
+The existing Codex moving ref `codex/research-plugins-codex-release` remains a compatible alias
+at the same shared release commit. Existing Research Plugins installations on either moving ref
+can update normally without switching sources; intentional immutable pins remain pinned.
+Verify published refs and matching inventories before use.
+
+The historical Codex-first `research-plugins-codex-0.1.1` tag/release and shared
+`research-plugins-0.1.0` tag remain unchanged. New Research Plugins and legacy Lab Skills use this
+same repository; default `main` and all-in-one `lab-skills` 1.12.1 stay unchanged. Legacy users are
+not automatically migrated or upgraded to the new packages.
 
 On 2026-10-05, a disposable macOS profile with Codex CLI 0.149.0 exercised switching from the
-held shared ref to a separate Codex ref, a changed upgrade, and same-profile immutable 0.1.0
+then-held shared ref to a separate Codex ref, a changed upgrade, and same-profile immutable 0.1.0
 recovery. Seven complete 93-file readbacks matched local fixture payloads. Reinstallation enabled
 a previously disabled package; explicit preference restoration was required. Subsequent upgrades
 preserved that restored choice. Unrelated preferences and the adopted `RESEARCH-CORE` block stayed
-unchanged. No model/account session or final 0.1.1 native installation ran. Content/build checks
-cover the accepted 0.1.1 payload separately; Desktop, Windows, Linux, clusters, ordinary student
+unchanged. No model/account session or final Codex 0.1.1 native installation ran. Content/build checks
+cover the reviewed 0.1.1 payload separately; Desktop, Windows, Linux, clusters, ordinary student
 use and real scientific execution remain unverified.
+
+## Claude 0.1.1 same-channel update check - 2026-10-05
+
+Claude Code 2.1.289 on macOS 14.4.1 arm64 used a fresh disposable config profile and a loopback
+Git fixture with exact public 0.1.0/0.1.1 package bytes. All four 0.1.1 Claude manifests passed
+strict validation with zero warnings. Research Core updated from 0.1.0 to 0.1.1 on the same
+moving ref, matching all 38 inventory files and 23 skills with no extra, missing or mismatched
+files. Seeded inert user preferences and the adopted CLAUDE.md block stayed unchanged.
+
+Retained-tag recovery and a subsequent pinned update both stayed at 0.1.0. All four 38-file
+readbacks matched exactly. Final plugin and marketplace registrations were empty; inert preferences
+and the adopted block stayed unchanged. The fixture server stopped with no remaining listener;
+inactive cache files were retained only in the disposable profile. The other three packages were
+not native-installed, and final Codex 0.1.1 native installation remains unverified. This is one bounded macOS CLI
+package-update check, not ordinary student use, broad interface/host support or a scientific run.
 
 ## Retained 0.1.0 release evidence
 
@@ -398,6 +420,6 @@ exact installed block, complete diff, byte-for-byte backup, approval, native edi
 readback. If exact preservation cannot be verified, stop without writing. A WSL2 or macOS result is
 not native Windows evidence, and the setup must not silently change the student's chosen environment.
 
-Both the held 0.1.0 and Codex 0.1.1 releases retain the reviewed helper; a future compatibility
+Both retained 0.1.0 and dual-client 0.1.1 packages retain the reviewed helper; a future compatibility
 repair can be delivered through a normal package update. Manual adoption is a separate verified
 result, not helper success.

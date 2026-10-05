@@ -1,6 +1,6 @@
-# Lab Claude Skills
+# Research Plugins and Lab Skills
 
-> **Research Plugins: Codex 0.1.1, Claude Code 0.1.0:** start with the
+> **Research Plugins 0.1.1 for Claude Code and Codex:** start with the
 > [installation quickstart](docs/research-plugins-install.md), then use the
 > [student guide](docs/research-plugins.md) for ordinary work, updates and recovery.
 > The four public packages contain 33 skills. Yale Research is optional.
@@ -12,15 +12,19 @@ setup prompt and current operating-system/sign-in guidance; the
 [compatibility record](docs/research-plugin-compatibility.md) distinguishes tested routes from
 available but untested interfaces.
 
-Codex uses moving channel `codex/research-plugins-codex-release` or fixed tag
-`research-plugins-codex-0.1.1`. Claude Code remains on `codex/research-plugins-release` or fixed tag
-`research-plugins-0.1.0`. Existing Codex installations on the shared channel need the reviewed
-[one-time source switch](docs/research-plugins-codex-candidate.md), including preservation of their
-installed packages and enabled/disabled choices; an ordinary upgrade does not switch channels.
-Verify the selected GitHub release and its inventory before installation. This is a Git repository
-marketplace distribution. The existing `lab-skills` 1.12.1 plugin remains available
-on the default branch. The instructions below describe that legacy Claude Code plugin; use the
-quickstart above for the new packages.
+Both clients use the shared moving channel `codex/research-plugins-release` for ordinary updates
+or fixed tag `research-plugins-0.1.1` for an intentional pin. Existing Research Plugins 0.1.0
+installations on that moving channel can update normally without a source switch. The existing
+Codex channel `codex/research-plugins-codex-release` remains a compatible moving alias; its users
+can also update normally without switching. The historical `research-plugins-codex-0.1.1` and
+`research-plugins-0.1.0` tags remain fixed. Verify the selected GitHub release, ref and matching
+inventory before installation; stop if they are missing.
+
+These packages use the same repository as the legacy all-in-one `lab-skills` 1.12.1 Claude Code
+plugin. Lab Skills stays on the default branch with its existing payload, hooks and security
+configuration. Its users are not migrated to the new packages by this release; a transition is a
+separate reviewed choice. The instructions below describe that legacy plugin. Use the quickstart
+above and the [0.1.1 release notes](docs/research-plugins-codex-candidate.md) for Research Plugins.
 
 ## What are skills?
 

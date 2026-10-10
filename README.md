@@ -1,359 +1,365 @@
-# Research Plugins and Lab Skills
+# Research Plugins
 
-> **Research Plugins 0.1.1 for Claude Code and Codex:** start with the
-> [installation quickstart](docs/research-plugins-install.md), then use the
-> [student guide](docs/research-plugins.md) for ordinary work, updates and recovery.
-> The four public packages contain 33 skills. Yale Research is optional.
+Research workflows for Claude Code and Codex, developed in the Musser Lab and available to
+anyone working with research code and data.
 
-Shared research procedures help agents follow clear standards for data handling, planning,
-plotting, reproducibility and review. Install Research Core, then choose Single-cell Research,
-Genome Annotation or Yale Research as needed. The quickstart includes a copyable Codex Desktop
-setup prompt and current operating-system/sign-in guidance; the
-[compatibility record](docs/research-plugin-compatibility.md) distinguishes tested routes from
-available but untested interfaces.
+These plugins help an AI agent plan analyses with you, handle data carefully, write readable
+code, preserve how results were produced, and explain its work. They also provide procedures for
+specific tasks, including researching single-cell markers, building protein phylogenies, and
+preparing figures.
 
-Both clients use the shared moving channel `codex/research-plugins-release` for ordinary updates
-or fixed tag `research-plugins-0.1.1` for an intentional pin. Existing Research Plugins 0.1.0
-installations on that moving channel can update normally without a source switch. The existing
-Codex channel `codex/research-plugins-codex-release` remains a compatible moving alias; its users
-can also update normally without switching. The historical `research-plugins-codex-0.1.1` and
-`research-plugins-0.1.0` tags remain fixed. Verify the selected GitHub release, ref and matching
-inventory before installation; stop if they are missing.
+Setup starts with **Research Core**, explains the other packages, and asks which you want to
+include. You do not need to belong to the lab or use Yale's computing systems.
 
-These packages use the same repository as the legacy all-in-one `lab-skills` 1.12.1 Claude Code
-plugin. Lab Skills stays on the default branch with its existing payload, hooks and security
-configuration. Its users are not migrated to the new packages by this release; a transition is a
-separate reviewed choice. The instructions below describe that legacy plugin. Use the quickstart
-above and the [0.1.1 release notes](docs/research-plugins-codex-candidate.md) for Research Plugins.
+[Get started](#get-started) | [Choose your packages](#choose-your-packages) |
+[Everyday use](#everyday-use) | [Add packages later](#add-packages-later) |
+[Updates](#updates) | [Security](#security-setup) | [Recovery and removal](#recovery-and-removal)
 
-## What are skills?
+## What the plugins add
 
-Claude Code skills are markdown files that give Claude specific instructions for particular tasks. They're how we teach Claude our lab's conventions.
+A **skill** is a set of instructions for a recurring task. It can include examples, templates,
+and helper scripts. A **plugin** packages related skills so you can install and update them
+together.
 
-**How they work:** Each skill has a short **description** that tells Claude when to activate it, and a **body** with the actual instructions. Some skills also include additional files in their folder — guides, templates, or reference material that Claude can use.
+You usually work in ordinary language: "Help me plan this analysis," "Explain this script," or
+"Review this workflow for mistakes." The agent can select a relevant installed skill, and you
+can ask it to use one explicitly. You do not need to memorize commands.
 
-There are two kinds:
+Research Core also offers **agent collaboration instructions**: guidance for how the agent works
+with you, including when to discuss scientific choices, how to preserve existing work, and how
+to explain uncertainty and review results. Setup lets you inspect and adopt those instructions
+without replacing your personal guidance.
 
-- **Automatic skills** load on their own when Claude detects a relevant task. For example, when you ask Claude to make a plot, `r-plotting-style` loads automatically and Claude follows our ggplot2 conventions. You don't need to do anything.
-- **User-invoked skills** (slash commands) are triggered by typing a command like `/done` or `/new-project`. These run specific workflows on demand.
+The agent helps with the work; you remain responsible for scientific decisions and interpretation.
 
-**These skills are under active development.** If Claude does something wrong, or you think a skill is missing guidance for a situation you ran into, or you have an idea for a new skill — open a GitHub issue. See [Improving skills](#improving-skills) below for details.
+## Choose your packages
 
-## Prerequisites
+| Package | What it is for | Included examples |
+|---|---|---|
+| **Research Core** (`research-core`) | The common toolkit, included in setup. | Planning, data handling, debugging, code explanation and auditing, plotting and figure export, security setup, and session wrap-up. |
+| **Single-cell Research** (`single-cell-research`) **In development** | Exploring marker genes and cell-type functions. | Currently includes marker research prompt preparation and report processing. |
+| **Genome Annotation** (`genome-annotation`) | Looking up genes, making protein phylogenies, and assessing sequences. | Gene lookup, protein phylogeny, tree formatting, BUSCO, and HMMER. |
+| **Yale Research** (`yale-research`) | Guidance for researchers using Yale services. | HPC setup and workflows, Globus transfers, and Yale Lux collections. |
 
-You need [Claude Code](https://docs.anthropic.com/en/docs/claude-code) installed and working before adding lab skills:
+During setup, the agent explains these choices, recommends packages relevant to your work, and
+asks which to install. You can choose both scientific packages, add Yale Research if you use Yale
+services, or start with Core and add others later.
 
-1. Install Claude Code — see our [lab compute handbook](https://musserlab.github.io/lab-compute/part1/installation.html) or [Anthropic's install guide](https://docs.anthropic.com/en/docs/claude-code/overview)
-2. Open Claude Code — either in Positron (click the Claude Code icon in the sidebar) or in your terminal (run `claude`)
+Single-cell Research currently supports marker research prompts and report processing. A broader
+single-cell analysis and plotting workflow is still in development. General plotting and figure
+export are in Research Core. Genome Annotation's protein phylogeny workflow can be used on your
+own sequences without first running a genome annotation analysis.
 
-## Install
+Scientific software and databases need their own setup; Yale services require your own authorized
+access.
 
-There are two ways to install. Choose whichever fits your needs.
+## Get started
 
-### Option A: Plugin (recommended)
+### 1. Choose your client
 
-The simplest way to get all lab skills and keep them up to date.
+Open Claude Code or Codex and sign in with your own account.
 
-**In Positron / VS Code:**
+| You use... | Start here |
+|---|---|
+| **Codex Desktop** | Open a local project or a small setup folder and paste the prompt below. |
+| **Claude Code** in a terminal, editor, or Desktop's Code tab | Paste the same prompt into your Claude Code session. |
+| **Codex CLI** | Paste the same prompt into your Codex session. |
 
-1. Type `/plugins` in the Claude Code chat panel to open the plugin manager
-2. Go to the **Marketplaces** tab
-3. Add `MusserLab/lab-claude-skills`
-4. Switch to the **Plugins** tab and install `lab-skills`
+These instructions cover Claude Code and Codex. Claude Desktop's Chat and Cowork modes use
+different plugin routes. Use the client you already have; Desktop setup does not require a
+separate CLI installation. Official guidance:
+[Claude Code](https://code.claude.com/docs/en/setup),
+[Codex Desktop](https://learn.chatgpt.com/docs/app), and
+[Codex CLI](https://learn.chatgpt.com/docs/codex/cli).
 
-**In the terminal CLI:**
+### 2. Set up your research plugins
 
+Paste this into your chosen agent:
+
+```text
+Help me set up Research Plugins from
+https://github.com/MusserLab/lab-claude-skills.
+
+Read the README and verify the published release. Explain the available
+packages and help me choose which to install. If I already use Lab Skills,
+help me switch safely, preserving my customizations.
+
+Show me the proposed changes before applying them. Then help me set up
+the agent collaboration instructions and check that everything works.
 ```
-/plugin marketplace add MusserLab/lab-claude-skills
-/plugin install lab-skills
-```
 
-This installs all skills and hooks as a single package. Skills are available as `/lab-skills:skill-name` (e.g., `/lab-skills:done`). Security hooks activate automatically — see [Security](#security) below.
+Use the same starting prompt on macOS and Windows. The agent checks your system and follows the
+appropriate steps. If a step cannot be completed, it should explain what remains.
 
-**Updates:**
+Setup walks you through package selection, any transition from Lab Skills, a review of security
+settings, and the agent collaboration instructions. It shows proposed changes and keeps a way
+to restore your previous setup. Your personal instructions and project files are preserved.
 
-**Third-party marketplaces such as `musser-lab` do not auto-update by default.**
+<a id="moving-from-lab-skills"></a>
 
-**Restarting Positron on its own does not guarantee that you get a new release.** Downloaded
-plugin changes still have to be activated.
+**Already using Lab Skills?** Setup helps you switch, preserving customizations and checking
+replacement skills and security protections before disabling overlapping old copies.
 
-Exact update instructions for Positron are being validated on a clean student profile before
-they are published here. **Until then, if you need the newest release, ask Jacob** — he will walk
-you through it for your setup.
+### Agent collaboration instructions
 
-### Option B: Manual install (if you want to customize)
+You can choose whether to adopt these instructions. They go in a clearly marked `RESEARCH-CORE`
+section of your active user instruction file: `CLAUDE.md` for Claude Code or `AGENTS.md` for Codex.
+Setup resolves your actual configured file and shows a separate diff before changing it.
+Personal guidance outside the section is preserved. These instructions guide how the agent
+works with you; your project's methods and personal preferences stay in place.
 
-If you want to modify skills or pick only the ones you need, clone the repo and copy skills into your personal Claude Code directory instead.
+### On Windows
+
+Use the same setup prompt. The agent checks whether it runs natively on Windows or in WSL2,
+which have separate installation and instruction files.
+
+Native Windows setup uses a reviewed edit of the marked instruction section: show the exact
+change, keep a backup, preserve the file's encoding and surrounding text, and verify the result.
+This step does not require installing Python. An unavailable safe edit or check remains an unfinished step.
+
+### 3. Check it in a fresh chat
+
+Start a new chat and ask:
+
+> Check that my selected Research Plugins and any agent collaboration instructions I adopted
+> are active, and that old overlapping Lab Skills copies are inactive. Do not change anything.
+
+Then try a small task, such as asking the agent to explain an existing script without editing it.
+
+Repeat installation and setup for each client and execution host you use. Installing on your
+laptop does not install anything on a cluster, and updating Codex does not update Claude Code.
+
+## Everyday use
+
+<a id="all-skills"></a>
+
+| What you want to do | Something you can ask | Skills used |
+|---|---|---|
+| Plan an analysis | "Help me plan this analysis. Discuss the scientific choices with me before implementing it." | Core: `planning`. |
+| Understand code | "Walk me through this script: its inputs, operations, assumptions, and outputs." | Core: `learn-code`. |
+| Audit an analysis script | "Audit this analysis script for errors and explain your findings." | Core: `audit-script`. |
+| Make and export an R figure | "Help me make this plot in R, then export it for review." | Core: `r-plotting-style`, `figure-export`. |
+| Prepare a cell-type marker report | "Prepare a cell-type marker report: make a research prompt I can run in ChatGPT Pro or Claude Max." | Single-cell: `deep-research-genelist`. |
+| Process completed marker reports | "Process these cell-type research reports into readable reports and summary tables." | Single-cell: `deep-research-reports`. |
+| Make a protein phylogeny | "Make a protein phylogeny from these sequences." | Genome Annotation: `protein-phylogeny`; `tree-formatting` for display. |
+| Finish a session | "Wrap up this work and record what changed and what remains." | Core: `done`. |
+
+For cell-type marker research, the agent prepares a prompt from your dataset or marker results.
+You run that prompt in your chosen research session, then bring the report back for processing
+and biological review. The plugin does not automatically send your data to another service.
+
+Ask **"How do I use these research plugins?"** for help and more examples. For a new project,
+ask it to help record your environment, run commands, and project-specific methods in the
+project's own instructions.
+
+## Add packages later
+
+Ask:
+
+> Show me which Research Plugins I have and explain the other available packages.
+> Help me add the ones I choose.
+
+Or name the package: **"Add Single-cell Research to my existing setup."** The agent keeps your
+existing choices and instructions and adds only what you select. You do not need to start setup
+again.
+
+## Updates
+
+### Check what is new
+
+> Check what is new in Research Plugins. Compare the published release with my installed
+> versions and agent collaboration instructions, and summarize changes without changing anything.
+
+This checks the published release as well as your installed versions; a cached catalog alone
+does not show whether you are current.
+
+### Update your plugins
+
+> Update all Research Plugins I have installed from MusserLab/lab-claude-skills
+> and check the agent collaboration instructions.
+> Show me what will change first.
+
+This covers every installed Research Plugins package from **this repository**. It also checks any
+retained Lab Skills installation affected by the marketplace update. It preserves your
+package selections and enabled/disabled choices. It does not install packages you have not chosen
+or update unrelated plugins. An intentional release pin stays pinned unless you choose to move it.
+
+An update checks two things:
+
+- **Installed plugins:** their skills, examples, and helpers.
+- **Adopted agent collaboration instructions:** changes are shown separately before updating the
+  marked section of your user instructions.
+
+The `research-core-setup` skill is the shared entry point for setup, help, adding packages,
+checking what is new, and updates. Routine updates preserve personal instructions, do not repeat
+completed legacy cleanup, and do not adopt instructions you previously declined.
+
+If a package operation or verification fails, the agent reports what changed, what stayed
+unchanged, and what is unknown. It stops before instruction changes until the package state
+is resolved with you; it does not silently restore or replace anything.
+
+Automatic package updates depend on your client and settings. Even when plugin files update
+automatically, adopted agent collaboration instructions still need a separate check.
+
+## Security setup
+
+Research Core includes **`security-setup`** to help review protections for private folders,
+credentials, original research data, and results you need to keep. Setup starts with your
+client's native permissions and sandbox, preserves existing protections, and proposes targeted
+changes for your approval.
+
+Ask:
+
+> Help me protect the private folders I identify, credentials, original research data,
+> and retained results without opening private folders or credential contents.
+> Preserve existing protections, show proposed changes, and test them with harmless test files.
+
+Installing the plugin does not automatically block private folders or install security hooks.
+Coverage depends on the app and tools being used. The agent should explain those limits,
+check the relevant operations with harmless test files, and distinguish tested protections
+from anything it could not verify. When moving from Lab Skills, verify replacement coverage
+before deactivating old protections.
+
+## Recovery and removal
+
+### Return to a retained release
+
+Ask:
+
+> Help me recover my Research Plugins using a verified retained release.
+> Show the affected packages, source, instruction changes, and way back before changing anything.
+
+Recovery can affect several packages sharing a marketplace. Keep personal instructions,
+package choices, and intentional pins. Codex reinstallation can re-enable disabled packages,
+so their previous states must be recorded and restored through supported configuration.
+Preview recovery of adopted agent collaboration instructions separately. Use a verified
+retained tag or commit; do not edit installed caches or move an existing tag.
+
+### Remove a package
+
+Ask:
+
+> Help me remove the Research Plugins I choose. Show the package changes and any separate
+> removal of adopted agent collaboration instructions before applying them.
+
+If you want the adopted `RESEARCH-CORE` section removed, do that while Core's setup skill is
+still available, preserving all surrounding personal instructions. Uninstalling the plugin
+does not remove that section, and removing the section does not uninstall the plugin.
+Keep the marketplace while another installed package uses it.
+Keep Research Core while you use any optional package.
+
+## Report a problem or suggest an improvement
+
+Ask the agent to **draft a plugin feedback report for your review**, or open an issue in the
+[public GitHub issue tracker](https://github.com/MusserLab/lab-claude-skills/issues).
+
+Include the plugin and version, client, operating system, what you expected, and what happened.
+Use a small non-sensitive example. Remove credentials, personal paths, private data, and
+unpublished results before posting.
+
+Release information: [CHANGELOG](CHANGELOG.md),
+[GitHub releases](https://github.com/MusserLab/lab-claude-skills/releases),
+[maintainer compatibility record](docs/research-plugin-compatibility.md).
+Official plugin documentation:
+[Claude Code](https://code.claude.com/docs/en/discover-plugins),
+[Codex](https://learn.chatgpt.com/docs/plugins).
+
+## Manual commands
+
+These optional terminal commands are for readers who prefer to manage packages themselves.
+For guided setup and updates, use the prompts above.
+
+### Manual installation
+
+<details>
+<summary>Terminal commands for an existing CLI</summary>
+
+These are terminal commands, not prompts to paste into an agent. They assume a new marketplace
+registration in the named client. If `musser-lab` is already registered, ask the agent to check
+its source, installed packages, scope, and pins before changing it.
+Run them on the host where the agent executes; Claude examples below use user scope.
+
+Both clients use the published moving channel `codex/research-plugins-release`.
+Verify the published release and matching inventory before installation.
+An intentional fixed-release pin should stay pinned.
+
+For **Codex CLI**:
 
 ```bash
-# Clone the repo
-git clone https://github.com/MusserLab/lab-claude-skills.git
-cd lab-claude-skills
-
-# Copy all skills to your personal skills directory
-cp -r skills/* ~/.claude/skills/
-
-# Or copy just the ones you want
-cp -r skills/data-handling ~/.claude/skills/
-cp -r skills/r-plotting-style ~/.claude/skills/
+codex plugin marketplace add MusserLab/lab-claude-skills --ref codex/research-plugins-release
+codex plugin add research-core@musser-lab
+codex plugin list
 ```
 
-To update, pull the repo and re-copy the skills you want:
+For **Claude Code CLI**, user scope:
 
 ```bash
-cd lab-claude-skills && git pull
-cp -r skills/data-handling ~/.claude/skills/   # update specific skills
+claude plugin marketplace add "MusserLab/lab-claude-skills#codex/research-plugins-release" --scope user
+claude plugin install research-core@musser-lab --scope user
+claude plugin list
 ```
 
-Skills that reference machine-specific paths (like `conda-env`) use `~/miniconda3` as the default. If your conda is installed elsewhere, edit your local copy.
+Install a chosen optional package with another `plugin add` or `plugin install` command,
+replacing `research-core` with `single-cell-research`, `genome-annotation`, or `yale-research`.
+Core and each selected optional package must be installed explicitly.
 
-## Setup
+Then ask **"Set up Research Core, preserving my existing instructions."**
+A different installation scope or client version needs its matching supported route;
+check native help when syntax differs. Desktop uses its supported repository marketplace
+route, which the agent should establish in your actual client.
 
-After installing, complete these steps to configure permissions and security protections.
+</details>
 
-If you used the plugin install and don't have the repo cloned, download template files from [templates/ on GitHub](https://github.com/MusserLab/lab-claude-skills/tree/main/templates).
+### Manual updates
 
-### 1. Copy the settings template
+<details>
+<summary>Terminal commands for an existing CLI installation</summary>
 
-**On your local machine (macOS/Linux desktop):**
+Use the matching commands for your existing source and scope. Keep an intentional pin pinned.
+Before running them, check whether the shared marketplace operation would also affect a
+retained Lab Skills installation and preserve its state.
+
+For **Codex CLI**, the marketplace operation updates installed packages:
 
 ```bash
-cp templates/settings-example.json ~/.claude/settings.json
+codex plugin marketplace upgrade musser-lab
+codex plugin list
 ```
 
-**On an HPC cluster (Bouchet, McCleary, etc.):**
+For **Claude Code CLI**, user scope, refresh the catalog and update every installed selected
+package explicitly:
 
 ```bash
-cp templates/settings-cluster.json ~/.claude/settings.json
+claude plugin marketplace update musser-lab
+claude plugin update research-core@musser-lab --scope user
+claude plugin list
 ```
 
-The cluster template includes glob-based deny rules for Linux, blanket `Bash(*)` permissions (hooks handle safety), extra protections for shared filesystems (`rm -rf /nfs*`, process killing), and disables telemetry. It also has a YCRC cluster quick reference in the comments.
+Repeat Claude's `plugin update` for each installed optional package.
 
-If you already have a `settings.json`, merge in the entries you want manually.
+Afterward, ask **"Check whether my adopted agent collaboration instructions need updating."**
+Package commands do not update that section of your user file. Start a fresh chat after changes.
 
-This file includes:
-- **Security protections** — deny rules blocking access to credential stores, and bash scoping that limits which commands run without prompting (see [Security](#security))
-- **Pre-approved permissions** — common tools (`git`, `conda`, `Rscript`, `quarto`, etc.) and domains (NCBI, Ensembl, UniProt) so you're not prompted repeatedly
-- **Additional directories** — `~/.claude` and a placeholder for your research directory
-- **Environment variable** — `CLAUDE_CODE_ADDITIONAL_DIRECTORIES_CLAUDE_MD=1` so CLAUDE.md files from additional directories are loaded into context
+</details>
 
-### 2. Copy the user instructions template (optional)
+### Manual removal
 
-**On your local machine:**
+<details>
+<summary>Manual package removal commands</summary>
+
+For **Codex CLI**:
 
 ```bash
-cp templates/user-claude-md.md ~/.claude/CLAUDE.md
+codex plugin remove research-core@musser-lab
 ```
 
-**On an HPC cluster:**
+For **Claude Code CLI**, user scope:
 
 ```bash
-cp templates/user-claude-md-cluster.md ~/.claude/CLAUDE.md
+claude plugin uninstall research-core@musser-lab --scope user
 ```
 
-The cluster template adds conventions for HPC work — `.py` scripts instead of `.qmd`, headless matplotlib, module-based conda activation.
+Replace `research-core` with another selected package when removing it. These commands remove
+packages only; they do not remove adopted agent collaboration instructions.
 
-This gives Claude context about lab conventions across all your projects. Customize the troubleshooting section for your machine.
-
-A project-level template (`project-claude-md.md`) is also available — copy it to `.claude/CLAUDE.md` in new projects, or use `/new-project` which does this automatically.
-
-### 3. Run `/security-setup` (recommended)
-
-The plugin hooks and settings template provide baseline protections against accessing sensitive files. For protections tailored to your machine, run `/security-setup` — it scans for sensitive locations (cloud storage, password managers, scattered `.env` files) and generates personalized hooks. You can choose between:
-
-- **Allowlist mode** — block everything except directories you explicitly permit (most secure)
-- **Blocklist mode** — block only sensitive locations, allow everything else (more permissive)
-
-You can re-run `/security-setup` at any time to adjust protections.
-
-### Customizing settings
-
-The settings template is intentionally conservative. Here are things you may want to adjust.
-
-**Allow all bash commands** — convenient but means Claude won't ask before running anything (deny rules still apply):
-
-```json
-"Bash(*)"
-```
-
-**Additional directories** — Replace `/path/to/your/research` in the template with the root of your research projects. Claude can access files outside additional directories if you ask, but additional directories are treated as part of your workspace — Claude proactively considers them in scope, and their CLAUDE.md files are loaded into context.
-
-**Adding new entries** — Permissions go in the `allow` array:
-- Bash: `"Bash(command pattern *)"` — wildcards match anything
-- WebFetch: `"WebFetch(domain:example.com)"` — one entry per domain
-- MCP tools: `"mcp__server__tool_name"` or `"mcp__server__*"` for all tools on a server
-
-If Claude asks for permission and you click "Always allow", it adds the entry to your settings automatically.
-
-## Security
-
-Claude Code is an AI agent that can read any file on your machine and run any shell command. That includes saved passwords, SSH keys, API tokens, email, browser data, and cloud storage. The lab plugin sets up automatic protections so Claude can't access these things — even by accident.
-
-**If you installed the plugin and copied the settings template, you already have two layers of protection.** Running `/security-setup` adds personalized protections on top.
-
-| Layer | What it does | How you get it |
-|-------|-------------|----------------|
-| **Hooks** | Scripts that intercept file reads, writes, and bash commands, blocking access to sensitive locations | Automatic with plugin install (macOS/Linux; see [SECURITY.md](SECURITY.md) for Windows) |
-| **Deny rules** | Settings-level blocks that work even if a hook has a bug | Copy `settings-example.json` |
-| **Bash scoping** | Only pre-approved commands run without prompting; unlisted commands require approval | Copy `settings-example.json` |
-
-**HPC clusters:** `/security-setup` auto-detects cluster environments and applies cluster-appropriate defaults — glob-based deny rules, no bash scoping, and extra protections against filesystem destruction and process killing.
-
-For the full security guide — what's protected, platform differences, allowlist vs blocklist modes, and how to update protections — see **[SECURITY.md](SECURITY.md)**.
-
----
-
-## Skill reference
-
-### Workflows (slash commands)
-
-Invoke these directly to run a workflow.
-
-| Skill | Description |
-|-------|-------------|
-| `/done` | End-of-session wrap-up — summarize work, update docs, and commit |
-| `/new-project` | Scaffold a new project (data science, docs, or general) |
-| `/new-plan` | Create a planning document for multi-session work |
-| `/audit-project` | Project health check — cross-check docs, prune conventions, find drift |
-| `/audit-skills` | Audit skills for bloat, trigger accuracy, structural quality, redundancy, and pruning opportunities |
-| `/audit-script` | Systematic audit of data analysis scripts for bugs, analytical reasoning, data handling, style, and reproducibility |
-| `/learn-code` | Interactive script walkthrough for teaching coding, organization, and analytical reasoning |
-| `/security-setup` | Configure and manage Claude Code security protections for sensitive files, credentials, and data |
-| `/quarto-book-setup` | Initialize a new Quarto book with GitHub Pages |
-| `/publish` | Commit and publish a Quarto project to GitHub Pages |
-| `/gene-list-deep-research` | Generate deep research prompts from scRNAseq marker gene lists for cell type annotation |
-| `/process-deep-research` | Process deep research report outputs — clean artifacts, generate PDF/HTML, parse YAML headers |
-| `/cleanup-scripts` | Session-scoped script cleanup — consolidate scratch files, check conventions |
-| `/sync-project` | Sync project state when arriving on a new machine — git pull, conda env update, renv restore |
-| `/handoff` | Coordinate local ↔ cluster session handoff — departure → gate → arrival, multi-chat safe |
-| `/feedback-walkthrough` | Walk a student through advisor feedback pedagogically, one item at a time |
-| `/plugin-feedback` | File a lab-skill bug, improvement, or new-skill idea as a GitHub issue on the plugin repo |
-
-### Data science conventions
-
-For analysis projects with numbered scripts, `data/`+`outs/` directories.
-
-| Skill | Description |
-|-------|-------------|
-| `data-handling` | Data handling best practices for R and Python data science analysis scripts |
-| `script-organization` | Directory structure, numbering, lifecycle, provenance, cluster .py templates |
-| `quarto-docs` | QMD analysis scripts with status fields and reproducibility metadata |
-| `r-plotting-style` | ggplot2 theme and conventions |
-| `figure-export` | Figure export conventions for publication-quality R figures (PDF/PNG/SVG) |
-| `expression-report` | Single-cell expression reports — barplots, heatmaps, cross-analysis |
-| `r-renv` | R package management with renv |
-
-### General conventions
-
-For all project types.
-
-| Skill | Description |
-|-------|-------------|
-| `git-conventions` | Commit practices and conventions |
-| `file-safety` | File modification rules to prevent overwriting important files |
-| `conda-env` | Conda environment activation for Python commands |
-| `debugging-before-patching` | Systematic debugging and error diagnosis |
-| `hpc` | Yale YCRC HPC cluster reference — batch scripts, job resources, storage, Snakemake, Positron/VS Code Remote SSH setup |
-| `new-skill` | Create a new skill with proper structure |
-
-### Domain skills
-
-For specific research tasks.
-
-| Skill | Description |
-|-------|-------------|
-| `protein-phylogeny` | Protein phylogeny inference pipeline — alignment, trimming, tree building |
-| `gene-lookup` | Look up gene/protein info from database IDs (UniProt, Ensembl, FlyBase, etc.) |
-| `tree-formatting` | Phylogenetic tree visualization with ggtree or iTOL |
-| `pipeline-diagram` | Generate a publication-style pipeline diagram (overview + per-step detail) from a YAML spec |
-
----
-
-## Hooks
-
-The plugin includes hooks that automatically enforce lab conventions. These activate when the plugin is installed — no manual configuration needed. Hooks are bash scripts, so they run natively on macOS and Linux. On Windows, hooks may not fire (depends on shell) — deny rules in `settings.json` provide equivalent protection. See [SECURITY.md](SECURITY.md) for details.
-
-| Hook | Event | What it does |
-|------|-------|-------------|
-| `protect-sensitive-reads.sh` | PreToolUse (Read) | Blocks reads to sensitive directories (credentials, passwords, browsers, email) |
-| `protect-sensitive-writes.sh` | PreToolUse (Edit/Write) | Blocks writes to sensitive directories (credentials, passwords, shell configs, LaunchAgents) |
-| `protect-sensitive-bash.sh` | PreToolUse (Bash) | Blocks bash commands referencing sensitive paths or using dangerous patterns |
-| `protect-data-dir.sh` | PreToolUse (Edit/Write) | Blocks writes to `data/`, except `data/processed/` and provenance files (CITATION/README/etc.) — outputs go to `outs/` |
-| `enforce-qmd-scripts.sh` | PreToolUse (Edit/Write) | Blocks numbered non-`.qmd` scripts in `scripts/` on local (auto-skips on cluster). Override with `# allow-py: <reason>` comment |
-| `require-conda.sh` | PreToolUse (Bash) | Blocks bare `pip install` — requires conda env activation first |
-| `commit-before-execute.sh` | PreToolUse (Bash) | Suggests committing changes before `sbatch` or `quarto render` so BUILD_INFO git hash is accurate (suggestion, not block) |
-| `suggest-new-plan.sh` | PreToolUse (EnterPlanMode) | Suggests using `/new-plan` (tracked planning document) over built-in plan mode |
-| `project-reminders.sh` | SessionStart | Injects general and project-specific reminders at session start |
-| `done-reminder.sh` | UserPromptSubmit | Detects end-of-session / wrap-up phrasing and nudges Claude to run the `/done` skill rather than hand-rolling the summary and commit (non-blocking) |
-
-### Project reminders
-
-The `project-reminders` hook supports two levels of reminders:
-
-**Project-specific reminders** — Create `.claude/project-reminders.txt` in your project root:
-
-```
-1. Gene level = automated_name, NEVER bare Trinity IDs
-2. All heatmaps MUST use per-timepoint DMSO normalization
-3. Check PLOTTING_PLAN.md before modifying any plotting script
-```
-
-**General reminders (all sessions)** — The plugin ships a default `general-reminders.txt` (covering the `&&`-chaining permission gotcha and a prompt to offer `/plugin-feedback` when you hit a rough edge with a skill) that applies across all projects. To override it with your own list, create `~/.claude/hooks/general-reminders.txt` — a personal copy takes precedence over the plugin's:
-
-```
-1. Always check planning documents before modifying scripts
-2. Never silently default unmatched data classifications
-```
-
-Both are injected into Claude's context at every session start, so important rules survive context compaction. If both files exist, general reminders appear first, followed by project-specific ones.
-
-### Optional hooks (not in plugin)
-
-These hooks are useful but not included in the plugin by default. Add them to your `~/.claude/settings.json` manually:
-
-**macOS notification** — Alerts you when Claude needs attention:
-```json
-"Notification": [
-  {
-    "matcher": "",
-    "hooks": [
-      {
-        "type": "command",
-        "command": "osascript -e 'display notification \"Claude needs your attention\" with title \"Claude Code\"'"
-      }
-    ]
-  }
-]
-```
-
-## Improving skills
-
-Skills are only as good as their instructions, and they're under active development. If something isn't working well, that's worth reporting so everyone benefits.
-
-### What to report
-
-- **Wrong behavior** — a skill told Claude to do something incorrect or suboptimal
-- **Missing cases** — a skill doesn't handle a situation you ran into (e.g., the data-handling skill didn't flag that a join dropped rows)
-- **Activation problems** — a skill didn't load when it should have, or loaded when it shouldn't
-- **New skill ideas** — a recurring task that Claude should handle consistently
-
-### What makes a good skill
-
-When thinking about whether something should be a skill, consider:
-
-- **Repeatable conventions** — things Claude should do the same way every time (file naming, plot styling, commit messages, directory structure)
-- **Guardrails** — mistakes Claude tends to make that a skill can prevent (overwriting data files, skipping diagnostics, using wrong normalization)
-- **Multi-step workflows** — sequences of actions that should follow a specific order (session wrap-up, project scaffolding, publishing)
-- **Domain knowledge** — lab-specific practices that Claude wouldn't know on its own (which databases to query, how we organize analyses)
-
-The most impactful skill improvements are usually about **correctness** — making sure Claude handles edge cases, flags ambiguities, and follows the right conventions for our specific workflows.
-
-### How to report
-
-The easiest way is the **`/plugin-feedback`** skill: type `/plugin-feedback` in Claude Code — or just tell Claude something like "suggest a skill improvement" or "file a plugin issue." It drafts the issue from your conversation, shows it to you to confirm or edit, and files it on the [GitHub repo](https://github.com/MusserLab/lab-claude-skills/issues) — using the `gh` CLI if you have it set up, or handing you a pre-filled link to click if you don't. Claude will also offer this on its own — once, unobtrusively — if it notices you hit a rough edge with a skill.
-
-Prefer to do it by hand? Open an issue on the [GitHub repo](https://github.com/MusserLab/lab-claude-skills/issues) directly on the website (there's a **Skill feedback** template), or ask Claude to do it for you right in your conversation:
-
-> "Open a GitHub issue on MusserLab/lab-claude-skills — the data-handling skill didn't flag that my join dropped 50 rows"
-
-Include which skill was involved, what happened, and what you expected. Pasting the relevant part of your Claude Code conversation is especially helpful.
+</details>

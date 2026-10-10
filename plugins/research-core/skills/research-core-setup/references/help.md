@@ -1,4 +1,4 @@
-# Use Research Core
+# Use Research Plugins
 
 Research Core supplies reusable research procedures and optional agent collaboration instructions.
 After setup, start a fresh task and describe your work normally. The agent uses relevant procedures
@@ -17,25 +17,88 @@ The agent should orient you, investigate routine problems, preserve inputs and r
 and bring consequential scientific choices and substantive results back for discussion. Installing
 a procedure does not validate its scientific method for your project or replace your acceptance.
 
-Optional scientific, Yale or private packages extend this toolkit only when actually installed and
-accessible. Ask "Which research plugins are installed here?" for a read-only inventory. A package
-listed in a guide or marketplace is not evidence that you have it. If one is absent, use project
-guidance or official documentation and discuss whether you need that package.
+Ask **"How do I use these research plugins?"** for help. `research-core-setup` is the shared entry
+point for setup, adding packages, read-only checks, updates and help; there is no separate update
+skill to remember.
+
+## Choose packages
+
+| Package | What it adds |
+|---|---|
+| Research Core (`research-core`) | The common toolkit: planning, careful data handling, debugging, code explanation/auditing, plotting, figure export, security setup and session wrap-up. Included in setup. |
+| Single-cell Research (`single-cell-research`) **In development** | Currently marker research prompt preparation and report processing. It is not a complete single-cell analysis or plotting workflow. General plotting and figure export are in Core. |
+| Genome Annotation (`genome-annotation`) | Gene lookup, protein phylogeny, tree formatting, BUSCO and HMMER. |
+| Yale Research (`yale-research`) | Yale HPC, Globus transfers and Lux collections; your own authorized access is required. |
+
+Setup explains all four packages and asks which optional packages you want. It installs Core and
+only the additions you choose. You can start with Core, choose either or both scientific packages,
+and add Yale Research if you use Yale services. No extra package is installed by default.
+
+Ask "Which research plugins are installed here?" for a read-only inventory. A package listed in a
+guide or marketplace is available to choose, not proof that it is installed and active here.
+Optional packages extend the toolkit only when actually installed and accessible.
 
 ## Help, status and actions
 
 | Request | What happens |
 |---|---|
-| "How do I use these plugins?" or "How do updates work?" | Explanation from this guide; no setup, update or personal-instruction inspection. |
+| "How do I use these research plugins?" or "How do updates work?" | Explanation from this guide; no setup, update or personal-instruction inspection. |
 | "Which research plugins are installed?" | Read-only package/version/source/scope/host check; no catalog refresh. |
-| "Are my Research Core collaboration rules current?" | Read-only comparison of the adopted block with the installed source; no replacement. |
-| "Set up research core." | Review and adopt the collaboration block through an exact instruction diff; offer cluster setup when relevant. |
+| "Are my agent collaboration instructions current?" | Read-only comparison of the adopted block with the installed source; no replacement. |
+| "Check what is new in Research Plugins." | Read the published release and compare with installed versions and any requested agent collaboration instructions; no installation or changes. |
+| "Help me set up Research Plugins." | Explain package choices, install the selected packages, review legacy migration/security, and offer agent collaboration instructions. |
+| "Add Single-cell Research to my existing setup." | Add only the chosen package, keeping existing package choices and instructions. |
 | "Help me set up Bouchet" or "Add McCleary to my setup." | Continue the selected cluster's onboarding using available Yale guidance, preserving the working setup. |
-| "Update research plugins." | Perform the full update below, reporting package and instruction outcomes. |
+| "Update my Research Plugins." | Update all installed Research packages from this repository and check adopted agent collaboration instructions, reporting the outcomes separately. |
 | "Remove the research core instruction block." | Preview and review removal of only that block. |
 
 If a check cannot run, the agent should say what is unverified. A local cached catalog does not
 prove that you have the newest release. You can ask for an explanation without authorizing changes.
+
+## Initial setup and migration
+
+Tell the agent your operating system, client/interface and where it runs. The
+[installation guide](https://github.com/MusserLab/lab-claude-skills/blob/codex/research-plugins-release/docs/research-plugins-install.md)
+has client-specific steps. Setup shows package changes before applying them, preserves your
+personal instructions and customizations, and keeps a way to restore the previous setup.
+
+The old all-in-one Lab Skills plugin is being phased out. Initial setup is intended to replace it
+and deactivate overlapping copied skills after the selected replacements are verified. The agent
+checks skills you need and uses `security-setup` to review relied-on protections before deactivating
+old components. Core installs no hooks or permission grants and does not automatically replace
+the old hooks.
+
+The final migration check confirms that replacement skills are available and old overlapping
+versions are inactive in this client, with customizations and rollback preserved. Nothing is
+silently deleted. If a needed skill or protection has no suitable replacement, or a required
+check cannot run, the agent reports **migration incomplete** and keeps the affected old component
+until the gap is resolved.
+
+You may choose the optional agent collaboration instructions. These guide how the agent works
+with you, including scientific choices, preserving work and discussing uncertainty and results.
+They occupy only the marked `RESEARCH-CORE` section of your existing active user instruction file,
+which you review before it changes. They preserve personal guidance and project scientific methods.
+
+On macOS/Linux, a bundled Python helper can preview and apply that section with a backup. On native
+Windows, the simple route is manual adoption of the marked section unless helper compatibility has
+been verified there. The agent reads the source, resolves Claude Code's active `CLAUDE.md` or Codex's
+active `AGENTS.md`, shows the complete diff, keeps a backup and applies only the approved marked
+section. In PowerShell the default files are `$HOME\.claude\CLAUDE.md` and
+`$HOME\.codex\AGENTS.md`; configured homes, including `$env:CODEX_HOME`, take precedence.
+Manual adoption does not require installing Python.
+
+Start a fresh chat to check chosen package discovery, adopted agent collaboration instructions
+and any completed old-skill deactivation. Then try a small ordinary task. Package readback does
+not prove that the agent follows the instructions; each client and execution host needs its own
+setup and verification.
+
+## Add packages later
+
+Ask "Show me which Research Plugins I have and explain the other available packages. Help me add
+the ones I choose," or name a package. The agent previews and adds only your selection, preserving
+existing packages, enabled/disabled choices, pins and personal instructions. It does not repeat
+legacy migration or initial adoption of agent collaboration instructions. Start a fresh chat to
+check the added skills.
 
 ## Optional Claude subscription delegation
 
@@ -89,16 +152,38 @@ cluster availability, and a terminal route does not prove an editor or desktop r
 tiny scheduler check and a fresh-session plugin check; if access is pending, keep the working
 portion and resume the remaining step later.
 
-## A full update includes your collaboration instructions
+## Updates and agent collaboration instructions
 
-**"Update research plugins" covers both your selected installed packages and the separately adopted
-agent collaboration instructions.** The agent checks the actual client, host, source and scope,
-uses the supported update route, and reads back the selected packages and their versions. It then
-compares the newly installed collaboration source with your adopted `RESEARCH-CORE` block.
+For a read-only check, ask:
 
-Identical instructions need no replacement. For a changed block, review the concrete diff, including
-personal edits, before applying it. Everything outside the block is preserved. Refreshing packages
-does not itself rewrite your adopted instructions. Start a fresh task after successful changes.
+> Check what is new in Research Plugins. Compare it with my installed versions and agent
+> collaboration instructions, and summarize the changes without installing or changing anything.
+
+The agent checks the published release, not just its cached catalog. It reports any unavailable
+comparison rather than claiming the installed version is current.
+
+For an update, ask:
+
+> Update my Research Plugins. Include all the plugins I have installed from MusserLab/lab-claude-skills
+> and check the agent collaboration instructions. Show me what will change first.
+
+This includes all installed named Research packages from **this repository**, including optional
+and disabled packages, and keeps unselected packages uninstalled. It does not update unrelated
+plugins. The agent checks the actual client, host, source and scope, preserves enabled/disabled
+choices and pins, and asks before changing an intentional older pin. It shows package changes and
+reads back the installed versions after the supported operation. If any targeted operation or
+readback fails, it reports each package as changed, unchanged or unknown, preserves the current
+state and stops before instruction changes until a coherent installation is established.
+
+It separately compares the newly installed source of agent collaboration instructions with your adopted
+`RESEARCH-CORE` block. Routine updates preserve personal instructions, do not repeat initial legacy
+migration or old-skill cleanup, and do not adopt agent collaboration instructions you previously
+declined.
+
+Identical instructions need no replacement. For a changed block, review the separate concrete diff,
+including personal edits and conflicts, before applying it. Everything outside the block is preserved.
+Refreshing packages does not itself rewrite adopted agent collaboration instructions. Start a fresh
+chat after successful changes.
 An explicit full update remains useful even when automatic package refresh is available, because
 it verifies both layers.
 
@@ -109,13 +194,22 @@ Automatic refresh depends on the client and configuration:
   at session startup; downloaded changes activate after plugin reload or a subsequent session.
   See [Claude's update documentation](https://code.claude.com/docs/en/discover-plugins#keep-plugins-updated).
 - **Codex:** source review of CLI `rust-v0.149.0` shows startup refresh of configured Git-backed
-  marketplaces. This is source evidence, not an observed ordinary student workflow or a promise
-  for every version or interface. See [the reviewed implementation](https://github.com/openai/codex/blob/rust-v0.149.0/codex-rs/core-plugins/src/manager.rs#L2011-L2205).
+  marketplaces. A contained macOS CLI 0.149.0 trial verified ordinary upgrade and recovery, including
+  preservation of disabled choices on ordinary upgrade; a reinstall required explicit restoration
+  of those choices. A participant reported a successful native Windows CLI 0.160.0 package update
+  for their existing Desktop installation, using process-local `CODEX_HOME` pointed at the existing
+  home and checking the native package list and manifests. They reported preservation of legacy
+  files, configuration, instructions and package choices; their filesystem was not independently
+  inspected. Fresh-chat discovery, instruction-helper use, instruction updates and recovery remain
+  untested on Windows. These are version-specific checks, not a promise for every interface.
+  See [the reviewed implementation](https://github.com/openai/codex/blob/rust-v0.149.0/codex-rs/core-plugins/src/manager.rs#L2011-L2205).
 
-The released student guide and compatibility record identify demonstrated routes. Local candidates,
-other installation scopes and desktop/editor interfaces may require different steps. Ask the
-maintainer for an unverified route; do not change sources, pins, scope or automatic-update settings
-to make an update work.
+The installation guide and compatibility record identify demonstrated routes. A documented CLI
+route can perform a package operation when the active client, home, host and exact scope are
+established; it does not require a separate GUI test. Fresh-chat discovery remains a separate check.
+If the operation is unsupported or its scope cannot be established, the agent stops before changing
+packages and reports the remaining step. It must not edit caches or change sources, pins, scope or
+automatic-update settings to make an update work.
 
 ## Support and recovery
 
@@ -127,11 +221,11 @@ credentials and unpublished work out of it; ask the maintainer for a private des
 
 If a release fails, use a maintainer-named retained release and its client-specific recovery steps,
 or a new maintainer recovery release. A catalog change can affect several packages. Preview the
-matching collaboration block separately and preserve your personal instructions. Do not edit
-installed caches or assume a universal `plugin@version` selector. Recovery does not undo outputs
+matching adopted agent collaboration instructions separately and preserve your personal instructions.
+Do not edit installed caches or assume a universal `plugin@version` selector. Recovery does not undo outputs
 already produced by a research project.
 
-Remove the collaboration block while its setup helper is still available, then uninstall selected
+Remove the adopted `RESEARCH-CORE` section through a reviewed helper or manual diff, then uninstall selected
 packages explicitly. Uninstalling Research Core does not remove adopted instructions automatically.
 
 Each client and execution host has its own installation, account and instruction file. A laptop

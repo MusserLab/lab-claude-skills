@@ -10,7 +10,7 @@
   "packages": [
     {
       "name": "research-core",
-      "version": "0.1.1",
+      "version": "0.1.2",
       "requires": {},
       "skills": [
         "audit-project",
@@ -38,8 +38,8 @@
         "sync-project"
       ],
       "files_sha256": {
-        ".claude-plugin/plugin.json": "4f07db54334d2108a3f137e2345ed6b90f9cef592e267ba7d1b604cbf5858027",
-        ".codex-plugin/plugin.json": "2f1574c4a20cb8c3d55da3aa5c82d4a5462eb2ea01c577403041d7085d573aa9",
+        ".claude-plugin/plugin.json": "f3671ee6ab5631d99f7a5f57a1b6cdf151af93036a626f721776b8f60641a896",
+        ".codex-plugin/plugin.json": "5e97e001c44b153a87a5d76231580a6ff72f2b0e6989aba1555cad1794e5f585",
         "instructions/agent-collaboration.md": "1343d836b9457f67a7c4bdbaa96a731bb25f8d20e2feac9c5f4046cf857bc3be",
         "scripts/install_instructions.py": "796c8e5e8dde1e8135362a594ff6a60f23fc530d9e1a52fa6608af4316e6f373",
         "skills/audit-project/SKILL.md": "95f0ded755b3ed8341f4a63709788ced48cbdb10863a37287a2bbbe279273225",
@@ -71,8 +71,8 @@
         "skills/quarto-docs/references/pdf-formatting.md": "c20909eaf790626dbafed3a8ded537f4710cc13347b0f17d1e6f1f61c73f8c5c",
         "skills/r-plotting-style/SKILL.md": "71dea245574b88adb9c6f0ec6b4711ea4089c238f562e3dbbbe7bdf1718b1789",
         "skills/r-renv/SKILL.md": "32d53a040daad9a2e0c0baab5b7c334785559f7d9da5f7f6f9ce8a25094b261b",
-        "skills/research-core-setup/SKILL.md": "fdffb8ed78434aa32e85eeac2319fc7e4f771eb0cfc93fcc0253cbc40cf3adcc",
-        "skills/research-core-setup/references/help.md": "a5547f3440fedbd74ffa3464154256d1e90c0c7816657b2c22eca9e989f463ab",
+        "skills/research-core-setup/SKILL.md": "91fdade47b68486e275cf20d439377042b1e988e9457b4c062b420bed2ba2d25",
+        "skills/research-core-setup/references/help.md": "975c3a26bc79d7516359568fe14783534a627b102287cdd682b57650d5bdda8c",
         "skills/script-organization/SKILL.md": "b16c954559a7c66fa0fa33491d51650391266af8cd709a3b3a3784f1314b3114",
         "skills/security-setup/SKILL.md": "360af8544ccec2f72a091b8fac1ed80655a1d013aac0ae433ca7def200fc7fac",
         "skills/sync-project/SKILL.md": "bbf69e0a49c0f411bf84f672afc2f71031044b160b0acd9732ac022e5bc1e171"

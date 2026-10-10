@@ -5,6 +5,32 @@ Entries are dated and identify the released package versions.
 
 ---
 
+## 2026-10-10 - Research Core 0.1.2 for Claude Code and Codex
+
+- One `research-core-setup` entry point explains the four packages, asks which optional
+  packages to install, adds packages later, checks what is new and updates installed
+  Research Plugins from this repository. Routine updates preserve disabled packages,
+  pins and personal choices; they do not repeat initial migration.
+- Initial migration is expected to deactivate old Lab Skills and overlapping copies only
+  after replacement skills and needed security protections are verified. Preserve
+  customizations and a rollback route; report incomplete migration when a gap remains.
+- Package updates and adopted agent collaboration instructions are separate steps.
+  Preview instruction changes and preserve surrounding personal instructions; do not
+  silently adopt instructions previously declined.
+- The main README is the user guide for setup, package choices, updates, recovery, removal,
+  and security. Older guide URLs remain as pointers; compatibility evidence stays concise.
+  Legacy templates and the old status snapshot are explicitly labelled. Single-cell Research
+  is in development. Native Windows guidance distinguishes the participant-reported package
+  update from untested instruction changes.
+- Only Core changes to 0.1.2. Optional packages remain 0.1.1 with minimum Core 0.1.0;
+  legacy Lab Skills 1.12.1 and its runtime payload remain unchanged.
+- Research Plugins are now the recommended distribution on `main`. Both existing moving
+  research channels receive the same release, tagged `research-plugins-0.1.2`.
+  Existing research-package users can update normally; legacy users still need reviewed setup
+  to switch. Earlier immutable releases remain available.
+- Build/content checks passed; this release does not claim a new native 0.1.2 lifecycle trial.
+  See the [compatibility record](docs/research-plugin-compatibility.md) for tested routes and limits.
+
 ## 2026-10-05 - Research Plugins 0.1.1 for Claude Code and Codex
 
 - Selective updates to the same four packages and 33 skills; each package is 0.1.1 in both clients.

@@ -1,18 +1,18 @@
 {
   "name": "research-core",
-  "version": "0.1.1",
-  "description": "Research collaboration, integrity, reproducibility and student setup.",
+  "version": "0.1.2",
+  "description": "Agent collaboration, research integrity, reproducibility and setup.",
   "author": {
     "name": "Musser Lab"
   },
   "skills": "./skills/",
   "interface": {
     "displayName": "Research Core",
-    "shortDescription": "Research collaboration, integrity, reproducibility and student setup.",
+    "shortDescription": "Agent collaboration, research integrity, reproducibility and setup.",
     "developerName": "Musser Lab",
     "category": "Productivity",
     "capabilities": [],
-    "longDescription": "Research collaboration, integrity, reproducibility and student setup.",
+    "longDescription": "Agent collaboration, research integrity, reproducibility and setup.",
     "defaultPrompt": [
       "Help me set up Research Core."
     ]

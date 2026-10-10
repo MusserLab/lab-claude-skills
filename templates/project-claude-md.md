@@ -6,6 +6,11 @@
 <!-- Remove slack lines if you don't want Slack notifications from /done -->
 # {Project Name}
 
+> **Legacy Lab Skills project template.** Retained for existing installations. For a new
+> project, use Research Core's `new-project` skill to describe the actual environment,
+> workflows, layout, and authoritative records. See the [main README](../README.md).
+> Do not copy these example conventions over an existing project's instructions.
+
 {Brief description of what this project does}
 
 ---

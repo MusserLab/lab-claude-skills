@@ -2,6 +2,11 @@
 <!-- Maintained by /done skill (Claude Code) and wrapup skill (Cowork).
      Executive-assistant skills scan this file. Do not edit manually. -->
 
+> **Historical Lab Skills snapshot (August 8, 2026).** The status and tasks below are dated
+> legacy records, not the current Research Plugins release status. See the
+> [main README](README.md) and [release history](CHANGELOG.md) for current user guidance.
+> This filename is retained for existing consumers.
+
 **Last worked:** 2026-08-08
 **Current state:** v1.12.1 released and pushed (commit `eae2194`) — repairs five real defects in the `hpc` Positron workflow (broken ProxyCommand escaping, wrong Bouchet devel limits, `day`-partition IDE guidance, a double-allocation bug in `hold-node.sh`, single-login-node reconnect advice) plus a false README auto-update claim. Live for anyone who reinstalls; **no student announcement yet** — blocked on a clean-profile Positron update smoke test.
 

@@ -1,5 +1,9 @@
 # User-Level Instructions for Claude Code
 
+> **Legacy Lab Skills template.** Retained for existing installations, not for Research Core
+> setup. Follow the [current setup guide](../README.md#get-started) to review and optionally
+> adopt agent collaboration instructions without replacing your own instruction file.
+
 These instructions apply across all projects. Project-specific instructions should be in each project's `.claude/CLAUDE.md` file.
 
 Detailed guidance for specific topics is in skills at `~/.claude/skills/` — these load automatically when relevant.

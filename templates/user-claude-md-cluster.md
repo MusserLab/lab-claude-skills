@@ -1,5 +1,10 @@
 # User-Level Instructions for Claude Code
 
+> **Legacy Lab Skills template for Yale clusters.** Retained for existing installations.
+> For Research Core and optional Yale Research, use the [current setup guide](../README.md#get-started).
+> Review and optionally adopt agent collaboration instructions; do not replace your own
+> instruction file with this template.
+
 These instructions apply across all projects. Project-specific instructions should be in each project's `.claude/CLAUDE.md` file.
 
 Detailed guidance for specific topics is in skills at `~/.claude/skills/` — these load automatically when relevant.

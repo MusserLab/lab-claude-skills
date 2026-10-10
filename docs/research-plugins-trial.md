@@ -1,9 +1,10 @@
-# Research plugin installation
+# Research Plugins Trial
 
-The current normal public release is Research Plugins `0.1.0`. Use the
-[installation quickstart](research-plugins-install.md) for its release channel, package selection,
-Codex Desktop setup prompt, updates and recovery.
+This former trial entry point is retained for older links.
 
-This filename is retained so older links still lead to the current instructions. Dated candidate
-and trial checks remain in the [compatibility record](research-plugin-compatibility.md); their
-fixture refs are historical test evidence, not current release refs.
+Use the [README](../README.md) for setup, package choices, examples, updates, security, and recovery.
+Research Core 0.1.2 is released for Claude Code and Codex; the optional packages remain 0.1.1.
+
+Dated checks and their limits are in the [maintainer compatibility record](research-plugin-compatibility.md).
+Release information is in [CHANGELOG](../CHANGELOG.md) and the
+[release history pointer](research-plugins-codex-candidate.md).

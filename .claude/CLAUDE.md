@@ -1,47 +1,46 @@
 <!-- project-type: general -->
-<!-- slack-channel: #code:C04LBQ8LZTQ -->
-<!-- slack-post-criteria: Skill, hook, or security changes that affect students; documentation updates (README, SECURITY.md). NOT internal tooling changes (sync-plugin, version stamps, planning docs). -->
-# Lab Claude Skills
+# Research Plugins
 
-Shared Claude Code skills repository for the lab. Contains standardized conventions for data handling, plotting, script organization, reproducibility, and more.
+This repository distributes Research Core, Single-cell Research, Genome Annotation and Yale
+Research for Claude Code and Codex. The repository URL remains `MusserLab/lab-claude-skills`.
+The [README](../README.md) is the human-facing guide; installed package skills own procedures.
 
-**Skill and hook changes must flow through `/sync-plugin`.** Develop and test skills in `~/.claude/skills/`, then run `/sync-plugin` when ready to publish — it keeps README tables, CHANGELOG, templates, and CLAUDE.md skill tables in sync and notifies Slack. Documentation-only changes (README rewrites, SECURITY.md, templates) can be committed directly, but post a Slack update to `#code` after pushing.
+## Maintenance
 
----
+Develop and test procedures in the maintainer's private authoring repository. Invoke the private
+`sync-plugin` skill from this distribution project to inventory changes, prepare explicit package
+adaptations, review the candidate and perform an approved release. Generated package copies are
+not independent sources. Do not copy maintainer-only tooling or private records into this repo.
 
-## Repository Layout
+Legacy Lab Skills is permanently frozen at 1.12.1. Preserve its top-level payload, hooks,
+settings/templates, manifest/version, catalog identity and immutable releases. Its presence does
+not make it an active publication destination or authorize migration of existing installations.
 
-```
-lab-claude-skills/
-  skills/                    # Shareable skills (one folder per skill)
-    data-handling/SKILL.md
-    r-plotting-style/SKILL.md
-    ...
-  .claude-plugin/            # Plugin distribution metadata
-    plugin.json
-  templates/                 # Starter files for new users/projects
-    user-claude-md.md
-    project-claude-md.md
-  README.md
-```
+Use checks proportionate to the actual change and reuse unchanged evidence. Package changes need
+version/dependency and payload checks; changed instructions/resources need a representative behavior
+check; update routing needs native lifecycle evidence. Documentation-only edits need source/link
+review. A release does not require every skill on every client and host to run again.
 
----
+Inspect the complete candidate patch and public eligibility before publication. Keep release,
+installation, instruction adoption, announcements and scientific acceptance distinct. Draft any
+student announcement with the exact change/update route; post only when explicitly authorized.
+Do not infer release or posting authority from an old session entry.
 
-## Project Document Registry
+## Layout and reference registry
 
-### Planning Documents
+| Path | Role |
+|---|---|
+| `plugins/` | Generated maintained packages, bundled resources and client manifests |
+| `.claude-plugin/marketplace.json`, `.agents/plugins/marketplace.json` | Client catalogs; preserve the frozen legacy entry |
+| `release/first-release.json` | Generated versions, dependencies and payload hashes; output, not a source selector |
+| [README](../README.md) | Setup, package selection, use, updates, recovery and security |
+| [Compatibility evidence](../docs/research-plugin-compatibility.md) | Dated checks and unverified routes |
+| [CHANGELOG](../CHANGELOG.md) | Published release history |
+| `skills/`, `scripts/`, `hooks/`, `templates/`, `.claude-plugin/plugin.json` | Frozen legacy distribution |
+| [Legacy plan](LAB_CLAUDE_SKILLS_PLAN.md) | Historical setup/distribution decisions; not current package membership or a release backlog |
 
-| Document | Topic | Has status table? |
-|----------|-------|:-:|
-| [LAB_CLAUDE_SKILLS_PLAN.md](.claude/LAB_CLAUDE_SKILLS_PLAN.md) | Repo setup, distribution, and onboarding | Yes |
-
-### Convention/Reference
-
-| Document | Topic |
-|----------|-------|
-| [CLAUDE.md](.claude/CLAUDE.md) | This file — project overview and registry |
-
----
+The following dated log is historical. Its old pending lists and publication instructions do not
+override the maintained package inventory or the legacy freeze.
 
 ## Session Log
 <!-- Maintained by /done. Most recent first. Keep last 5 entries. -->

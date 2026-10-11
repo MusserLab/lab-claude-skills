@@ -97,8 +97,10 @@ to restore your previous setup. Your personal instructions and project files are
 
 <a id="moving-from-lab-skills"></a>
 
-**Already using Lab Skills?** Setup helps you switch, preserving customizations and checking
-replacement skills and security protections before disabling overlapping old copies.
+**Already using Lab Skills?** Lab Skills 1.12.1 is permanently frozen and will receive no further
+updates. Existing installations and releases remain available. Setup helps you switch, preserving
+customizations and checking replacement skills and security protections before disabling
+overlapping old copies.
 
 ### Agent collaboration instructions
 

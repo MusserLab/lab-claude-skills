@@ -11,6 +11,8 @@ agreed scientific methods still guide the work.
 - "Use data-handling to check this table before joining it to the annotation."
 - "Walk me through this code and the assumptions it makes."
 - "Review the analysis and show me the actual outputs."
+- "Distill this settled analysis into a readable workflow I can reproduce."
+- "Build a review dashboard from the existing analysis, complete code and saved outputs."
 - "Close out this session and tell me what remains unfinished."
 
 The agent should orient you, investigate routine problems, preserve inputs and retained outputs,
@@ -25,7 +27,7 @@ skill to remember.
 
 | Package | What it adds |
 |---|---|
-| Research Core (`research-core`) | The common toolkit: planning, careful data handling, debugging, code explanation/auditing, plotting, figure export, security setup and session wrap-up. Included in setup. |
+| Research Core (`research-core`) | The common toolkit: planning, careful data handling, debugging, code explanation/auditing, analysis distillation and review dashboards, plotting, figure export, security setup and session wrap-up. Included in setup. |
 | Single-cell Research (`single-cell-research`) **In development** | Currently marker research prompt preparation and report processing. It is not a complete single-cell analysis or plotting workflow. General plotting and figure export are in Core. |
 | Genome Annotation (`genome-annotation`) | Gene lookup, protein phylogeny, tree formatting, BUSCO and HMMER. |
 | Yale Research (`yale-research`) | Yale HPC, Globus transfers and Lux collections; your own authorized access is required. |

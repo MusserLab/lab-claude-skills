@@ -1,0 +1,12 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Task {{TASK_NUMBER}} · {{TASK_TITLE}}</title><link rel="stylesheet" href="review.css"><script src="review.js" defer></script></head>
+<body><main class="shell task-shell"><nav><a href="index.html">Pipeline overview</a></nav>
+<header id="task-summary"><h1>Task {{TASK_NUMBER}} · {{TASK_TITLE}}</h1><h2 class="question">{{SCIENTIFIC_QUESTION}}</h2><p class="intro">{{INPUT_APPROACH_OUTCOME}}</p></header>
+<div class="task-layout">{{TASK_SECTION_NAVIGATION}}<div class="task-content">
+<section id="scripts"><h2>Scripts in this task</h2><div class="task-map">{{SCRIPT_DIAGRAM}}</div></section>
+<section id="results"><h2>{{TASK_RESULT_HEADING}}</h2>{{TASK_SPECIFIC_EVIDENCE}}</section>
+<section id="files"><h2>Input and output files by script</h2>{{SHORT_FILE_GROUPS_WITH_SCRIPT_LINKS}}</section>
+<details class="card" id="run"><summary>Run this task yourself</summary>{{ACTUAL_ENVIRONMENT_COMMANDS_AND_RERUN_BEHAVIOR}}</details>
+<footer>{{SOURCE_AND_CAPTURE_NOTE}}</footer></div></div></main><dialog id="figure-dialog"><div class="dialog-head"><h2 id="figure-title"></h2><button type="button" data-close-figure>Close</button></div><img id="figure-image" alt=""></dialog>
+<div id="notice" role="status" hidden></div></body></html>

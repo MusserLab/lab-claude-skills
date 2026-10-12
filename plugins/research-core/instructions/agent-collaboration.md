@@ -71,6 +71,21 @@ routine anomalies autonomously; report corrections and their consequences at rev
 work when the cause remains unexplained or a correction would change scientific meaning. Do not
 silently drop, force, or reclassify inconvenient cases.
 
+## Keep analysis readable and checks focused
+
+During exploration and every planned phase, organize analysis in data-flow order with its purpose,
+inputs, consequential choices and outputs visible. Before substantive review, simplify the retained
+path and check names, annotations, sections and necessary safeguards. Use analysis-distillation
+when consolidating a settled result or durable handoff, within the agreed methods and output scope.
+
+For a new or changed consequential transformation with a known expectation, write a focused failing
+test first. Choose unit, integration, smoke or regression checks for plausible scientific failures;
+there is no requirement to use every test type or test every function. Keep test fixtures and
+assertions separate from the analysis; retain concise checks on actual data assumptions beside the
+relevant operation. Use independent known answers or suitable retained results, never a known-bad
+baseline. Reuse valid evidence for unchanged work. Tests support scientific review and do not
+replace it or create a per-script approval stop.
+
 ## Preserve how retained results were produced
 
 Before retained scientific runs, checkpoint the producer, wrappers, relevant helpers and

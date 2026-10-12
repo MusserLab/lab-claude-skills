@@ -36,7 +36,7 @@ The agent helps with the work; you remain responsible for scientific decisions a
 
 | Package | What it is for | Included examples |
 |---|---|---|
-| **Research Core** (`research-core`) | The common toolkit, included in setup. | Planning, data handling, debugging, code explanation and auditing, plotting and figure export, security setup, and session wrap-up. |
+| **Research Core** (`research-core`) | The common toolkit, included in setup. | Planning, data handling, debugging, code explanation and auditing, analysis distillation and review dashboards, plotting and figure export, security setup, and session wrap-up. |
 | **Single-cell Research** (`single-cell-research`) **In development** | Exploring marker genes and cell-type functions. | Currently includes marker research prompt preparation and report processing. |
 | **Genome Annotation** (`genome-annotation`) | Looking up genes, making protein phylogenies, and assessing sequences. | Gene lookup, protein phylogeny, tree formatting, BUSCO, and HMMER. |
 | **Yale Research** (`yale-research`) | Guidance for researchers using Yale services. | HPC setup and workflows, Globus transfers, and Yale Lux collections. |
@@ -52,6 +52,13 @@ own sequences without first running a genome annotation analysis.
 
 Scientific software and databases need their own setup; Yale services require your own authorized
 access.
+
+For a settled analysis, ask **"Help me simplify this analysis so another researcher can understand
+and run it."** Analysis distillation preserves the scientific method and evidence while improving
+the retained code and reproduction instructions. To inspect existing work, ask **"Build an analysis
+review dashboard for this workflow."** The dashboard connects scientific questions, actual outputs
+and complete source code; it makes missing evidence visible. Neither procedure accepts results or
+publishes a repository for you.
 
 ## Get started
 

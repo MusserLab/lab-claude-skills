@@ -43,6 +43,12 @@ For plugin setup, use the selected release's installation guide and preserve exi
 guidance. Installation does not itself adopt instructions or configure a remote execution host.
 Agree archive and working-copy locations through the storage section before staging data.
 
+**Switching the Codex account on a cluster:** For requests such as “log into my new
+account on Bouchet,” use the [guided remote login procedure](references/codex-remote-account-login.md).
+Run the routine checks and commands; the user completes browser sign-in and any Desktop
+step unavailable to the agent. Resolve an ambiguous ChatGPT-versus-cluster account first.
+This is a user-requested workflow, not an automatic account-switch hook.
+
 ### Account setup
 
 Request an account at <https://research.computing.yale.edu/account-request>. You need a

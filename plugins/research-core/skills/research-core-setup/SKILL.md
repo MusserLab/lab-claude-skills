@@ -1,6 +1,6 @@
 ---
 name: research-core-setup
-description: Help people set up Research Plugins for Claude Code or Codex, choose packages, add packages later, check what is new without changes, update installed Research Plugins, and use or remove adopted agent collaboration instructions. Use for requests such as how do I use these research plugins, set up Research Core, add Single-cell Research, which research plugins are installed, check what is new, are my agent collaboration instructions current, or update research plugins. Also help with optional Claude subscription delegation permission and route first HPC setup or adding another cluster to installed Yale guidance. Do not run automatically during ordinary research work.
+description: Help people set up Research Plugins for Claude Code or Codex, choose packages, add packages later, check what is new without changes, update installed Research Plugins, and use or remove adopted agent collaboration instructions. Use for requests such as how do I use these research plugins, set up Research Core, add Single-cell Research, which research plugins are installed, check what is new, are my agent collaboration instructions current, update research plugins, or check for overlapping skills. Also help with optional Claude subscription delegation permission and route first HPC setup or adding another cluster to installed Yale guidance. Do not run automatically during ordinary research work.
 ---
 
 # Use and manage Research Plugins
@@ -37,6 +37,9 @@ Distinguish the user's request before entering the workflows below:
   workflow, keeping existing choices and agent collaboration instructions.
 - **Update:** "Update my Research Plugins." Update all installed Research Plugins from this repository
   **and check the separately adopted agent collaboration instructions**. Show their changes separately.
+- **Check skill overlap:** "Check for overlapping skills." Follow the overlap review below against
+  the installed Research packages without refreshing or updating them. Inspection is read-only;
+  any deactivation or customization edit needs its own concrete preview and approval.
 - **Other action:** "Help me set up cluster access", "Add another cluster", "Change my Claude
   delegation permission" or "Remove the research core instruction block." Use that workflow only.
 
@@ -57,7 +60,7 @@ Explain the available packages before proposing changes:
 
 | Package | Purpose |
 |---|---|
-| Research Core (`research-core`) | The common toolkit: planning, careful data handling, debugging, code explanation/auditing, plotting, figure export, security setup and session wrap-up. It has 22 procedures plus this setup skill. |
+| Research Core (`research-core`) | The common toolkit: planning, careful data handling, debugging, code explanation/auditing, plotting, figure export, security setup and session wrap-up. It has 24 procedures plus this setup skill. |
 | Single-cell Research (`single-cell-research`) **In development** | Currently two skills for marker research prompts and report processing; not a complete single-cell analysis or plotting workflow. General plotting and figure export are in Core. |
 | Genome Annotation (`genome-annotation`) | Gene lookup, protein phylogeny, tree formatting, BUSCO and HMMER. |
 | Yale Research (`yale-research`) | Yale HPC, Globus transfers and Lux collections, requiring the user's own authorized access. |
@@ -118,6 +121,7 @@ Read the current inventory and explain the other published packages. Ask which t
 user has named them, then preview and install only those chosen packages through the supported
 route. Preserve the existing package selection, enabled/disabled choices, pins and personal
 instructions. Do not rerun legacy migration or initial instruction adoption for a later addition.
+Check relevant copied skills using the overlap review below before declaring the addition complete.
 Read back the added versions/source/scope and check discovery in a fresh chat. A requested Yale
 package addition may continue to the separate HPC route when the user wants cluster access.
 
@@ -226,16 +230,19 @@ collaboration instructions. A question about updates uses explanation-only help;
 new uses the read-only mode. Preserve package selection, enabled/disabled choices, source/ref,
 pins and personal instructions. Do not install previously unselected packages.
 
-Do not repeat the initial legacy migration or old-skill cleanup during routine updates, and do not
-adopt agent collaboration instructions the user previously declined. An absent `RESEARCH-CORE`
+Do not repeat the initial legacy migration or broad old-skill cleanup during routine updates.
+The focused overlap review below is required, including when package versions are already current.
+Do not adopt agent collaboration instructions the user previously declined. An absent `RESEARCH-CORE`
 block is not permission to add one. Existing installation state and the actual instruction file
 supply the needed context; do not require a separate decision registry.
 
 1. Read the active client's plugin list and marketplace source. Identify the selected installed
    packages, including disabled packages, current versions, execution host and scope. Compare the
    published release inventory/notes with the installed versions and pinned ref. Show proposed
-   package changes first. Ask before changing an intentional older pin, source, installation scope
-   or automatic-update setting; a routine update does not authorize those changes.
+   package changes first. Compare the target skill catalog with relevant active personal/project
+   skills using the overlap review below, prioritizing newly added skills. Include existing overlaps
+   so an earlier update or automatic refresh cannot bypass this check. Ask before changing an
+   intentional older pin, source, installation scope or automatic-update setting; a routine update does not authorize those changes.
 2. For the released Git-backed `musser-lab` marketplace, Codex CLI uses
    `codex plugin marketplace upgrade musser-lab`; Claude Code CLI uses
    `claude plugin marketplace update musser-lab` followed by
@@ -251,17 +258,53 @@ supply the needed context; do not require a separate decision registry.
    failed, preserve the current state and stop before instruction adoption or update until a
    coherent installed target is established. Explain the exact remaining step; do not automatically
    repair/restore packages or claim a successful full update.
-4. For an adopted block, directly read the newly installed source of agent collaboration instructions
+4. Directly read the newly installed setup skill and bundled help if they changed, and complete
+   their focused overlap review against the actual installed payload. Keep package-update success
+   separate from unresolved overlap; never claim that updating packages removed a copied skill.
+5. For an adopted block, directly read the newly installed source of agent collaboration instructions
    and actual `RESEARCH-CORE` section. Make a separate instruction preview using the workflow above.
    Identical content is a no-op. Show meaningful changes, personal edits and conflicts; resolve
    ambiguity and obtain approval of the concrete block diff before applying it. Refreshing packages,
    including automatic refresh, does not rewrite adopted agent collaboration instructions.
-5. Verify preservation and report the package results and instruction outcome separately, including
-   a declined or unchanged block and any incomplete operation. Start a fresh chat after changes.
+6. Verify preservation and report package results, overlap findings/resolution and the instruction
+   outcome separately, including a declined or unchanged block and any incomplete operation.
+   Start a fresh chat after changes.
 
 For recovery, use the release guide's retained catalog ref or maintainer recovery release. Do not
 invent a universal `plugin@version` selector or directly edit installed caches. Preview the prior
 release's adopted instruction block separately; retain personal changes and surrounding text.
+
+## Review overlapping copied skills
+
+Use this focused review during updates, later package additions, or an explicit overlap check.
+It also covers a student who already updated to Core 0.2.0 while retaining a dashboard or
+other skill received separately. It is an agent-guided check, not automatic cleanup by the
+plugin manager; use only the active client, execution host and relevant installation scopes.
+
+1. Compare the selected plugin skill names and descriptions with the active skill catalog and
+   relevant user/project skill directories supported by this client. Inspect plausible matches,
+   including differently named copies with the same purpose; do not scan unrelated files or
+   assume that a matching name, similar description or plugin namespace proves equivalence.
+   Record exact paths and actual discovery status. Missing catalog/directory access is an
+   unverified check, not evidence that no overlap exists.
+2. Compare each candidate's complete instructions and bundled resources with the plugin version.
+   Distinguish identical copies, older copies, student customizations and distinct skills.
+   A newer plugin version alone does not make the student's changes obsolete. Show meaningful
+   differences and preserve unique instructions, templates, scripts and other resources.
+3. Before any change, show the exact proposed deactivation and backup location, plus how any
+   customization would remain available. Obtain the student's approval of that concrete proposal.
+   Do not overwrite a customized copy, automatically merge instructions, edit plugin caches,
+   or put an undisclosed merged copy back into active skill discovery. If a customization's
+   purpose or replacement is unclear, keep the original active and report the overlap unresolved.
+4. After verifying the installed replacement and any agreed customization arrangement, back up
+   the complete old skill folder and reversibly deactivate only the approved copy using a
+   supported client/file route. Keep the backup outside all active skill-discovery directories;
+   never follow a shared symlink to alter its source. Do not delete the original content.
+5. Verify the replacement is discoverable and the old copy is inactive in a fresh chat. Merely
+   renaming a folder or using a plugin-qualified name is not proof of deactivation. Before any
+   deactivation, unavailable inspection, comparison, approval or preservation leaves the original
+   active. After an approved change, unavailable discovery verification remains unfinished; report
+   the actual state and rollback location. Do not claim the overlap review is complete.
 
 ## Optional review of other personal instructions
 

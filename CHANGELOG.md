@@ -5,6 +5,18 @@ Entries are dated and identify the released package versions.
 
 ---
 
+## 2026-10-12 - Research Core 0.2.1
+
+- Guided updates and later package additions check relevant personal/project skills for overlap
+  with plugin skills, including copies left behind by an earlier or automatic update.
+- Compare actual instructions and bundled resources, preserve student customizations, and preview
+  a backup and reversible deactivation for approval. Similar names alone never justify removal.
+  Unavailable checks and unresolved customizations remain explicit; no silent deletion or merging.
+- Students who already updated can request the focused overlap check in a fresh chat. Package-manager
+  commands alone do not perform it. Full legacy migration is not repeated on routine updates.
+- Correct the setup table's Core count to 24 procedures plus setup (25 skills). Optional packages,
+  collaboration instructions, catalogs, dependencies and frozen legacy Lab Skills are unchanged.
+
 ## 2026-10-12 - Research Core 0.2.0, Genome Annotation 0.1.2 and Yale Research 0.1.2
 
 - Research Core **0.2.0** adds `analysis-distillation` and `analysis-review-dashboard`,

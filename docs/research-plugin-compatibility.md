@@ -1,6 +1,6 @@
 # Research Plugin Compatibility and Evidence
 
-> **Release and evidence: October 12, 2026.** Research Core 0.2.0, Genome Annotation 0.1.2 and
+> **Release and evidence: October 12, 2026.** Research Core 0.2.1, Genome Annotation 0.1.2 and
 > Yale Research 0.1.2 are released for Claude Code and Codex. Single-cell Research remains 0.1.1.
 
 The [README](../README.md) is the user guide. This record distinguishes content checks,
@@ -8,6 +8,13 @@ client operations, ordinary use, and scientific acceptance. An untested route is
 unsupported platform; evidence for one client, version, or host does not establish another.
 
 ## Release versions
+
+**Core patch (October 12):** Core 0.2.1 adds a focused copied-skill overlap review to guided
+updates, later package additions and explicit overlap checks. It compares instructions/resources,
+preserves customizations, requires preview and approval before reversible deactivation, and
+reports unavailable checks or unresolved differences. It covers students who already updated to
+0.2.0; package-manager commands alone do not run the review. Other packages, collaboration
+instructions, dependencies, catalogs and legacy payload remain unchanged.
 
 **Combined release (October 12):** Core 0.2.0 adds analysis distillation and review dashboards
 (25 skills), plus readable-analysis/focused-testing guidance in three existing skills. Genome
@@ -33,19 +40,37 @@ real student/cluster use remain unverified for this release.
 
 | Package | Version | Scope |
 |---|---|---|
-| Research Core | 0.2.0, 25 skills | Analysis distillation, review dashboards and readable-analysis guidance |
+| Research Core | 0.2.1, 25 skills | Guided overlap review preserving customized copied skills |
 | Single-cell Research | 0.1.1, 2 skills | Unchanged; **In development**, marker prompts and report processing only |
 | Genome Annotation | 0.1.2, 5 skills | Corrected HMMER GA guidance |
 | Yale Research | 0.1.2, 3 skills | Guided remote account login |
 
 The reviewed release is on `main` and both existing moving research channels:
 `codex/research-plugins-release` and `codex/research-plugins-codex-release`.
-Its fixed release tag is `research-plugins-0.2.0`; earlier fixed releases retain their history.
+Its fixed release tag is `research-plugins-0.2.1`; earlier fixed releases retain their history.
 Lab Skills 1.12.1 is permanently frozen and remains available for existing users with unchanged
 runtime payload and retained releases. Publication does not migrate an installation. See the
 [setup note for existing users](../README.md#moving-from-lab-skills).
 
-## Release build - October 12, 2026
+## Core 0.2.1 checks - October 12, 2026
+
+Seventeen focused setup/build/release-scope checks passed. The source/export check matched all
+108 selected release files, including all 105 package hashes; only Core's setup/help and two
+version manifests change within the packages. Unchanged native update/recovery evidence is reused.
+
+A read-only macOS Claude Code 2.1.290 rehearsal used Opus 5.5 with the exact candidate loaded through
+supported `--plugin-dir`. Native skill invocation loaded setup and bundled help. The agent compared
+an identical copied distillation skill, a dashboard copy with an extra accessibility stylesheet and
+instruction, and a similarly named but distinct budget skill. It proposed reviewed deactivation of
+the identical copy, left the customization unresolved and intact, left the unrelated skill alone,
+and reported an unavailable project directory as unverified. All fixture input hashes were unchanged;
+no permission denials occurred. This is a directed synthetic read-only rehearsal, not actual student
+migration, deactivation, fresh-chat verification after cleanup, or a new Codex/Windows behavior run.
+
+The current [release inventory](../release/first-release.json) SHA-256 is
+`8dfed99ed5283bf5757ba71a6086a0577c80e60b933fa02543937a7ecdcc7f0f`.
+
+## Combined 0.2.0 release build - October 12, 2026
 
 The source/export check matched all 108 selected release files, including all 105 package-file
 hashes and both clients' wrappers. The reviewed Git index matched the same package hashes.
@@ -53,7 +78,7 @@ Single-cell Research, both catalogs, minimum Core dependencies (0.1.0) and legac
 unchanged. The 27 focused build/resource/source/scope/setup checks passed; unchanged behavior and
 native update/recovery evidence were reused.
 
-The current [release inventory](../release/first-release.json) SHA-256 is
+The [0.2.0 inventory](https://github.com/MusserLab/lab-claude-skills/blob/research-plugins-0.2.0/release/first-release.json) SHA-256 is
 `4780052ff7cf9a355f4005eedf49320a071d61ea54040aa176a9d17e60b26d4d`.
 
 ## Release build - October 10, 2026

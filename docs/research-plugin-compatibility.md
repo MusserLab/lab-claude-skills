@@ -1,6 +1,6 @@
 # Research Plugin Compatibility and Evidence
 
-> **Release and evidence: October 12, 2026.** Research Core 0.2.1, Genome Annotation 0.1.2 and
+> **Release and evidence: October 12, 2026.** Research Core 0.2.2, Genome Annotation 0.1.2 and
 > Yale Research 0.1.2 are released for Claude Code and Codex. Single-cell Research remains 0.1.1.
 
 The [README](../README.md) is the user guide. This record distinguishes content checks,
@@ -8,6 +8,13 @@ client operations, ordinary use, and scientific acceptance. An untested route is
 unsupported platform; evidence for one client, version, or host does not establish another.
 
 ## Release versions
+
+**Dashboard patch (October 12):** Core 0.2.2 makes a portable ZIP part of normal remote
+review handoffs. A descriptively named overview HTML file is the only file at the extracted top
+level; one folder contains supporting pages/assets/source copies. Guidance requires extraction
+and link checks, clear coverage of files left on the host, and honest authenticated-download
+instructions. Three dashboard documents and Core's version manifests change; optional packages,
+collaboration instructions, setup/update mechanics, dependencies, catalogs and legacy stay fixed.
 
 **Core patch (October 12):** Core 0.2.1 adds a focused copied-skill overlap review to guided
 updates, later package additions and explicit overlap checks. It compares instructions/resources,
@@ -36,21 +43,46 @@ preview/apply, outside-byte/backup preservation, no-op and stale-target refusal 
 No model call or real-profile mutation ran for these release checks.
 
 Earlier dated evidence remains applicable to unchanged behavior. New-skill model execution and
-real student/cluster use remain unverified for this release.
+real student/cluster use were not exercised by the 0.2.0 build checks; the later bounded dashboard
+pilot below adds evidence only for its stated path.
 
 | Package | Version | Scope |
 |---|---|---|
-| Research Core | 0.2.1, 25 skills | Guided overlap review preserving customized copied skills |
+| Research Core | 0.2.2, 25 skills | Portable dashboard handoffs; prior guided overlap review retained |
 | Single-cell Research | 0.1.1, 2 skills | Unchanged; **In development**, marker prompts and report processing only |
 | Genome Annotation | 0.1.2, 5 skills | Corrected HMMER GA guidance |
 | Yale Research | 0.1.2, 3 skills | Guided remote account login |
 
 The reviewed release is on `main` and both existing moving research channels:
 `codex/research-plugins-release` and `codex/research-plugins-codex-release`.
-Its fixed release tag is `research-plugins-0.2.1`; earlier fixed releases retain their history.
+Its fixed release tag is `research-plugins-0.2.2`; earlier fixed releases retain their history.
 Lab Skills 1.12.1 is permanently frozen and remains available for existing users with unchanged
 runtime payload and retained releases. Publication does not migrate an installation. See the
 [setup note for existing users](../README.md#moving-from-lab-skills).
+
+## Core 0.2.2 checks - October 12, 2026
+
+Six existing dashboard resource/adaptation tests and four release-scope checks pass. The scoped
+source/export check matches all 108 selected release files, including all 105 package hashes.
+Unchanged native update/recovery evidence is reused.
+
+A fresh authenticated Codex CLI 0.162.1 session on Bouchet loaded the exact staged project skill
+and bundled references. A normal dashboard handoff prompt produced a fresh ZIP without a separate
+packaging request. It completed successfully in a bounded one-CPU allocation. The command requested
+GPT-6.1 Sol at extra-high effort; the returned JSON did not independently expose model/effort metadata.
+This is a staged-skill invocation, not a new installed-plugin lifecycle or Claude behavior test.
+
+Archive integrity, fresh extraction, relative links/assets and exact source-copy identity passed.
+A missing-CSS check detected the absent asset and passed after restoration. The participant reports
+that authenticated portal download, extraction, task/script navigation, a figure and Copy full path
+worked in Chrome. The subsequent simpler two-item layout passes ZIP/extraction checks and all
+13,993 relative references across 32 HTML files, with all 56 selected source copies unchanged.
+Browser evidence is reused for unchanged controls/assets; the rearranged layout was not separately
+opened by the agent. No new scientific run, interpretation, Windows check or scientific acceptance
+is implied. Private scientific contents and host paths are excluded from this public record.
+
+The current [release inventory](../release/first-release.json) SHA-256 is
+`fb8a66cf0765c91df26400b0880a736dcae65dce230c74dc0ba9ffaf3b592a0a`.
 
 ## Core 0.2.1 checks - October 12, 2026
 
@@ -67,7 +99,7 @@ and reported an unavailable project directory as unverified. All fixture input h
 no permission denials occurred. This is a directed synthetic read-only rehearsal, not actual student
 migration, deactivation, fresh-chat verification after cleanup, or a new Codex/Windows behavior run.
 
-The current [release inventory](../release/first-release.json) SHA-256 is
+The [0.2.1 inventory](https://github.com/MusserLab/lab-claude-skills/blob/research-plugins-0.2.1/release/first-release.json) SHA-256 is
 `8dfed99ed5283bf5757ba71a6086a0577c80e60b933fa02543937a7ecdcc7f0f`.
 
 ## Combined 0.2.0 release build - October 12, 2026

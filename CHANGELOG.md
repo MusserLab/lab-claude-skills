@@ -5,6 +5,19 @@ Entries are dated and identify the released package versions.
 
 ---
 
+## 2026-10-12 - Research Core 0.2.2
+
+- Remote analysis-review dashboards normally include a portable ZIP for laptop review without
+  requiring a separate packaging request. One descriptively named HTML overview is at the top
+  level; a single folder holds supporting pages, assets, selected source copies and previews.
+- Check the extracted links and assets, preserve original source identities and host paths, and
+  label files left on the remote host. Provide concise download/open directions through an existing
+  authenticated file service when available, with untested browser/download behavior made explicit.
+- Only the dashboard skill and its two guidance resources change. Optional packages, collaboration
+  instructions, setup/update behavior, dependencies, catalogs and frozen Lab Skills are unchanged.
+- Focused native invocation, archive/link and participant laptop checks are described in the
+  [compatibility record](docs/research-plugin-compatibility.md). No scientific recomputation is implied.
+
 ## 2026-10-12 - Research Core 0.2.1
 
 - Guided updates and later package additions check relevant personal/project skills for overlap

@@ -206,3 +206,11 @@ Local file links are optional host-specific conveniences. Show remote paths with
 copyable text; do not make a remote cluster path look like a Mac-local file link. Folder-reveal
 and clipboard operations depend on the browser; supply readable fallbacks. Do not claim native
 Windows/macOS integration until tested. Live cross-host object exploration remains optional work.
+
+For a remote review, follow the skill's portable-ZIP handoff: one descriptively named overview
+HTML file at the top level, with every supporting page/file in one folder. Link included source,
+previews and pages relatively, including return links from that folder to the overview, so
+navigation survives extraction. File-location disclosures continue to
+show the original host and absolute path. A bundled copy is labelled as a copy. On the overview,
+briefly explain the bundle's coverage: full files, captured previews and evidence remaining on the
+original host. Keep those distinctions visible when a remote file cannot be opened on the laptop.

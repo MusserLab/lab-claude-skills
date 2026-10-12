@@ -5,7 +5,8 @@ review. They are editable presentation scaffolds, not a data-discovery tool or s
 Keep `review.css` and `review.js` beside the finished pages. The templates do not contain fabricated
 scientific examples. The agent supplies verified content using the page design.
 
-- `overview.html`: save as `index.html` for the main overview.
+- `overview.html`: use as the main overview (`index.html` is a working name; the remote handoff
+  uses the descriptive filename and folder layout below).
 - `task.html`: make one `task-N.html` for each scientific task.
 - `script.html`: make one `script-N.html` for each selected producer; shared producers have one page.
 
@@ -160,3 +161,15 @@ the unused dialog from a finished page that contains no enlargement buttons.
 Use a real structure/header alongside the bounded record, rather than only totals. A release
 descriptor is a descriptor; do not represent it as a preview of unavailable database contents.
 Keep exact file access in the page's source records or whole-script file card.
+
+## Portable review bundle
+
+For a remote review, package the finished pages and their local assets together with the selected
+source copies and captured previews, following the skill's ZIP handoff. Put one descriptively
+named overview HTML file at the extracted top level (for example `Project-Review.html`)
+and everything else in one `review-files/` folder. Adjust overview-to-folder and folder-to-overview
+links, including styles/scripts/figures, so the extracted review works directly in a browser.
+Preserve original source filenames and versions inside the support folder, and keep original
+host/path labels distinct from links to bundled copies.
+Add a short overview note stating which inputs/results are included, preview-only or remain remote.
+Check the extracted copy before handing it back; these templates alone do not create or test a ZIP.

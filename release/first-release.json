@@ -10,7 +10,7 @@
   "packages": [
     {
       "name": "research-core",
-      "version": "0.2.1",
+      "version": "0.2.2",
       "requires": {},
       "skills": [
         "analysis-distillation",
@@ -40,16 +40,16 @@
         "sync-project"
       ],
       "files_sha256": {
-        ".claude-plugin/plugin.json": "7ff724d1966aad151e29e9677ce046eaa65abcbc77682327d58da3ab709e5633",
-        ".codex-plugin/plugin.json": "cdf9ac794aea1e3f0d8913702b8fb7bf5e893872c0378b7348f331eb4131e86c",
+        ".claude-plugin/plugin.json": "04a42affd03a77c8dacdb9da1cf4b012778f1542456e9c2d282ea834f196872c",
+        ".codex-plugin/plugin.json": "95959cd87eb05875c3e70611cc5a451941d069b737bc40a10aa63b6e721eb113",
         "instructions/agent-collaboration.md": "b7cbe1d1e1b4466d69102a9cdab8b52a6c27a071035dc463fb273fa4132132e0",
         "scripts/install_instructions.py": "796c8e5e8dde1e8135362a594ff6a60f23fc530d9e1a52fa6608af4316e6f373",
         "skills/analysis-distillation/SKILL.md": "d46d8c052456bdd7267e52d8a0a83cf86560f4c0e58edd6bd3d8f105c98d3820",
         "skills/analysis-distillation/references/DUNN_LAB_LICENSE.md": "2bfb97b2e2a4292d5b23c8b1db74d679f0e5d2cacdfb575d1773ced24c48702c",
         "skills/analysis-distillation/references/publication-repository.md": "1e7585f8e6cd86d2125dfbb0ca8e5cad7407206fc961bcacb5b174879b9f3472",
-        "skills/analysis-review-dashboard/SKILL.md": "45e0fa8a7739cdcd982c7a920c902c50e85494f9d85d4252f11f86db7a8c9cb5",
-        "skills/analysis-review-dashboard/references/page-design.md": "d52347d245f5f642a5ab47d107fbbe51a7bbc313f86bcc4a6a43cbaa652d54e7",
-        "skills/analysis-review-dashboard/templates/README.md": "1053f298b55689fbf24ad82d3ddd6045c8284020630e0cf44d86fd413d496a0d",
+        "skills/analysis-review-dashboard/SKILL.md": "2d9d4278ce1bd3b35f0481b06815c75b3f5d26d46adf7bd7126113414b97c4d1",
+        "skills/analysis-review-dashboard/references/page-design.md": "63f478dc78c26d9f6f6050b27e529111d6dfc6cd786c02c3aaee34a2b23190f4",
+        "skills/analysis-review-dashboard/templates/README.md": "3028b2a86e4d1f539a7c19b980b74e7d01ac16b6e3240a983b7d8f2e16d5e857",
         "skills/analysis-review-dashboard/templates/overview.html": "2d25a736f0e5c950e1c45f7e0231976cc97f0dc7bcc9bd1dc1d06efef60ff62a",
         "skills/analysis-review-dashboard/templates/review.css": "dfce31186f5902426c597bbad5a915658c4830a0fd18f80eee9e66108eb0652b",
         "skills/analysis-review-dashboard/templates/review.js": "dfc11bc0dca528fba017b87f9fdea677c289cd62029ffbec2165aff93af97a2a",

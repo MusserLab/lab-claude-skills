@@ -177,6 +177,16 @@ needed at each point.
 `rename()`, `select()`, `filter()`, `count()`, `slice()`. Use `dplyr::` explicitly whenever both are
 loaded in the same session.
 
+## Focused verification during analysis
+
+During exploration and planned phases, choose tests around consequential transformations and
+handoffs: identity alignment, row loss/duplication, annotation ambiguity, units and denominators.
+Keep known-answer examples and test assertions separate from the main analysis; retain concise
+checks and diagnostics on the actual data where they protect interpretation. Use the
+[readable analysis and testing guidance](../script-organization/SKILL.md#readable-analysis-and-focused-tests)
+when organizing these checks. Before each substantive review, simplify the current retained
+path and report the failures tested and any gaps. This does not add a per-script approval stop.
+
 ## What belongs in the script
 
 - Group all input reads at the top, commented to distinguish external data from another script's

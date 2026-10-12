@@ -35,16 +35,23 @@ benchmark the chosen recipe on its actual input.
 Either way: pre-`hmmpress` the HMM database — both commands need the binary
 indices.
 
-## `--cut_ga` on a custom HMM = silent zero hits
+## `--cut_ga` requires GA thresholds in the model
 
-Pfam HMMs carry GA / TC / NC cutoff lines in their headers. Custom HMMs built
-with `hmmbuild` have **no GA cutoff** by default. Using `--cut_ga` against a
-custom HMM passes silently and returns zero hits.
+Inspect the HMM's `GA` annotation rather than inferring its presence from whether
+the model is Pfam or custom. `hmmbuild` can carry supplied GA thresholds from an
+annotated Stockholm alignment into a custom model; they can also be supplied in
+the model itself. Their scientific suitability still needs justification.
 
-Fix: use `-E 1e-5` (full-sequence E-value) or `--domE 1e-5` (per-domain) for
-custom HMMs. Inspect score distributions to pick a sensible cutoff, then
-optionally edit the HMM file's `GA` / `TC` / `NC` lines if you want to bake the
-threshold in.
+In HMMER 3.4, missing required GA thresholds produce the diagnostic
+`GA bit thresholds unavailable on model ...` and a nonzero exit when those
+thresholds are evaluated. `hmmsearch` checks at model setup; `hmmscan` checks when
+a sequence reaches the model-threshold stage. An empty table alone is therefore
+neither proof of successful completion nor a valid biological negative.
+
+Check the command's exit status and diagnostic log first. Do not fix this by
+silently substituting an E-value cutoff. For models without agreed GA thresholds,
+choose and document appropriate full-sequence (`-E`) and per-domain (`--domE`)
+criteria. See `custom_hmms.md` for the optional model annotation step.
 
 ## `transeq -clean` semantics
 

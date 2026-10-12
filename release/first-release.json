@@ -10,9 +10,11 @@
   "packages": [
     {
       "name": "research-core",
-      "version": "0.1.2",
+      "version": "0.2.0",
       "requires": {},
       "skills": [
+        "analysis-distillation",
+        "analysis-review-dashboard",
         "audit-project",
         "audit-script",
         "cleanup-scripts",
@@ -38,16 +40,27 @@
         "sync-project"
       ],
       "files_sha256": {
-        ".claude-plugin/plugin.json": "f3671ee6ab5631d99f7a5f57a1b6cdf151af93036a626f721776b8f60641a896",
-        ".codex-plugin/plugin.json": "5e97e001c44b153a87a5d76231580a6ff72f2b0e6989aba1555cad1794e5f585",
-        "instructions/agent-collaboration.md": "1343d836b9457f67a7c4bdbaa96a731bb25f8d20e2feac9c5f4046cf857bc3be",
+        ".claude-plugin/plugin.json": "bc140c87b6726401a9ed14fe10a4d76c031c0956429a9dd19f23c7e9e9553cf2",
+        ".codex-plugin/plugin.json": "728c031b2ec099909d2b638ce2a83818ddd0d2e37aea192f5f9154cebbc1b41f",
+        "instructions/agent-collaboration.md": "b7cbe1d1e1b4466d69102a9cdab8b52a6c27a071035dc463fb273fa4132132e0",
         "scripts/install_instructions.py": "796c8e5e8dde1e8135362a594ff6a60f23fc530d9e1a52fa6608af4316e6f373",
+        "skills/analysis-distillation/SKILL.md": "d46d8c052456bdd7267e52d8a0a83cf86560f4c0e58edd6bd3d8f105c98d3820",
+        "skills/analysis-distillation/references/DUNN_LAB_LICENSE.md": "2bfb97b2e2a4292d5b23c8b1db74d679f0e5d2cacdfb575d1773ced24c48702c",
+        "skills/analysis-distillation/references/publication-repository.md": "1e7585f8e6cd86d2125dfbb0ca8e5cad7407206fc961bcacb5b174879b9f3472",
+        "skills/analysis-review-dashboard/SKILL.md": "45e0fa8a7739cdcd982c7a920c902c50e85494f9d85d4252f11f86db7a8c9cb5",
+        "skills/analysis-review-dashboard/references/page-design.md": "d52347d245f5f642a5ab47d107fbbe51a7bbc313f86bcc4a6a43cbaa652d54e7",
+        "skills/analysis-review-dashboard/templates/README.md": "1053f298b55689fbf24ad82d3ddd6045c8284020630e0cf44d86fd413d496a0d",
+        "skills/analysis-review-dashboard/templates/overview.html": "2d25a736f0e5c950e1c45f7e0231976cc97f0dc7bcc9bd1dc1d06efef60ff62a",
+        "skills/analysis-review-dashboard/templates/review.css": "dfce31186f5902426c597bbad5a915658c4830a0fd18f80eee9e66108eb0652b",
+        "skills/analysis-review-dashboard/templates/review.js": "dfc11bc0dca528fba017b87f9fdea677c289cd62029ffbec2165aff93af97a2a",
+        "skills/analysis-review-dashboard/templates/script.html": "a7a71901699dc19cfc6bac3f91177948b065f646aaf27d7c8cf8ca67cb39b87c",
+        "skills/analysis-review-dashboard/templates/task.html": "6d51a07ae68bcb9dc8ed83642409fe3bbe6067ac168a876c62131e2d8dda4dde",
         "skills/audit-project/SKILL.md": "95f0ded755b3ed8341f4a63709788ced48cbdb10863a37287a2bbbe279273225",
         "skills/audit-script/SKILL.md": "cf6347f006fd24b6ecb5f1e5dc3b9ae9fd1917118f644d20404c355900c9fad7",
         "skills/audit-script/templates/auditor-prompt.md": "bc00edecca5fce7ecae51fb6a45aeb774c5e4b4ff6b13df1fddabf12cb537f10",
         "skills/cleanup-scripts/SKILL.md": "86f09409d3242b08147e5af85cef720c71b93836c001f486e27a7ff077dbbac6",
         "skills/conda-env/SKILL.md": "a55348f1647922647857086d14c548c017913863570c5d06937d87bb9bd2a27c",
-        "skills/data-handling/SKILL.md": "ef7e7d0c1c74ea821162621282b4593708cc1dd6da2817474a8ed13d1a77968a",
+        "skills/data-handling/SKILL.md": "52e3675eb30280182141e1b52d64e9c7606c4b9d95dfa23ad942db44a81eb623",
         "skills/debugging-before-patching/SKILL.md": "5dd79186c61bf0dda62e0a115496e3ee26bd91ad721985a7fe1c396212e1bafe",
         "skills/done/SKILL.md": "27821fcfcde7f66f8204d0ca66dc35346973f2b4cdca8af3af302f42813cb03c",
         "skills/done/references/github-closeout.md": "ba7937ae543fe6304febb4341aea0622b7e6f102abadd849a0b653a229dfc3f9",
@@ -64,7 +77,7 @@
         "skills/pipeline-diagram/SKILL.md": "a7e7b7bc0d4740291bcaf717c2eab4eb8f58806210914e1bd7ed7af2cddef8fa",
         "skills/pipeline-diagram/templates/pipeline_spec.example.yaml": "448cbf1ce13d3c7492dd854db2f3c67e5dde22f6f4741c5d37742bb06dcd7e52",
         "skills/pipeline-diagram/templates/render_pipeline.py": "1247d2707c13d9b09a1d22b95fb870d0dfa01804e901045637b37d6f28a811c6",
-        "skills/planning/SKILL.md": "30ea8a97cdbe6ab4666313dbb88a9784b276191809c17e64e0b8f9185c311fe3",
+        "skills/planning/SKILL.md": "a511f8e3783d8905ffa237ca3cdda1cb5cae1a473457f87586e9b53bb77c9995",
         "skills/planning/references/upgrading-existing-plans.md": "d1572689585fc723fcd9fa57de65715964062031b91ca9e8894d0d7877af76e6",
         "skills/plugin-feedback/SKILL.md": "af6fecc74c9200e4a7b1e77a2689c6570dda7eca9c677530e1040df5ca522cb6",
         "skills/quarto-docs/SKILL.md": "ef1f187916c058816186a4db9da6eba502916715faa9720122f06a736b6375af",
@@ -72,15 +85,15 @@
         "skills/r-plotting-style/SKILL.md": "71dea245574b88adb9c6f0ec6b4711ea4089c238f562e3dbbbe7bdf1718b1789",
         "skills/r-renv/SKILL.md": "32d53a040daad9a2e0c0baab5b7c334785559f7d9da5f7f6f9ce8a25094b261b",
         "skills/research-core-setup/SKILL.md": "91fdade47b68486e275cf20d439377042b1e988e9457b4c062b420bed2ba2d25",
-        "skills/research-core-setup/references/help.md": "975c3a26bc79d7516359568fe14783534a627b102287cdd682b57650d5bdda8c",
-        "skills/script-organization/SKILL.md": "b16c954559a7c66fa0fa33491d51650391266af8cd709a3b3a3784f1314b3114",
+        "skills/research-core-setup/references/help.md": "cb2d048889161539231ac77b3f17a4b40db19cab6c903b2da6e9a321549dd58a",
+        "skills/script-organization/SKILL.md": "23e928acfb7ea4c843de83c8a32aef20d5bea775490da25fe013f8699ed8498b",
         "skills/security-setup/SKILL.md": "360af8544ccec2f72a091b8fac1ed80655a1d013aac0ae433ca7def200fc7fac",
         "skills/sync-project/SKILL.md": "bbf69e0a49c0f411bf84f672afc2f71031044b160b0acd9732ac022e5bc1e171"
       }
     },
     {
       "name": "yale-research",
-      "version": "0.1.1",
+      "version": "0.1.2",
       "requires": {
         "research-core": "0.1.0"
       },
@@ -90,10 +103,11 @@
         "lux-collections"
       ],
       "files_sha256": {
-        ".claude-plugin/plugin.json": "1f31008603efcb3c9613a553d2d83c084f2d04970671ae5582a65f2efb0351a9",
-        ".codex-plugin/plugin.json": "bfc6d349579accb9d2974b75be1a20c974fde5c396b8b77a7ca9eda966455efa",
+        ".claude-plugin/plugin.json": "d8caa78b1622584c09b6d198bfe13214a3f2f5ddeb3f7847b225df298b03f8ae",
+        ".codex-plugin/plugin.json": "04e451c1149c27c7be33bef9b32241bff2bc03d0aa311dd7a15d444fe6962811",
         "skills/globus-transfer/SKILL.md": "87773ad66aba5d9f9a83eead88ca65b835658afa99bcdeb3c120e7ec83ca1e26",
-        "skills/hpc/SKILL.md": "d3635646013546588d917076b51080b787ce888cadfc86e09b077d441d030214",
+        "skills/hpc/SKILL.md": "ce3d902af0f1adcd368a929adcb1b5c20224181a763de0dec7ba0caa54225e7f",
+        "skills/hpc/references/codex-remote-account-login.md": "c549921949f7a8233243ababe3b4a0c9033b2c5807d8af771bc38b2880abf293",
         "skills/hpc/references/gpu-partition-tactics.md": "e7273d8847e621faf35caecc1a9e7c02d74bfc839cd50e0034f22c1630c946c1",
         "skills/hpc/references/partitions.md": "683d7cadb0ac0fd941edb1fba5649c012a0189a65e899a6960d8422313cb50fb",
         "skills/hpc/references/positron-ssh-setup.md": "1662896514a1e97d5064d64c627bb518542f9215711259281612c73134a79ca4",
@@ -133,7 +147,7 @@
     },
     {
       "name": "genome-annotation",
-      "version": "0.1.1",
+      "version": "0.1.2",
       "requires": {
         "research-core": "0.1.0"
       },
@@ -145,8 +159,8 @@
         "tree-formatting"
       ],
       "files_sha256": {
-        ".claude-plugin/plugin.json": "402433f02ab530b77ad0050e820668aedf50d3bf1fc135deddb2d15eecd5d7f6",
-        ".codex-plugin/plugin.json": "58b11c8e3c7a781e1297132acf5ab8843711c585801f1738b15bd4ef1c8c1f29",
+        ".claude-plugin/plugin.json": "dd9765ec8f035fea95f276f90e144f4de0cf7ad92fa5ae4de8c28547ec9f673a",
+        ".codex-plugin/plugin.json": "0badb7cdb6550b6bfab89782ea0cd6e9775a17d88479ae02304942bfa89cd6bd",
         "skills/busco/SKILL.md": "54fa3d5f82ff7d957308f880eb536485592fd606b17296f0460295fc6532084d",
         "skills/busco/references/gotchas.md": "88414d51fe08a1e87e660739f4bd2975847f049732ca2360349ad05502d6e8e0",
         "skills/busco/references/lineage_table.md": "b232405c9db8687f5570f107eac62094aed2bdd78b4956e13601eb7ff30e888f",
@@ -157,9 +171,9 @@
         "skills/busco/templates/busco_samples.tsv": "2533294d6732c1071493552797c7acb49c579ff34b2202bf2276ee642ec617ba",
         "skills/busco/templates/busco_setup.sh": "c2914322ff3f0ddc8931703c5bff319020ff315c597a8f24520a613003a64ed5",
         "skills/gene-lookup/SKILL.md": "7ea950c0ba31677d63af848296baa18226eb66dda0f5dac3bc38478018e51eda",
-        "skills/hmmer/SKILL.md": "8607cceb768c19309aeb52f8b80362bdd3c625b9ebea4cc720c1232756a306a6",
+        "skills/hmmer/SKILL.md": "898fe3f67e523afa8179a54877dcfb5b928e37d794df4ef1430fbaf80ebe230c",
         "skills/hmmer/references/custom_hmms.md": "d6173a2efb53e56fa2c140373c1c6f8045031d5c7c414cfe7518cf27ff7d1f40",
-        "skills/hmmer/references/gotchas.md": "d0349a9bc17f7e00307184711734bf94f66cc2d5f44cdf30d96e510161287e74",
+        "skills/hmmer/references/gotchas.md": "4fe8d39acdf43bf95612eaf1e9dbb89e515d13d2ad00d70cb30b3b38a749e283",
         "skills/hmmer/references/pfam_markers.md": "cebf9d6280ff87087834355933fd9af9677c2a1eb89afe180d6c2febbd11086f",
         "skills/hmmer/references/tool_comparison.md": "51123b6964ca9f98f2682ec66bb60a057ab1ec192fd79d2c990d7015dfcbd8eb",
         "skills/hmmer/templates/build_custom_hmm.sh": "f2078f8b365f414fdba9e634824123cdf02eb8316c2803370c5a9dc9f1243ac7",

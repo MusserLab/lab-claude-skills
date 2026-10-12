@@ -5,6 +5,30 @@ Entries are dated and identify the released package versions.
 
 ---
 
+## 2026-10-12 - Research Core 0.2.0, Genome Annotation 0.1.2 and Yale Research 0.1.2
+
+- Research Core **0.2.0** adds `analysis-distillation` and `analysis-review-dashboard`,
+  including reproduction guidance, page-design guidance and local HTML/CSS/JavaScript templates.
+  Core grows from 23 to 25 skills. The Dunn Lab MIT notice is preserved; a private project-history
+  example is omitted.
+- Core's data-handling, planning and script-organization guidance now integrates readable analysis,
+  focused checks of consequential transformations, and distillation before a phase review when
+  needed. Optional agent collaboration instructions carry the same guidance; setup help now names
+  both new skills. Adopting the instruction update still needs a separate preview. This creates no
+  new scientific acceptance gate or automatic publication step.
+- Genome Annotation **0.1.2** corrects HMMER GA advice: custom models can carry GA annotations;
+  missing required thresholds cause an error when evaluated. Check command status and diagnostics
+  before interpreting an empty table, and agree scientific thresholds rather than silently changing
+  them. Existing method choices and output safeguards are preserved.
+- Yale Research **0.1.2** adds a guided, user-requested remote Codex account-login procedure that
+  preserves projects, chats and allocations, scopes any server interruption, and leaves browser
+  authentication to the user.
+- Single-cell Research stays **0.1.1**. Optional minimum Core versions remain **0.1.0**. Migration and
+  update mechanics, catalogs and frozen Lab Skills 1.12.1 are unchanged.
+- Release checks and the limits of prior paired Claude/Codex behavior tests are recorded in the
+  [compatibility record](docs/research-plugin-compatibility.md). No student installation or cluster
+  delivery is implied by publication.
+
 ## 2026-10-10 - Research Core 0.1.2 for Claude Code and Codex
 
 - One `research-core-setup` entry point explains the four packages, asks which optional

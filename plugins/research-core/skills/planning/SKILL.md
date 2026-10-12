@@ -126,6 +126,18 @@ must not call `git add`, `git commit`, or `git push`. Owned draft or experimenta
 to Git before scientific acceptance. Retained scientific use still requires the approach to be settled and the
 relevant source to match its recorded commit.
 
+Make readable implementation and focused verification part of the phase's ordinary work and
+review evidence. Name the few scientific failures that could invalidate its result and how they
+will be checked; choose tests as the implementation becomes concrete rather than prescribing a
+suite for every script. During exploration and normal implementation, keep the current path
+readable and test consequential changes. Before the phase review, simplify the retained code,
+examine its names/annotations/sections and report checks run or reused and remaining gaps.
+When the selected phase result needs consolidation, use
+[analysis-distillation](../analysis-distillation/SKILL.md) before the integrated review, within
+the agreed methods and output scope. This is phase work, not automatic publication preparation,
+a new acceptance gate, or permission to launch another phase. Preserve existing usable plans;
+add only missing phase-specific expectations to their current authority.
+
 Plan predictable reruns and output preservation. Existing retained, shared, manually edited, or
 downstream-consumed outputs remain protected regardless of Git/ignore state.
 

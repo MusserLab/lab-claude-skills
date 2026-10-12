@@ -86,10 +86,15 @@ For IsoSeq mt-marker extraction (the canonical use case for this skill), use `tr
 | **Pfam GA (gathering)** | `--cut_ga` | **Default for Pfam HMMs**. Curated per-family thresholds calibrated to capture real family members without false positives. No tuning needed. |
 | Pfam TC (trusted) | `--cut_tc` | Stricter than GA; lowest-scoring true-positive hit. |
 | Pfam NC (noise) | `--cut_nc` | More permissive than GA; highest-scoring known false-positive. |
-| Manual E-value | `-E 1e-5` | Custom HMMs (no GA cutoff exists), or when GA is producing zero hits for a marker that should be present. |
+| Manual E-value | `-E 1e-5` | Models without agreed GA cutoffs; choose and record sequence/domain thresholds for the project. Do not relax thresholds solely because an expected marker has no hits. |
 | Per-domain | `--domE 1e-5` | Domain-level hits, complements `-E` (full-sequence). |
 
-**Custom HMMs do not have GA cutoffs.** Use `-E` with a sensible threshold (`1e-5` to `1e-10` is typical) and inspect the score distribution.
+**Check the model's `GA` annotation before using `--cut_ga`.** Custom HMMs can contain
+GA thresholds supplied in an annotated alignment or the model itself. Missing required
+thresholds cause an error when HMMER evaluates them, not a successful zero-hit result.
+Check the exit status and diagnostic before interpreting empty output. For models without
+agreed GA cutoffs, choose and document appropriate sequence/domain thresholds; inspect
+the score distribution without silently changing the agreed scientific criterion.
 
 ---
 
@@ -209,7 +214,7 @@ See `references/gotchas.md` for the full list. The big ones:
 3. **Wrong genetic code**: see translation-table table above. Inverts ≠ verts ≠ standard.
 4. **`hmmscan` vs `hmmsearch` direction**: pick whichever has the bigger thing as the streamed DB.
 5. **`hmmpress` not run**: `hmmscan` errors out with `hmm_index_t: file not found`. Re-run setup.
-6. **`--cut_ga` on a custom HMM**: silently zero hits. Custom HMMs have no GA cutoff; use `-E`.
+6. **`--cut_ga` requires model GA thresholds**: custom models may contain them. Missing required thresholds cause an error when evaluated; check exit status and diagnostics before interpreting empty output. See `references/gotchas.md`.
 7. **Profile vs full-sequence E-value**: `-E` filters at full-sequence; `--domE` at per-domain. For multi-domain proteins, the latter matters.
 
 ---

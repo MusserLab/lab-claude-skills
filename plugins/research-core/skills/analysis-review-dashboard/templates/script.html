@@ -1,0 +1,12 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{{SCRIPT_FILENAME}} · {{SCRIPT_ROLE}}</title><link rel="stylesheet" href="review.css"><script src="review.js" defer></script></head>
+<body><main class="shell script-shell"><nav>{{TASK_NAVIGATION_LINKS}}<a href="index.html">Pipeline overview</a></nav>
+{{SIBLING_SCRIPT_NAVIGATION}}
+<header><p class="eyebrow">Script {{SCRIPT_NUMBER}} · {{SCRIPT_FILENAME}}</p><h1>{{SCRIPT_ROLE}}</h1><p class="intro">{{SCRIPT_PURPOSE_AND_RESULT}}</p>{{OPTIONAL_SOURCE_VERSION_NOTE}}</header>
+<section><h2>Script sections</h2><div class="task-map">{{CALCULATION_AND_HELPER_MAP}}</div></section>
+<section id="files"><div class="file-groups"><div><h2>Input files</h2>{{DETAILED_INPUT_CARDS}}</div><div><h2>Output files</h2>{{DETAILED_OUTPUT_CARDS}}</div></div></section>
+{{COMPLETE_ORIGINAL_SOURCE_SECTIONS}}
+<footer>{{DISPLAYED_SOURCE_AND_PRODUCING_VERSION_NOTE}}{{RUN_GUIDANCE_LINKS}}</footer>
+</main><dialog id="figure-dialog"><div class="dialog-head"><h2 id="figure-title"></h2><button type="button" data-close-figure>Close</button></div><img id="figure-image" alt=""></dialog>
+<div id="notice" role="status" hidden></div></body></html>

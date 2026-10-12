@@ -29,6 +29,47 @@ Keep project-specific curation layouts and ordinary document-editing workflows i
 
 ---
 
+## Readable analysis and focused tests
+
+Apply the same reader standard to exploratory scripts and planned analysis. Begin with purpose,
+necessary scientific background, inputs and their meaning, outputs and downstream use. Use
+section headers in data-flow order and names that explain the objects and operations. Before a
+substantive function, explain its purpose, important input shape/IDs/units, returned or written
+result, and non-obvious scientific assumptions. Comment consequential choices where they occur;
+do not narrate syntax or trivial helpers.
+
+For fixed inputs, prefer explicit steps and a few meaningful helpers. Remove unused branches,
+repeated routing and generic defensive checks that address no plausible failure of this analysis.
+Keep a helper when it reduces the reader's work; do not split a clear calculation merely to make
+every line individually testable. Preserve the diagnostics, input/output protections and
+provenance that the actual workflow needs.
+
+Choose checks by what could go scientifically wrong:
+
+| Plausible failure | Useful check |
+|---|---|
+| Gene aliases collide, a join mislabels cells, or a denominator is wrong | A unit test with a tiny known-answer example and a relevant failure case |
+| Selection, annotation and object construction disagree, or a file loses IDs/types on loading | A small integration fixture connecting the affected operations or files |
+| The command cannot start, load dependencies or create its expected outputs | A smoke run in a fresh test destination; a covered full run can supply this evidence |
+| Simplifying code changes a retained scientific result | Compare relevant identities, values, classifications and outputs against a suitable baseline |
+
+These are choices, not four required suites. Keep tests in the project's existing test location
+or one adjacent `test_<analysis>.R`/`test_<analysis>.py` file. Call the actual analysis functions
+without launching the full analysis on import/source; do not copy their implementation into the
+test. For a coherent top-level script or notebook, a small fixture run can be simpler than
+extracting functions solely for tests. Use independently known expectations. Follow an existing
+testing framework; plain R
+assertions or standard Python testing tools are sufficient for a small standalone workflow.
+Give the test command in its header or existing README. Test files do not run automatically merely
+because the analysis runs; use the project's existing runner when one is configured.
+
+Keep concise checks of current data assumptions beside the relevant operation in the analysis.
+At a substantive exploratory or phase review, simplify the retained path, run the affected checks
+and report what scientific failure they address. Reuse valid evidence for unchanged work.
+Do not wait until final publication to make the code readable or freeze exploratory methods early.
+
+---
+
 ## Directory Structure
 
 ```

@@ -1,16 +1,21 @@
 # Research Plugins Release History
 
-> **Current release, October 10, 2026.** Research Core 0.1.2 for Claude Code and Codex;
-> the optional packages remain 0.1.1.
+> **Current release, October 12, 2026.** Research Core 0.2.2 for Claude Code and Codex;
+> Genome Annotation and Yale Research are 0.1.2; Single-cell Research is 0.1.1.
 
 For setup and everyday use, read the [README](../README.md).
 For release changes, use [CHANGELOG](../CHANGELOG.md) and
 [GitHub releases](https://github.com/MusserLab/lab-claude-skills/releases).
 
+## Released 0.2.2 - October 12, 2026
+
+The shared release is `research-plugins-0.2.2`, available on `main` and both existing moving
+research channels. Core adds portable dashboard handoffs. Earlier 0.2.0/0.2.1 changes and all
+retained releases are recorded in [CHANGELOG](../CHANGELOG.md).
+
 ## Released 0.1.2 - October 10, 2026
 
-The shared release is `research-plugins-0.1.2`, available on `main` and both existing moving
-research channels. Only Core changes version; legacy Lab Skills 1.12.1 remains available.
+The retained shared release is `research-plugins-0.1.2`. Only Core changes version; legacy Lab Skills 1.12.1 remains available.
 
 ## Released 0.1.1 - October 5, 2026
 

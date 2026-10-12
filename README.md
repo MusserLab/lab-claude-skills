@@ -57,8 +57,10 @@ For a settled analysis, ask **"Help me simplify this analysis so another researc
 and run it."** Analysis distillation preserves the scientific method and evidence while improving
 the retained code and reproduction instructions. To inspect existing work, ask **"Build an analysis
 review dashboard for this workflow."** The dashboard connects scientific questions, actual outputs
-and complete source code; it makes missing evidence visible. Neither procedure accepts results or
-publishes a repository for you.
+and complete source code; it makes missing evidence visible. On a cluster, the normal handoff
+includes a portable ZIP with one clearly named HTML overview and one supporting-files folder.
+Download, unzip, and open that overview in your browser; the review identifies files left on the
+cluster. Neither procedure accepts results or publishes a repository for you.
 
 ## Get started
 

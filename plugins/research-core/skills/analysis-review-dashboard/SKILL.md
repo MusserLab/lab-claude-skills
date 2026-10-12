@@ -156,6 +156,42 @@ Check the actual changed surface:
   section links, enlargement, long filenames/code and narrow-screen reading. Never evade browser
   policy or call static checks a browser test. Report any untested browser/platform behavior.
 
+## 6. Package remote reviews for laptop use
+
+On a cluster or another remote host, create a portable ZIP as part of the normal handoff unless
+the user explicitly wants a host-only review. Package the selected review, not the whole project:
+
+- Put one descriptively named overview HTML file at the extracted top level, for example
+  `Project-Review.html`, and all supporting pages/files in one folder such as
+  `review-files/`. Give the archive the same clear project/review identity. Update relative links
+  in both directions when arranging this handoff; keep original source filenames inside the folder.
+- Include the overview, task/script pages, local CSS/JavaScript, figures and captured
+  previews. Include unchanged copies of the complete selected scientific scripts and project-owned
+  helpers, plus relevant tests/wrappers and small existing provenance records needed for this review.
+  Preserve the displayed source version and original filenames; distinguish it from the version
+  that produced saved results. Use relative links to bundled copies while retaining original host
+  labels and full paths on file cards.
+- State briefly on the overview which inputs/results are included in full, represented only by
+  previews, or left on the original host. Large datasets, environments and unrelated project files
+  stay out by default. This is a review bundle; do not present it as a runnable reproduction checkout.
+- Inspect the selected bundle contents and local dependencies before archiving. Do not accidentally
+  follow links into unrelated directories or include credentials/private configuration. Use existing
+  archive tools and a fresh, descriptive ZIP name outside the bundled directory. Preserve retained
+  reviews and archives; no new packaging framework or scientific rerun is needed.
+- Test ZIP integrity, extract into a fresh temporary directory and check that the bundled pages,
+  assets, source and preview links resolve there. In the intended permitted laptop browser, when
+  available, open the named overview HTML file and test navigation, figures and path-copy behavior.
+  Repair missing required local assets before calling the bundle portable. Report extraction/link
+  checks separately from browser checks and name any untested behavior.
+
+Provide the actual archive path, size, front-page filename and short download/unzip/open directions.
+Prefer an existing authenticated browser file service, such as an institutional Open OnDemand Files
+page, when available. Verify the host and route before offering a clickable download; a portal login
+page or a remote filesystem Markdown link does not establish a working file download. If only the
+portal is verified, link it with the exact archive path and label the download untested; give a
+verified-host `scp` alternative where useful. Keep authentication with the user. Do not introduce
+public hosting, a new server, or an upload to another service as part of this handoff.
+
 Hand back the actual overview link, selected grouping, source/result coverage, important evidence
 or annotation gaps and checks/limits. Stop for critique or scientific review at the agreed scope.
 Do not infer scientific acceptance from page use. A skill candidate, installed skill, project

@@ -179,8 +179,16 @@ state and stops before instruction changes until a coherent installation is esta
 
 It separately compares the newly installed source of agent collaboration instructions with your adopted
 `RESEARCH-CORE` block. Routine updates preserve personal instructions, do not repeat initial legacy
-migration or old-skill cleanup, and do not adopt agent collaboration instructions you previously
-declined.
+migration or broad old-skill cleanup, and do not adopt agent collaboration instructions you previously
+declined. They do check relevant personal/project skills for overlap with the selected plugin
+skills, including newly added skills and copies left behind by an earlier or automatic update.
+The check compares actual instructions and resources, not names alone. Customizations stay intact;
+any backup and reversible deactivation needs a concrete preview and your approval. An unavailable
+check or unresolved customization is reported as unfinished, not silently removed.
+
+Plugin-manager commands alone do not run this review. After updating from an older setup skill,
+start a fresh chat and ask: "Check my Research Plugins for overlapping personal or project skills,
+including copies I installed separately. Preserve customizations and show proposed changes first."
 
 Identical instructions need no replacement. For a changed block, review the separate concrete diff,
 including personal edits and conflicts, before applying it. Everything outside the block is preserved.

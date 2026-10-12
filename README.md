@@ -185,23 +185,33 @@ does not show whether you are current.
 ### Update your plugins
 
 > Update all Research Plugins I have installed from MusserLab/lab-claude-skills
-> and check the agent collaboration instructions.
-> Show me what will change first.
+> and check for overlapping personal/project skills and changes to the agent collaboration instructions.
+> Preserve my customizations and show me what will change first.
 
 This covers every installed Research Plugins package from **this repository**. It also checks any
 retained Lab Skills installation affected by the marketplace update. It preserves your
 package selections and enabled/disabled choices. It does not install packages you have not chosen
 or update unrelated plugins. An intentional release pin stays pinned unless you choose to move it.
 
-An update checks two things:
+A guided update checks three things:
 
 - **Installed plugins:** their skills, examples, and helpers.
+- **Overlapping copied skills:** relevant personal/project copies, including skills installed
+  separately before they joined a plugin. The agent compares instructions and resources, preserves
+  customizations, and shows any proposed backup and reversible deactivation for your approval.
+  Unresolved differences or unavailable checks stay explicitly unfinished.
 - **Adopted agent collaboration instructions:** changes are shown separately before updating the
   marked section of your user instructions.
 
 The `research-core-setup` skill is the shared entry point for setup, help, adding packages,
-checking what is new, and updates. Routine updates preserve personal instructions, do not repeat
-completed legacy cleanup, and do not adopt instructions you previously declined.
+checking what is new, overlap checks, and updates. Routine updates preserve personal instructions,
+do not repeat the full legacy migration, and do not adopt instructions you previously declined.
+
+Plugin-manager commands and automatic refresh alone do not perform the overlap review. If you
+already updated using older setup instructions, start a fresh chat and ask:
+
+> Check my Research Plugins for overlapping personal or project skills, including copies I
+> installed separately. Preserve customizations and show proposed changes first.
 
 If a package operation or verification fails, the agent reports what changed, what stayed
 unchanged, and what is unknown. It stops before instruction changes until the package state

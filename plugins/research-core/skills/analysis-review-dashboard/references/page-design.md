@@ -7,6 +7,16 @@ horizontally scrolling code; do not turn paragraphs into full-width walls of tex
 must remain selectable and accessible. Use ordinary links, native disclosures and a figure dialog;
 no arrow-button panning, giant zoom canvas, crowded legends or gratuitous instructional copy.
 
+## Explain each page for a returning reader
+
+Each independently opened page must explain its question, relevant inputs or comparison, how the
+analysis obtained its result, and the main takeaway with uncertainty. Define necessary terms where
+they are used. For example, 'pooled cells' must say which cells were combined and why; the word
+alone does not explain the method. A glossary supplements clear prose rather than replacing it.
+For every important plot, describe the groups, measurements, selection, colors or symbols and the
+conclusion it supports. Distinguish older figures from newer results. Keep this essential context
+visible in the delivered HTML or print/PDF export, not solely inside collapsed panels or chat.
+
 ## Overview
 
 1. Concrete workflow/phase title and a brief scientific summary. Say what went in, what question

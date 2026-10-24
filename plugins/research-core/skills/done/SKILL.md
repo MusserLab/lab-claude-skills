@@ -106,6 +106,17 @@ may require it; then treat that as an explicit local closeout step without makin
 rule. Do not perform broad project audits, global memory/skill maintenance, system-incident redesign,
 or unrelated documentation cleanup at wrap-up.
 
+### Completed HPC job observations
+
+If this session submitted or reviewed SLURM jobs and the optional Yale/HPC package is installed,
+follow its `hpc/references/resource-learning.md` procedure for the known relevant job IDs. Reuse
+already reviewed evidence; check completed-but-unreviewed jobs and keep only useful sizing decisions
+in the existing project record and any already configured private resource profile. For jobs still
+pending/running or accounting still unavailable, leave their IDs and the next review cue there.
+Do not wait for completion, scan unrelated jobs, create per-run resource files, or rewrite installed
+skills. Without that optional package or authorized host access, preserve the relevant IDs/evidence
+in the project and report what remains unchecked. Ordinary non-HPC closeout skips this step.
+
 ### Relevant shared-system evidence
 
 If this work exposes a reusable defect in shared tooling, use the project's or distribution's
@@ -113,15 +124,6 @@ established support route when that write is already in scope. Otherwise include
 consequence, checks, and actual deployment state in the handoff. Keep project science in its project,
 and do not create an incident for every observation or ask each worker to perform global maintenance.
 A public closeout has no dependency on a personal delegation guide, outcome ledger, or maintainer script.
-
-### Completed HPC job observations
-
-If this session handled HPC jobs and the installed Yale/HPC package is available, follow its
-`hpc/references/resource-learning.md` procedure for completed jobs not yet captured. Use existing
-job/run evidence and the user's configured private profile; do not scan unrelated jobs, wait for
-pending jobs, or edit installed skills. Pending jobs keep their normal project resumption cue.
-Without that optional package or authorized host access, preserve relevant IDs/evidence in the
-project and report what remains unchecked. Ordinary non-HPC closeout skips this step.
 
 ### Scientific acceptance
 

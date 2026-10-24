@@ -16,6 +16,17 @@ bioinformatician: explain biological terms, measurements and units; avoid softwa
 adds no understanding. A dashboard is a derived review aid, not a new project plan, status
 ledger, provenance authority or acceptance record.
 
+Assume the reader is returning after a gap and has not read the chat. Give each independently
+opened page enough context to understand its question, inputs/comparison, main result and limits.
+Explain the main analytical steps in ordinary language: what was combined or compared, what was
+measured, why that approach answers the question, and what the reader should take away. A list
+of scripts, tests or completed stages does not explain the method. Rewrite dense prose; a glossary
+alone cannot make a page understandable. Explain familiar analytical terms in their local context.
+Define necessary terms, acronyms, metrics and project-specific labels before using them; explain
+why a distinction matters with a concrete example when useful. Use descriptive headings, keeping
+exact filenames and identifiers as supporting traceability. Do not invent a new vocabulary for
+the project or infer biological identities from suggestive identifiers.
+
 Use the [page design](references/page-design.md) when building each page. Start from the
 [templates](templates/README.md), preserving the agreed hierarchy while adapting to the
 scientific workflow.
@@ -81,6 +92,13 @@ Follow the [page design](references/page-design.md). Keep each layer's job disti
 
 Place the principal figure/output gallery on the overview. Task pages explain that task's result
 and useful intermediate evidence; link to the main figure rather than repeating the gallery.
+
+For each important plot, explain the question, displayed groups/measurements, selection rule,
+how to read colors or symbols, and the takeaway with its limits. Distinguish analysis versions
+when an older figure accompanies newer results. Before handoff, check the actual delivery format:
+essential explanations must remain visible in an export, and required figures/links must work
+from the delivered location or be explicitly identified as unavailable. A printed collapsed
+panel or a link into the author's local filesystem cannot supply essential context to a recipient.
 For workflows producing tables, databases, reports or sequences, show their actual main outputs
 and meaningful examples instead of inventing a figure gallery or a biological conclusion.
 

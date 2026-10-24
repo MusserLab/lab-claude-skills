@@ -1,51 +1,79 @@
-# Choosing a GPU partition
+# Choosing an eligible GPU partition
 
-Choose eligible hardware and VRAM first, then compare current queue conditions. See the dated
-[partition profile](partitions.md) and the main skill's explicit GPU requests. Queue length alone
-cannot predict start time: requested GPU type/count, CPU/RAM, reservations, priority and job duration
-matter. No partition is a reliable production-job escape hatch.
+Compare queues only after establishing which partitions can run the actual workload.
+See [§4 GPU jobs](../SKILL.md#gpu-jobs) for host RAM versus per-device VRAM, supported
+multi-GPU execution and software compatibility. Hardware tables are references, not live access
+checks; use the actual cluster's scheduler and policy. The bundled [partition profile](partitions.md)
+retains dated YCRC facts and verification commands; no new scheduler query ran for this package.
 
-Official [Bouchet hardware](https://docs.ycrc.yale.edu/clusters/bouchet/) and
-[scavenge guidance](https://docs.ycrc.yale.edu/clusters-at-yale/job-scheduling/scavenge/) checked
-2026-10-01; no live queue query was performed. Bouchet documents `gpu`, `gpu_rtx6000`, `gpu_h100`,
-`gpu_h200`, `gpu_b200` and `gpu_devel`; `scavenge_gpu` is documented in scavenge guidance.
-Confirm current names and eligibility in an authorized session before using them.
+## Discover and check candidates
 
-```bash
-# Cluster-side, read-only. Do not suppress an invalid-partition/query failure as zero queue depth.
-sinfo -o '%P %G'
-for partition in gpu gpu_h100 gpu_h200 gpu_rtx6000 gpu_b200 scavenge_gpu; do
-  echo "$partition"
-  squeue -p "$partition" -t PENDING,RUNNING -o '%.18i %.10T %.12P %.12b %.10M %R' || break
-done
-sprio -j <jobid>
-squeue -j <jobid> --start
-```
-
-Treat the ETA as an estimate. `gpu_devel` is for GPU development/debugging within its current caps,
-not general production jobs. Use a private/priority partition only with the required authorization.
-
-## Changing a pending job's partition
-
-Inspect the pending job and new partition's hardware, typed GPU request, walltime and other limits.
-If the change remains inside the approved workload/resources, a pending job may be updated:
+Discover current partition names, state, limits and advertised GPU resources:
 
 ```bash
-scontrol show job <jobid>
-scontrol update JobId=<jobid> Partition=<new-partition>
-scontrol show job <jobid>
+sinfo --format="%P %a %l %D %G"
+scontrol show partition "$PARTITION"
 ```
 
-This preserves the job ID, which matters when dependent jobs reference `afterok:<jobid>`.
-Recheck the updated request and dependencies; do not assume eligibility, priority age or immediate
-start is guaranteed. If updating is refused, investigate rather than cancelling a dependency chain
-blindly. A running job needs a different plan; this is a pending-job procedure.
+Set `PARTITION` to a discovered candidate before inspecting it. Check account/association
+and QoS access, permitted workload (including development-only restrictions), time/resource
+and aggregate limits, host RAM, per-device VRAM, device/software compatibility and billing.
+Use a private/priority partition only with the required authorization.
 
-## Reservations and scavenge
+For preemptible candidates, establish safe restart/resumption and
+protect partial/retained outputs first; Slurm requeue is **not application checkpointing**.
+`--requeue` reruns the original submission script; that workflow must resume safely. Use
+`sacct -j "$JOB_ID" --duplicates` to inspect requeue history.
+No partition is a universal escape hatch, and a successful listing does not prove eligibility.
 
-A pending reservation/priority reason can concern overlapping nodes or several other scheduler
-states. Inspect the actual reason and current node/partition configuration; do not infer a universal
-reservation bypass. Scavenge uses idle resources but can be preempted without warning. Select it
-only when restarting is acceptable and preserve completion/source/input identities plus retained
-outputs. `--requeue` reruns the original submission script; the workflow itself must resume safely.
-Use `sacct -j <jobid> --duplicates` to inspect requeue history.
+## Compare eligible queues
+
+The partition names below are illustrative; replace them with verified eligible candidates.
+
+```bash
+PARTITIONS="gpu,gpu_h200"
+if ! squeue --partition="$PARTITIONS" --states=PENDING,RUNNING \
+    --format="%.18i %.20P %.10T %.8C %.12b %.30R"; then
+  printf '%s\n' 'Queue query failed; availability is unknown.' >&2
+  exit 1
+fi
+```
+
+Keep command errors visible. Do not pipe a failed query through `wc` and report zero jobs.
+A successful empty view means no visible jobs in those states, not that devices are idle or
+the request can start immediately. Queue counts do not account for job size, constraints,
+reservations, fair share or backfill and are not a guaranteed start-time ranking.
+
+After submitting, inspect the actual job and its estimated start:
+
+```bash
+sprio -j "$JOB_ID"
+squeue -j "$JOB_ID" --start
+scontrol show job "$JOB_ID"
+```
+
+Treat estimated starts as uncertain; they can move or be unavailable. A pending message such
+as "DOWN, DRAINED or reserved for jobs in higher priority partitions" lists possible causes,
+not proof of a particular reservation or partition overlap. Check the job, relevant node/
+partition state and available reservation information; unresolved causes remain unknown.
+
+## Moving a pending job
+
+When the site's policy permits it, an eligible partition change can retain the pending job's
+ID and therefore preserve downstream `afterok:JOBID` dependencies:
+
+```bash
+scontrol update JobId="$JOB_ID" Partition="$NEW_PARTITION"
+scontrol show job "$JOB_ID"
+```
+
+Before updating, verify that the job is still pending and that **the entire request** is valid
+on the destination: account/QoS, workload, limits, CPU/RAM, GPU count/type/constraints,
+software, billing and preemption/restart safety. A matching GPU GRES alone is insufficient.
+Read back the updated partition, state and reason; a rejected update is not a move, and a
+successful update does not guarantee an earlier start or unchanged priority calculation.
+
+Prefer retaining the job ID when a suitable move is allowed and dependents already exist.
+Cancel/resubmit creates a new ID; existing dependencies still refer to the old job and may
+become `DependencyNeverSatisfied`. If resubmission is necessary, explicitly repair the
+affected dependency chain rather than assuming it follows the new job.

@@ -21,6 +21,20 @@ Architecture, scientific reasoning, active-file/data authority, provenance, vali
 ratification, and scientific/programme acceptance remain in their established records. Issue
 closure supplies none of them automatically.
 
+When implementing or delivering work for an already identified Issue, the responsible agent updates
+the owning Issue and directly affected related Issues' current summaries at the substantive handback
+when those writes are already authorized; `done` catches any unfinished reconciliation. Include direct
+incoming references that still call completed work pending or blocking. Comments alone do not correct
+those summaries. Preserve history and unrelated remaining scope; correcting a closed Issue's stale
+current summary does not require reopening it. Do not expand this into a queue-wide or transitive
+dependency audit. Without write authority, preserve the exact proposed updates in the handoff.
+
+Close verified completed agreed scope within existing authority. Possible future information or
+optional improvements are not reasons to keep an Issue open or invent a new observation gate.
+Preserve specific unmet obligations and agreed human acceptance gates. Later evidence can justify
+reopening the original incomplete/recurring problem or creating a linked Issue for distinct new
+scope; this does not erase the earlier resolution or authorize new implementation or delivery.
+
 ## Prepare the concrete external action
 
 Before an Issue mutation, make the result reviewable:
@@ -49,8 +63,8 @@ the actual outgoing commits when a proposed Issue claim depends on their publica
    them. A failed/held action blocks dependent claims, though an independently authorized factual
    failure comment may still proceed.
 3. Apply only the authorized field-specific body/comment/milestone change. With a CLI, use a literal
-   body file for multiline text rather than shell interpolation. Read back the changed state.
-4. Apply explicitly accepted closure last and verify the actual Issue state.
+   body file for multiline text rather than shell interpolation. Read back each changed body and state.
+4. Apply authorized closure last and verify the actual Issue state and closure reason.
 5. Reconcile succeeded, failed, held, and unverified actions in the final handback and the project's
    existing chronological record when it uses one.
 

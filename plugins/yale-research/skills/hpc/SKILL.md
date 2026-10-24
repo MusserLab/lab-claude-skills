@@ -131,7 +131,7 @@ YCGA compute access does not establish permanent retention of Palmer storage.
 
 ### Which cluster to use
 
-- **YCGA sequencing data analysis** → McCleary (while available) — the `ycga` partition is exempt from compute charges
+- **YCGA sequencing data analysis** → McCleary (while available); confirm current `ycga` workload eligibility, access and limits
 - **GPU jobs** (training, PROST structure search) → Bouchet (H200, RTX Pro 6000 Blackwell, RTX 5000 Ada)
 - **General compute** (phylogenetics, alignment, mapping) → an eligible McCleary, Bouchet or Misha partition; inspect current capacity and installed inputs
 - **Wu Tsai affiliated work** → Misha
@@ -156,10 +156,12 @@ Max 4 interactive app instances per user simultaneously. Yale VPN required off-c
 
 - Snakemake orchestration (dispatching jobs to SLURM)
 - Git operations
-- Conda/mamba environment management
+- Activating an existing environment and inspecting its configuration
 - File inspection, editing scripts
 - Small interactive commands (`wc`, `head`, `ls`, etc.)
 
+Conda/mamba environment creation, package installation and updates belong on a compute
+node, including the setup examples in §7. See [YCRC's Conda guidance](https://docs.ycrc.yale.edu/clusters-at-yale/guides/conda/).
 Everything else must be submitted as a SLURM job.
 
 ### Transfer nodes
@@ -400,15 +402,57 @@ cloned in both places. Conventions:
 
 Full docs: <https://docs.ycrc.yale.edu/clusters-at-yale/job-scheduling/>
 
-### Lab default batch script template
+### Compute service charges
 
-Every batch script starts from these defaults. Override per-job as needed.
+[YCRC's Priority Tier policy](https://docs.ycrc.yale.edu/clusters-at-yale/job-scheduling/priority-tier/),
+checked 2026-10-24, states that standard-tier computation (for example `day`, `week`, `mpi` and
+`gpu`) has had no compute service charge since 2024-12-01. Private-node and scavenge computation
+also has no compute service charge. Charges apply to the opt-in Priority Tier. Confirm the
+selected partition/account's current eligibility and billing status before submission; use the
+current official policy for rates and terms.
+
+### Choosing the CPU layout
+
+Classify how the application actually runs before choosing `--ntasks`, `--cpus-per-task`
+and `--nodes`. Reserving CPUs does not make serial code parallel or launch workers.
+A task or rank is a separate running process; threads work within one process and share its
+memory. MPI (Message Passing Interface) lets separate processes exchange data, potentially
+across nodes. The layout must match how the application actually divides its work.
+
+| Application model | Slurm layout | Application configuration |
+|-------------------|--------------|---------------------------|
+| Serial | 1 task, 1 CPU, 1 node | No extra workers or threads |
+| Shared-memory threads | 1 task, N CPUs, 1 node | Set the tool's thread flag to the allocated CPUs |
+| Independent local workers | 1 task, W × T CPUs, 1 node | W workers with at most T threads each |
+| MPI | R tasks, usually 1 CPU/task; nodes as needed | Use the supported MPI launcher and R ranks |
+| Hybrid MPI + threads | R tasks, T CPUs/task; nodes as needed | R ranks with T threads each and appropriate binding |
+| Independent array elements | Choose the layout for each element | Bound simultaneous elements separately (§4 Job arrays) |
+
+Match the actual tool flags and relevant OpenMP/BLAS controls (`OMP_NUM_THREADS`,
+`OPENBLAS_NUM_THREADS`, `MKL_NUM_THREADS`) to that layout. For outer worker parallelism,
+one library thread per worker often avoids nested oversubscription; use the application's
+supported settings rather than exporting every control indiscriminately. Extra CPUs help
+only where the program can use them. When scaling is uncertain and would materially affect
+the request, compare a small number of CPU counts on representative inputs before scaling up.
+
+Preserve required RAM when reducing CPUs: 8 CPUs × `--mem-per-cpu=5G` requests 40G on
+a single node; reducing to 4 CPUs requires `--mem=40G` or `--mem-per-cpu=10G` to keep
+that budget. Reconsider walltime separately: fewer CPUs may take longer. Low CPU efficiency
+alone does not justify reducing both CPUs and time.
+
+### Batch script template
+
+Choose resources first from comparable successful project runs, then applicable version-specific
+tool guidance (§6), and use a generic estimate only when neither is available. Check current
+partition eligibility and limits. The concrete directives below illustrate one single-node
+threaded job; **8 CPUs, 5G/CPU, 4 hours and `day` are not universal starting requests**.
 
 ```bash
 #!/bin/bash
 #SBATCH --job-name=<tool>_<brief_description>
 #SBATCH --partition=day
 #SBATCH --time=4:00:00
+#SBATCH --ntasks=1
 #SBATCH --cpus-per-task=8
 #SBATCH --mem-per-cpu=5G
 #SBATCH --output=logs/slurm-%j.out
@@ -453,7 +497,7 @@ echo "Date:        $(date -Iseconds)"
 echo "Node:        $(hostname)"
 
 # Modules (cluster-only tools — always pin versions)
-module purge
+module reset
 module load Tool/1.2.3
 
 module list 2>&1
@@ -513,21 +557,21 @@ environment and tool versions to the SLURM log.
 
 ### Common directives
 
-| Directive | Short | Lab default | Purpose |
+| Directive | Short | Choice or example | Purpose |
 |-----------|-------|------------|---------|
 | `--job-name` | `-J` | `<tool>_<desc>` | Job identification (shows in `squeue`) |
 | `--time` | `-t` | varies by tool | Walltime (`D-HH:MM:SS`) |
-| `--partition` | `-p` | `day` | Target partition |
+| `--partition` | `-p` | eligible partition | Target partition; verify access and limits |
 | `--cpus-per-task` | `-c` | varies by tool | Cores per task (for threading) |
-| `--mem-per-cpu` | — | `5G` | RAM per CPU (use for most jobs) |
-| `--mem` | — | — | Total RAM (use instead of `--mem-per-cpu` for memory-hungry tools like PROST, Cell Ranger) |
+| `--mem-per-cpu` | — | workload-dependent | Host RAM per allocated CPU; changes with CPU count |
+| `--mem` | — | workload-dependent | Host RAM per node, not the whole distributed job; use instead of `--mem-per-cpu` |
 | `--gpus` | `-G` | 0 | GPU count (must be explicit) |
 | `--output` | `-o` | `logs/slurm-%j.out` | Combined stdout+stderr |
 | `--error` | `-e` | (not set) | Separate stderr file (use when debugging with split output) |
 | `--mail-type` | — | `BEGIN,END,FAIL` | Notifications (see below) |
 | `--mail-user` | — | `<your-email>` | Confirm the researcher's notification email |
-| `--nodes` | `-N` | 1 | Compute nodes (rarely >1 except MPI) |
-| `--ntasks` | `-n` | 1 | MPI task count |
+| `--nodes` | `-N` | application-dependent | Compute nodes; multiple nodes require supported distributed execution |
+| `--ntasks` | `-n` | application-dependent | Process/rank count; use 1 for ordinary serial/threaded jobs |
 
 ### Notification options
 
@@ -542,7 +586,24 @@ a running array don't trigger emails — you only find out when the whole array 
 
 ### GPU jobs
 
-GPUs must be explicitly requested with `--gpus`. Key GPU partitions:
+GPUs must be explicitly requested with `--gpus`. Start with the smallest practical count.
+Host RAM (`--mem`, the node's main memory) and GPU VRAM (memory on the graphics device)
+are separate budgets; VRAM is normally a **per-device**
+limit. Two 32-GB GPUs do not automatically fit a model needing 64 GB on one device.
+Multiple GPUs require actual application support for the chosen data/model parallelism or
+sharding. Check device capability, supported precision and compatible drivers/CUDA/software;
+measure scaling on representative work when a larger request needs justification. Do not
+silently change scientific settings or numerical precision to fit a device.
+
+Split substantial CPU-only preparation from the GPU allocation when the existing workflow
+supports reusable intermediates; consequential method changes still need discussion. Before
+queue choice, verify current hardware, account/QoS access, allowed workload, resource/time
+limits, charges and preemption policy. The following hardware table is a reference, not live
+eligibility or availability. The public hardware profile was checked against
+[YCRC Bouchet](https://docs.ycrc.yale.edu/clusters/bouchet/),
+[McCleary](https://docs.ycrc.yale.edu/clusters/mccleary/) and
+[Misha](https://docs.ycrc.yale.edu/clusters/misha/) on 2026-10-01; no new scheduler query ran
+for this package. Confirm current GPU types, limits and eligibility before submission:
 
 | Cluster | Partition | GPU | VRAM |
 |---------|-----------|-----|------|
@@ -554,14 +615,15 @@ GPUs must be explicitly requested with `--gpus`. Key GPU partitions:
 | McCleary | `gpu` | A5000 / A100 / RTX 3090 / RTX 5000 | 16–80 GB; specify required type |
 | Misha | `gpu` | H100/H200/A100/A40/L40S | 48-141 GB |
 
-GPU profile checked against [YCRC Bouchet](https://docs.ycrc.yale.edu/clusters/bouchet/),
-[McCleary](https://docs.ycrc.yale.edu/clusters/mccleary/) and
-[Misha](https://docs.ycrc.yale.edu/clusters/misha/) on 2026-10-01; no scheduler query was run.
-Confirm available GPU types/limits before submission. Load the pinned CUDA version required by
-this tool's declared environment before activation when that environment needs a CUDA module.
+Use a private/priority partition only with the required authorization.
 
-For choosing the least-congested GPU partition before submitting, and for switching a
-pending job's partition to a faster queue, see `references/gpu-partition-tactics.md`.
+Load a pinned compatible CUDA module before conda activation when the
+selected software requires one; do not override a container or environment's supported CUDA
+setup blindly.
+
+For live candidate discovery, queue comparison and eligible pending-job partition changes,
+see [GPU partition tactics](references/gpu-partition-tactics.md). Queue counts and start-time
+estimates do not guarantee which eligible partition will start first.
 
 ### Interactive jobs
 
@@ -644,24 +706,72 @@ permanent background noise, and why the obvious version-rollback diagnosis was w
 | `scancel <id>` | Cancel a job |
 | `sbatch --test-only script.sh` | Estimate queue start time without submitting |
 
+### Failure triage before retrying
+
+For a pending job, read its reason and requested resources before changing the request
+(`squeue -j JOBID`, `scontrol show job JOBID`). A priority, dependency, reservation or
+account/QoS limit is not evidence that the application needs more resources.
+
+For a started job, inspect state, exit code, application/Slurm logs and accounting together:
+
+```bash
+sacct -j "$JOB_ID" --format=JobID,State,ExitCode,Elapsed,AllocCPUS,ReqMem,MaxRSS,TotalCPU
+```
+
+Keep relevant job **and step** rows (`.batch`, `.extern`, application steps and array
+elements). Do not use `sacct -X` for utilization: it excludes the steps carrying those
+statistics. `MaxRSS` is a maximum for an individual task in a step, not automatically the
+sum of memory across MPI ranks or concurrent workers; it also does not measure GPU VRAM.
+See [Slurm's accounting definitions](https://slurm.schedmd.com/sacct.html).
+
+- **Host OOM:** check Slurm's OOM state/messages and host-RAM accounting; correct the RAM
+  request or an understood application issue.
+- **GPU OOM:** inspect the device-memory error, per-device VRAM and actual distribution
+  support; adding host RAM alone does not solve it.
+- **Timeout:** establish whether useful work progressed and size time for comparable work;
+  a time limit is not a completed runtime measurement.
+- **Storage quota/full filesystem:** check the affected path and quota; more RAM/time will
+  not restore write capacity. Protect retained data before cleanup.
+- **Application/input error:** diagnose the reported failure before changing resources.
+- **Preemption/node failure:** confirm the cause and safe restart/resumption behavior;
+  Slurm requeue does not supply application checkpointing.
+
+Retry the affected work with a change supported by the diagnosis, preserving retained outputs
+and dependencies. Avoid blind resource doubling or endless resubmission. Failed or missing
+accounting remains unknown and cannot establish an adequate budget.
+
 ### Resource efficiency
 
 Follow the [active-session resource learning procedure](references/resource-learning.md),
 using the project's existing private run evidence rather than editing installed package files.
 
 Use `jobstats`, or the host's available `sacct`/`seff` equivalent, for completed jobs already
-associated with the current project. Compare actual completion, tool/version, input scale and
-complexity, parameters, hardware and requested resources before reusing an observation. Missing
-accounting is unknown, not zero; OOM, timeout or incomplete output does not establish an adequate
-allocation. Retain array/task variation and distinguish host RAM from GPU memory and per-task
-from total usage. Diagnose low utilization before reducing CPUs and time together.
+associated with the current project, using known relevant job IDs from its existing submission/
+provenance record. That record carries the requested resources and their rationale. Check
+accounting during result review, at wrap-up and before the next comparable submission; do not
+launch collector jobs or add per-run resource files.
 
-Keep useful measurements and the next request with its rationale in the project's existing run
-record. Consult an already declared private cross-project resource record when available; do not
-create a new store, rewrite the installed skill, install a monitor or synchronize private records
-as a side effect. Keep private job/project evidence out of public packages. Routine sizing within
-the agreed scale is agent-owned; consequential aggregate increases or scientific changes retain
-their discussion boundary. Summarize useful changes at the next substantive review.
+Compare completion, tool/version, input scale and complexity, parameters, hardware and requested
+resources before reusing an observation. Missing accounting is unknown, not zero; OOM, timeout
+or incomplete output does not establish an adequate allocation. Distinguish host RAM from GPU
+memory and per-task from total usage. Diagnose low utilization before reducing CPUs and time
+together. Review arrays as a group while retaining meaningful variation and outliers.
+
+For completed work, update the useful measurements/context and the **specific next request with
+its reason** in the existing project record. Revise the current recommendation rather than
+appending full accounting reports or repeating unchanged decisions for every task. Pending/running
+jobs or unavailable accounting need only a brief resumption cue; do not wait/poll solely to finish
+resource bookkeeping or infer success. Normal authorized job monitoring and result completion
+remain allowed. Before reuse, reconcile the recommendation with available completion evidence, or
+explicitly justify a fallback to applicable tool guidance/an estimate when metrics remain
+unavailable.
+
+Consult an already declared private cross-project resource record when available; do not create
+a new store, install a monitor or synchronize private records as a side effect. Generalizable
+profile corrections use canonical maintenance, never automatic installed-skill rewrites. Keep
+private job/project evidence out of public packages. Routine sizing within the agreed scale is
+agent-owned; consequential aggregate increases or scientific changes retain their discussion
+boundary. Summarize useful changes at the next substantive review.
 
 ### Job arrays
 
@@ -669,9 +779,20 @@ For many similar jobs (e.g., processing multiple samples), use job arrays or Dea
 Queue (dsq) rather than submitting hundreds of individual jobs. Rate limit: **200 job
 submissions per hour**.
 
+Choose an explicit `%N` array cap, or dSQ's supported concurrency limit, from the agreed
+aggregate CPU, host RAM, GPU, I/O and shared-database load. Multiply **per-element** resources
+by the maximum simultaneous elements, including other active work. The example below uses
+`%5` only illustratively: five elements × 4 CPUs and 16G request up to 20 CPUs and 80G
+across the array, before other jobs. A GPU array similarly multiplies GPUs per element.
+
+Give elements unique logs and outputs, and separate caches/temp paths where shared writes
+would collide. Rerun only failed/incomplete elements after diagnosis and completion checks.
+Bundle very short commands when scheduler startup overhead dominates; use observed task and
+overhead costs rather than a universal minimum task duration.
+
 ```bash
 #!/bin/bash
-#SBATCH --array=1-50
+#SBATCH --array=1-50%5
 #SBATCH --partition=day
 #SBATCH --time=2:00:00
 #SBATCH --cpus-per-task=4
@@ -696,7 +817,7 @@ dated time limits, aggregate per-user resource limits, GPU types and current-ver
 - **Long jobs** → `week` (7-day) or `long` (28-day, McCleary only)
 - **GPU** → choose the documented hardware/VRAM requirement in `references/partitions.md`; Bouchet has mixed `gpu`, `gpu_h100`, `gpu_h200`, `gpu_rtx6000` and `gpu_b200`
 - **Interactive/testing** → `devel` (6-hour limit, strict per-user caps)
-- **YCGA data** → `ycga` on McCleary (exempt from compute charges)
+- **YCGA data** → `ycga` on McCleary for eligible YCGA-related work; verify current access and limits
 - **Big memory** → `bigmem` (up to 4 TiB/node on Bouchet)
 - **Preemptable** → `scavenge` (free idle resources, may be killed)
 
@@ -704,10 +825,10 @@ dated time limits, aggregate per-user resource limits, GPU types and current-ver
 
 ## 6. Tool Resource Profiles
 
-See `references/tool_profiles.md` for SLURM resource recommendations per bioinformatics
-tool (CPUs, memory, time, partition, GPU). They are starting estimates, not workload guarantees.
-Use [resource learning](references/resource-learning.md) to retain observed usage privately and
-refine comparable requests without changing scientific methods.
+See [tool resource profiles](references/tool_profiles.md) for uncalibrated estimates,
+applicability limits and pointers to dedicated tool guidance when separately installed. Version, database, parameters and
+input scale/complexity determine applicability. Prefer comparable completed project evidence;
+check available accounting after initial runs before adjusting (§4 Resource efficiency).
 
 ---
 
@@ -766,8 +887,12 @@ directly" pattern applies to any other container-backed module that ignores its 
 
 ### Conda (Python + bioinformatics tools)
 
+Run creation, installation and updates on a compute node, not a login node. Activating an
+existing environment is separate from changing it. Start a new wrapper's module setup with
+`module reset`, which restores the site's defaults; see [YCRC modules](https://docs.ycrc.yale.edu/applications/modules/#unload).
+
 ```bash
-module purge
+module reset
 module load miniconda
 source "$(conda info --base)/etc/profile.d/conda.sh"
 
@@ -787,9 +912,11 @@ conda activate myenv
 
 ### Tools environment (recommended)
 
-A shared `tools` conda env for general-purpose cluster utilities (not project-specific):
+A shared `tools` conda env for general-purpose cluster utilities (not project-specific).
+Create/install it on a compute node; reuse it for later CLI sessions:
 
 ```bash
+module reset
 module load miniconda
 source "$(conda info --base)/etc/profile.d/conda.sh"
 conda create -n tools -c conda-forge gh git
@@ -917,8 +1044,11 @@ or `ycgaFastq`. Normal retrieval: 48 hours. Expedited: 12 hours (8x more expensi
 
 ### YCGA partition
 
-Submit YCGA-related analysis jobs with `-p ycga` on McCleary to avoid compute charges.
-Eligible users: Yale PIs using YCGA for sequencing and their authorized lab members.
+Submit eligible YCGA-related analysis jobs with `-p ycga` on McCleary after confirming
+current partition access and limits. The listed eligible users are Yale PIs using YCGA for
+sequencing and their authorized lab members; verify current eligibility before submission.
+For compute service charges, see the [service-tier policy](#compute-service-charges):
+standard-tier work also has no compute service charge.
 
 ---
 
@@ -1025,10 +1155,10 @@ dependent job starts.
 
 ### Script generation rules
 
-- Use the lab default batch script template from Section 4, including the provenance block
-- Use the tool resource templates from Section 6 for SLURM directives
+- Use the batch script structure from Section 4, including the provenance block
+- Choose directives from comparable project evidence, applicable dedicated tool guidance (§6), then estimates
 - Always include: `--job-name`, `--partition`, `--time`, `--cpus-per-task`, memory, `--output`
-- Always `module purge` before loading modules (omit `module purge` when the only module is miniconda for conda-only jobs)
+- Start new HPC wrappers with `module reset` before loading the required modules
 - Always pin module versions (e.g., `module load CellRanger/9.0.1`, never bare `module load CellRanger`)
 - Follow the hybrid rule from Section 7: conda for portable tools, modules for cluster-only tools — never both for the same tool
 - Set `--mail-type=BEGIN,END,FAIL` and the researcher's confirmed `--mail-user=<your-email>`
@@ -1036,7 +1166,7 @@ dependent job starts.
 - For YCGA data analysis on McCleary, use `--partition=ycga`
 - Add comments explaining non-obvious resource choices (e.g., "128G needed for PROST structure DB")
 - Log version strings for every tool actually invoked in the script (in the provenance block)
-- If unsure about resources, start conservative and note "check with jobstats after first run"
+- If resources remain uncertain, explain the estimate and use a bounded representative check when consequential
 
 ---
 
@@ -1050,5 +1180,5 @@ numbers have a single source of truth (update them there, not here):
 - **Job rate limit — 200 submissions/hour** — see §4 Job arrays.
 - **Max 4 concurrent OOD interactive apps per user** — see §2 Open OnDemand.
 - **McCleary staged transition / YCGA exception** — see §2 and current [YCRC migration guidance](https://docs.ycrc.yale.edu/clusters/grace-mccleary-decommission/).
-- **`ycga` partition compute-charge exemption** (`-p ycga`, McCleary, YCGA data) — see §2 and §10.
-- **Module system** (`module load` / `module avail` / always `module purge` first) — see §7/§12.
+- **Compute service charges** — see §4 [service-tier policy](#compute-service-charges); YCGA workload eligibility is in §10.
+- **Module system** (`module load` / `module avail` / `module reset` for new wrappers) — see §7/§12.

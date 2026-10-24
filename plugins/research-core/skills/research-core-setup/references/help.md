@@ -64,7 +64,7 @@ Tell the agent your operating system, client/interface and where it runs. The
 has client-specific steps. Setup shows package changes before applying them, preserves your
 personal instructions and customizations, and keeps a way to restore the previous setup.
 
-The old all-in-one Lab Skills plugin is being phased out. Initial setup is intended to replace it
+The old all-in-one Lab Skills plugin is permanently frozen at 1.12.1. Initial setup is intended to replace it
 and deactivate overlapping copied skills after the selected replacements are verified. The agent
 checks skills you need and uses `security-setup` to review relied-on protections before deactivating
 old components. Core installs no hooks or permission grants and does not automatically replace
@@ -196,6 +196,14 @@ Refreshing packages does not itself rewrite adopted agent collaboration instruct
 chat after successful changes.
 An explicit full update remains useful even when automatic package refresh is available, because
 it verifies both layers.
+
+For explanation and dashboard improvements, check all three outcomes: the installed package,
+your adopted collaboration block, and any dashboard skill copied separately. Package updates do
+not rewrite the latter two. The general guidance should make a returning reader understand the
+question, relevant inputs, how the result was obtained, main takeaways and uncertainty. Necessary
+terms belong where they are used: 'pooled cells' should say which cells were combined and why.
+Ask the agent to compare customized copies and show a separate proposal that preserves your
+additions. Start a fresh chat after approved changes and try a short explanation of existing work.
 
 Automatic refresh depends on the client and configuration:
 

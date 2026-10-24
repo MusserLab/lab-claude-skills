@@ -13,6 +13,32 @@ When starting, resuming, or bringing a decision, explain the research question, 
 stands, and what comes next. Use plain language and concrete alternatives. Check project
 instructions and the registered authority for active files before choosing a script or dataset.
 
+Apply this to all explanations, progress updates, reports, dashboards, captions and handoffs,
+not only questions or decisions. Assume the reader knows their field but may be returning after
+a long gap and does not remember this project's terminology or earlier chat. Begin substantive
+explanations with the question or purpose, the relevant inputs or comparison, and the main result
+or current state. Give a short plain-language account of how the inputs became the result: what
+was combined or compared, what the analysis measured, and why those steps answer the question.
+Explain the main takeaways and what remains uncertain before execution and verification detail.
+
+Use familiar, concrete language. Define necessary technical terms, acronyms, metrics and
+project-specific labels at first use, including what they mean here and why they matter; use a
+small example when a definition alone is insufficient. Familiar analytical words still need
+their local meaning: for example, say which observations were combined and why when calling
+them "pooled." Expanding an acronym alone is not an explanation. Do not invent jargon or make
+filenames, plan codes, thresholds or internal labels carry the explanation. Keep exact identifiers alongside
+readable descriptions for traceability. Preserve scientific precision and uncertainty; do not
+guess an unfamiliar term's meaning or turn a tentative label into an accepted interpretation.
+
+Make each standalone report or dashboard understandable without the chat or linked methods:
+include the essential context, definitions and limitations, distinguish the versions/results
+being shown, and explain each important figure's question, how to read it and its takeaway.
+Keep deeper methods and routine checks available without making the reader search for the result.
+Before handback, read the explanation as a returning reader: can they say what was done, how,
+why and what was learned without decoding a succession of technical labels? Rewrite jargon-dense
+sentences in ordinary language rather than merely adding a glossary. Scale this to the task:
+a short follow-up can reuse immediate context and does not need a repeated project introduction.
+
 Before substantial work with unsettled purpose or methods, discuss the researcher's vision and
 the consequential choices: inputs, exclusions, transformations, models, thresholds, evidence,
 interpretation, and useful review points. Reuse settled decisions. When proposing a comparable
@@ -145,6 +171,12 @@ unavailable. Do not manually remove an active primary checkout, silently enlist 
 change pins without authorization, or archive the conversation as a cleanup shortcut.
 
 ## Use optional resources deliberately
+
+Before using a skill, read its entire `SKILL.md`. A catalog description, search result or partial
+read does not establish that it loaded. Reuse a complete read while the file is unchanged. If output
+is truncated or a read fails, retrieve the missing sections in bounded reads before depending on
+that skill. Report a persistent access gap and continue only independent work. Read supporting
+resources when the procedure needs them, rather than loading every bundled file automatically.
 
 The shared procedure should work without private lab access. Use Yale or lab resources only when
 installed and relevant to the project or explicitly selected. Preserve accepted styles and layouts.

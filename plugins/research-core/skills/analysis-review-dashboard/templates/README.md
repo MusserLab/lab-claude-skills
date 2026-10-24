@@ -45,6 +45,19 @@ dependency graph; `.flow` alone is a linear map and must not misrepresent branch
 branch rows or a small explicit SVG with labelled connections for branching. At narrow widths,
 replace visual connectors with readable dependency text rather than inventing a new linear order.
 
+## Fill the scientific explanation before the file inventory
+
+Use `SCIENTIFIC_SUMMARY`, `INPUT_APPROACH_OUTCOME` and `SCRIPT_PURPOSE_AND_RESULT` to orient someone
+returning after a gap. Explain the question, inputs, main analytical steps, result and uncertainty
+in ordinary language. Say what was combined or compared and why. Define necessary terms at first
+use; a glossary or a list of script names cannot replace the explanation. A preparation-only
+result should explain what is ready and what remains unknown without inventing a biological finding.
+
+Figure captions explain the question, groups, measurements, how to read the display, and its main
+takeaway and limits. Check the actual delivery format: essential explanations must remain visible
+in an export, and a local path or a collapsed panel cannot substitute for recipient-accessible
+content. Identify missing figures or inaccessible links explicitly.
+
 ## Task rail and sibling-script links
 
 ```html

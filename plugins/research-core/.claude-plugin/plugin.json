@@ -1,6 +1,6 @@
 {
   "name": "research-core",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Agent collaboration, research integrity, reproducibility and setup.",
   "author": {
     "name": "Musser Lab"

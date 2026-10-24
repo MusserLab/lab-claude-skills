@@ -270,6 +270,15 @@ supply the needed context; do not require a separate decision registry.
    outcome separately, including a declined or unchanged block and any incomplete operation.
    Start a fresh chat after changes.
 
+When the release strengthens explanations or dashboards, explain where that behavior comes from.
+The installed dashboard procedure and resources update with the package. The general requirement
+to orient a returning reader, explain methods simply, define terms where used and state takeaways
+and uncertainty also belongs in the separately adopted collaboration block. A retained customized
+dashboard copy receives neither update automatically. Compare its complete folder, preserve the
+student's additions, and propose any reconciliation separately; do not claim that a package version
+alone establishes which instructions the next chat will use. After changes, ask for a short account
+of an existing result and check that it names the inputs, method, conclusion and uncertainty.
+
 For recovery, use the release guide's retained catalog ref or maintainer recovery release. Do not
 invent a universal `plugin@version` selector or directly edit installed caches. Preview the prior
 release's adopted instruction block separately; retain personal changes and surrounding text.

@@ -5,6 +5,29 @@ Entries are dated and identify the released package versions.
 
 ---
 
+## Unreleased — comprehensive candidate prepared October 24, 2026
+
+- Research Core **0.2.3** makes explanations, reports and dashboards understandable to a
+  returning reader: state the question, inputs, simple methods, main findings and uncertainty;
+  explain necessary terms where used. For example, “pooled cells” must say which cells were
+  combined and why. Dashboard page guidance and template instructions carry the same requirement.
+- Core closeout reconciles related issue summaries within the user's authority and captures useful
+  completed-job resource evidence in an existing project record when applicable. It does not create
+  a new ledger or wait for running jobs solely to finish documentation.
+- Yale Research **0.1.3** improves CPU, memory and GPU requests using comparable runs and applicable
+  tool guidance. It distinguishes failed queue queries from empty queues, checks the full request
+  before changing queues, and records uncertainty and the reason for a subsequent resource request.
+  Charging guidance distinguishes free standard computing from the optional paid Priority Tier.
+- All four packages and their supporting resources were reviewed. Single-cell Research **0.1.1**
+  and Genome Annotation **0.1.2** remain byte-identical to the published packages. No new skill,
+  scientific method or dependency is introduced; optional minimum Core remains **0.1.0**.
+- Update installed packages through the guided update flow, then separately review the proposed
+  collaboration-instruction change and any copied/customized skills. Package updates do not rewrite
+  those copies. Preserve customizations and verify the selected version in a fresh chat.
+- Both client catalogs, existing update channels and frozen Legacy Lab Skills **1.12.1** are
+  unchanged. Preparation is not publication or student installation. See the
+  [candidate evidence and limitations](docs/research-plugin-compatibility.md#october-24-comprehensive-candidate).
+
 ## 2026-10-12 - Research Core 0.2.2
 
 - Remote analysis-review dashboards normally include a portable ZIP for laptop review without

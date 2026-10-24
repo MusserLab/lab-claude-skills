@@ -12,6 +12,10 @@ additional limits; account/QoS/group limits can constrain a request further. A s
 also cannot exceed that node's CPUs, RAM or GPUs. Use the current cluster page and scheduler
 configuration for detailed hardware counts; node counts are not capacity guarantees.
 
+Compute service charges depend on the selected service tier. See the
+[compute-charge policy](../SKILL.md#compute-service-charges), checked 2026-10-24, and confirm
+current partition/account eligibility and billing status before submission.
+
 ## Bouchet
 
 | Partition | Max time | Aggregate user limit / important cap | GPU / purpose |
@@ -60,7 +64,7 @@ not establish these limits. This partition is not an exception to the documented
 | `gpu_devel` | 6 h | Check current caps | GPU development/debugging |
 | `bigmem` | 1 day | Check current caps | Large-memory batch |
 | `scavenge` / `scavenge_gpu` | 1 day | Check selected partition/QoS | Preemptable |
-| `ycga` | Check current partition | Eligibility and current limits required | YCGA-related compute-charge exemption |
+| `ycga` | Check current partition | Eligibility and current limits required | Eligible YCGA-related work; verify current access |
 
 Check the [decommission notice](https://docs.ycrc.yale.edu/clusters/grace-mccleary-decommission/) before new setup.
 

@@ -14,8 +14,11 @@ An input file's byte size alone rarely establishes comparability. For example, t
 complexity can change clustering memory even when two inputs have similar read counts.
 
 Within authorized cluster access, inspect terminal status and measured usage with `jobstats JOBID`,
-or the available `seff`/`sacct` summary. Use the command available on that host; do not SSH elsewhere
-or acquire new access merely because this step is present. Keep the exact command and evidence
+or the available `seff`/`sacct` summary. Keep relevant job and step rows (`.batch`, `.extern`,
+application steps and array elements); do not use `sacct -X` to measure utilization because it
+excludes step statistics. `MaxRSS` is the maximum for an individual task in a step, not the total
+across MPI ranks or concurrent workers, and does not measure GPU VRAM. Use the command available
+on that host; do not SSH elsewhere or acquire new access merely because this step is present. Keep the exact command and evidence
 location with the existing run record. Record peak resident memory, elapsed time, CPU utilization
 and GPU memory/utilization when actually reported. Distinguish total/per-task/per-node/per-CPU
 memory and units; a field's absence is unknown, not zero. For arrays or multi-step jobs, retain the
@@ -31,8 +34,8 @@ sample's requirement. Do not equate GPU memory with host RAM.
   lower a request based on a prematurely ended run. Verify analysis completion separately from a
   scheduler success code where outputs matter.
 - Compare the tool/version, input complexity, parameters, thread behavior and hardware before
-  reusing a profile. Use the starting guidance when the evidence is not comparable, explaining the
-  uncertainty. Do not extrapolate a tiny fixture into a production guarantee.
+  reusing a profile. Prefer comparable successful project evidence, then applicable version-specific tool
+  guidance, then an explicitly uncertain estimate when observations are not comparable. Do not extrapolate a tiny fixture into a production guarantee.
 - Low CPU/GPU utilization may reflect I/O, serial stages, device placement or an unsuitable thread
   setting. Diagnose the relevant cause before changing requests. Scaling CPU count can change
   elapsed time; do not reduce both blindly from a single observation.
@@ -43,10 +46,18 @@ sample's requirement. Do not equate GPU memory with host RAM.
 
 ## Preserve useful observations outside the installed plugin
 
-Keep detailed evidence in the project's existing run/provenance record, with its normal privacy
-and source-control rules. Add a concise resource observation there only when it improves future
-requests or explains a consequential failure. Retain the old evidence; update a recommendation
-without rewriting what earlier jobs actually did.
+Check available accounting at result review, wrap-up and before the next comparable submission,
+using the known job IDs in the project's existing submission/provenance record. Keep useful
+measurements/context and the **specific next request with its reason** in that existing record,
+under its normal privacy and source-control rules. Revise the current recommendation instead of
+adding per-run resource files, full accounting reports or repeated unchanged decisions. Preserve
+the old evidence without rewriting what earlier jobs actually did. Do not launch collector jobs.
+
+Pending/running jobs or unavailable accounting need only a brief resumption cue; do not wait or
+poll solely to finish resource bookkeeping or infer success. Normal authorized monitoring and
+result completion remain allowed. Before reuse, reconcile the recommendation with completion
+evidence, or explicitly justify a fallback to applicable tool guidance/an estimate when metrics
+remain unavailable.
 
 For reuse across projects, use the user's existing declared private resource-profile record. If
 none exists, setup may offer one small Markdown table in user-owned storage outside the plugin
@@ -64,7 +75,8 @@ Keep project identifiers, raw job reports and private locations out of public fe
 adding a row for every repeated job when the recommendation and evidence range have not changed.
 No database, duplicated manifest, independent scheduler or global project scan is required.
 
-Before a future comparable job, consult these profiles alongside the bundled starting table.
+Before a future comparable job, consult these profiles alongside the bundled uncalibrated
+estimates and the tool's version-specific guidance.
 Project-specific evidence takes precedence when relevant; contradictory observations remain
 visible and need investigation. Different hosts may expose different records: use what is
 actually available and do not silently synchronize home directories or credentials.

@@ -7,6 +7,48 @@ The [README](../README.md) is the user guide. This record distinguishes content 
 client operations, ordinary use, and scientific acceptance. An untested route is not an
 unsupported platform; evidence for one client, version, or host does not establish another.
 
+## October 24 comprehensive candidate
+
+**Prepared, not released.** The candidate reviews all four maintained packages against the
+October 12 release. Proposed versions are Core **0.2.3**, Single-cell **0.1.1**, Genome **0.1.2**
+and Yale **0.1.3**. Single-cell and Genome payloads are unchanged; Core and Yale gain the changes
+described in the [unreleased changelog](../CHANGELOG.md). Both clients receive the same procedures.
+Minimum Core dependencies remain 0.1.0. Catalogs, release routing and Legacy Lab Skills 1.12.1 stay
+unchanged. Existing release statements below describe the published baseline, not this candidate.
+
+The source/export comparison matches all 108 selected release files and 105 package-file hashes.
+The 91 focused source, adaptation, resource/link, setup, instruction-preservation, release-scope,
+report, genome and Yale checks pass. Checks cover stale-adaptation refusal, preserving unrelated instruction
+bytes and customizations, missing or occupied inputs/outputs, and distinguishing an unsuccessful
+queue query from a successful empty result. Unchanged native update/recovery evidence is reused.
+
+On macOS arm64, disposable Codex CLI 0.149.0 and Claude Code 2.1.309 profiles installed all four
+packages from the local candidate; each client's 105 package-file hashes matched. Claude's local
+source points to the candidate folder as well as keeping a cache; both were checked. These isolated
+profiles did not change personal or student installations. Claude strict manifest validation passed
+for both the marketplace and all four packages. Its optional directory-submission checks reported
+missing license/icon metadata; this candidate retains the existing Git marketplace route and makes
+no directory-submission or new licensing claim. Bundled third-party notices are preserved.
+
+After final Yale preparation edits, its disposable-profile installation was repeated and all 105
+files per client were read back again. Codex's Git upgrade command refused the local-folder test
+source; Claude's update saw the same candidate version as current. Native remove/install refreshed
+that test package. This is a local-source installation check, not new Git-update evidence.
+
+A fresh native Codex worker using GPT-6.1 Sol at extra-high effort read the exact candidate
+collaboration block, dashboard skill and bundled page/template guidance. From a small synthetic
+summary it produced a standalone HTML explanation with the question, combined-cell rationale,
+detection definition, group denominators, main comparison, stage-mixture confounding and uncertain
+cell identities visible without opening a glossary. It labelled an unavailable older figure rather
+than inventing one. The lead inspected the complete HTML and supplied numbers. This establishes a
+source-loaded example, not installed-plugin discovery, browser rendering or scientific validation.
+
+The separate CLI model trial could not run: Codex CLI 0.149.0 reported that the requested
+`gpt-6.1-sol` model was unsupported for its ChatGPT-account route. No substitute model was used.
+Claude's subscription route was not authenticated, so no new Claude model-behavior claim is made.
+There was no new student session, Windows/Desktop lifecycle, live scheduler submission, transfer,
+cluster rollout or scientific run. Previous dated evidence retains its original limits.
+
 ## Release versions
 
 **Dashboard patch (October 12):** Core 0.2.2 makes a portable ZIP part of normal remote
@@ -81,7 +123,7 @@ Browser evidence is reused for unchanged controls/assets; the rearranged layout 
 opened by the agent. No new scientific run, interpretation, Windows check or scientific acceptance
 is implied. Private scientific contents and host paths are excluded from this public record.
 
-The current [release inventory](../release/first-release.json) SHA-256 is
+The published [0.2.2 inventory](https://github.com/MusserLab/lab-claude-skills/blob/research-plugins-0.2.2/release/first-release.json) SHA-256 is
 `fb8a66cf0765c91df26400b0880a736dcae65dce230c74dc0ba9ffaf3b592a0a`.
 
 ## Core 0.2.1 checks - October 12, 2026

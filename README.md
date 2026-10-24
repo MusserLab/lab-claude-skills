@@ -119,6 +119,11 @@ Setup resolves your actual configured file and shows a separate diff before chan
 Personal guidance outside the section is preserved. These instructions guide how the agent
 works with you; your project's methods and personal preferences stay in place.
 
+The instructions require explanations that work when you return after a gap: what question was
+asked, which inputs were used, how the result was obtained, what it tells us and what is uncertain.
+Necessary terms are explained where they appear. For example, "pooled cells" should identify which
+cells were combined and why. A glossary alone does not make a report understandable.
+
 ### On Windows
 
 Use the same setup prompt. The agent checks whether it runs natively on Windows or in WSL2,
@@ -221,6 +226,14 @@ is resolved with you; it does not silently restore or replace anything.
 
 Automatic package updates depend on your client and settings. Even when plugin files update
 automatically, adopted agent collaboration instructions still need a separate check.
+
+For the explanation and dashboard improvements, confirm all three outcomes above. The dashboard
+procedure and its resources update with Core; general collaboration instructions require the
+separate marked-block update. A customized dashboard skill copied into your own folders receives
+neither update automatically. Have the agent compare the complete folder and propose how to keep
+your additions before changing it. Then start a fresh chat and ask for a short explanation of
+existing work: check that it names the inputs, explains the method and states the main takeaway
+and uncertainty. A package version alone does not prove which copy the chat used.
 
 ## Security setup
 
@@ -358,8 +371,10 @@ claude plugin list
 
 Repeat Claude's `plugin update` for each installed optional package.
 
-Afterward, ask **"Check whether my adopted agent collaboration instructions need updating."**
-Package commands do not update that section of your user file. Start a fresh chat after changes.
+Afterward, ask **"Check whether my adopted agent collaboration instructions and any separately
+copied skills need updating. Preserve my customizations and show proposed changes first."**
+Package commands do not update that section of your user file or your copied skills. Start a
+fresh chat after changes.
 
 </details>
 

@@ -7,6 +7,26 @@ The [README](../README.md) is the user guide. This record distinguishes content 
 client operations, ordinary use, and scientific acceptance. An untested route is not an
 unsupported platform; evidence for one client, version, or host does not establish another.
 
+## Core 0.2.4 deliverable guidance
+
+Against `research-plugins-0.2.3`, Research Core **0.2.4** changes
+only the two researcher-facing guidance sections in `script-organization` and `data-handling`,
+the two Core version manifests and generated inventory. Every other
+package file, both catalogs, the collaboration instructions and frozen legacy payload remain
+byte-identical. Optional versions and their minimum Core **0.1.0** remain unchanged.
+
+The four-package exporter and its exact-current comparison pass. Five focused source-selection
+checks and four existing release-scope checks pass, including refusal of an unselected package
+change before writing. The two added sections survive rendering unchanged and their cross-skill
+links resolve. The complete generated inventory matches the package files. Public-patch screening
+found only generic research guidance and release documentation; no private source records or
+project data are included.
+
+These are source, content and packaging checks on macOS. No new installed-client behavior,
+student session, Windows/Desktop lifecycle, cluster rollout or scientific run was tested.
+Unchanged update/recovery routing reuses the dated evidence below. Publication, personal
+installation and student instruction adoption remain separate actions.
+
 ## October 24 comprehensive candidate
 
 **Prepared, not released.** The candidate reviews all four maintained packages against the

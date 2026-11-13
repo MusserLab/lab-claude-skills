@@ -10,7 +10,7 @@
   "packages": [
     {
       "name": "research-core",
-      "version": "0.2.3",
+      "version": "0.2.4",
       "requires": {},
       "skills": [
         "analysis-distillation",
@@ -40,8 +40,8 @@
         "sync-project"
       ],
       "files_sha256": {
-        ".claude-plugin/plugin.json": "f25090dc55ee8f907ab9ed9eecc93fc6448bd63a41d5048fa6d2d6c7e1718c4b",
-        ".codex-plugin/plugin.json": "03a113e0d8908989357c45c45d5c6e962b5a08285998a664d1f9435c54829b79",
+        ".claude-plugin/plugin.json": "06ebd84e29e358c9534350a6e4cd94fcd06fa567d4d198a2f8b01b0d11b9b72a",
+        ".codex-plugin/plugin.json": "4f28a70b5c441d2c70b00bbb4da9b6e1871a3e92f40240099785ce2e6ad1d471",
         "instructions/agent-collaboration.md": "c49666082eb301dab47b223177269293f5e53dd250c92e3b7ef623fb8bff43a3",
         "scripts/install_instructions.py": "796c8e5e8dde1e8135362a594ff6a60f23fc530d9e1a52fa6608af4316e6f373",
         "skills/analysis-distillation/SKILL.md": "d46d8c052456bdd7267e52d8a0a83cf86560f4c0e58edd6bd3d8f105c98d3820",
@@ -60,7 +60,7 @@
         "skills/audit-script/templates/auditor-prompt.md": "bc00edecca5fce7ecae51fb6a45aeb774c5e4b4ff6b13df1fddabf12cb537f10",
         "skills/cleanup-scripts/SKILL.md": "86f09409d3242b08147e5af85cef720c71b93836c001f486e27a7ff077dbbac6",
         "skills/conda-env/SKILL.md": "a55348f1647922647857086d14c548c017913863570c5d06937d87bb9bd2a27c",
-        "skills/data-handling/SKILL.md": "52e3675eb30280182141e1b52d64e9c7606c4b9d95dfa23ad942db44a81eb623",
+        "skills/data-handling/SKILL.md": "b606bbd1a95b53a18e61306adce5c2fc2128ea14ce36ef684396a7532c6afb09",
         "skills/debugging-before-patching/SKILL.md": "5dd79186c61bf0dda62e0a115496e3ee26bd91ad721985a7fe1c396212e1bafe",
         "skills/done/SKILL.md": "653db2a26148a038bd0070f54750e9a161dd77fe3a4a26d4934d4271fcbecea4",
         "skills/done/references/github-closeout.md": "4de3b00cce3b509396033885518d4a59ab35ef45a26fe6088c825b13abd1f995",
@@ -86,7 +86,7 @@
         "skills/r-renv/SKILL.md": "32d53a040daad9a2e0c0baab5b7c334785559f7d9da5f7f6f9ce8a25094b261b",
         "skills/research-core-setup/SKILL.md": "9567d458ed42c8854e618f796f630d151ef3fcb5ea0f62eac77746ed5727c1f7",
         "skills/research-core-setup/references/help.md": "6d1cedebd30b5d71a9a12b84f942ca4d0730c8b45b773a8eb621f7f68c637b55",
-        "skills/script-organization/SKILL.md": "23e928acfb7ea4c843de83c8a32aef20d5bea775490da25fe013f8699ed8498b",
+        "skills/script-organization/SKILL.md": "bdb72f93f9c3095103e56b6186d13fca53f1ceac0489cd646635c8d2040ae9f4",
         "skills/security-setup/SKILL.md": "360af8544ccec2f72a091b8fac1ed80655a1d013aac0ae433ca7def200fc7fac",
         "skills/sync-project/SKILL.md": "bbf69e0a49c0f411bf84f672afc2f71031044b160b0acd9732ac022e5bc1e171"
       }

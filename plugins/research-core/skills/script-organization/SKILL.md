@@ -163,6 +163,40 @@ and **propose it; never split or renumber automatically.** Coherence, not size, 
 
 ---
 
+## Packages a researcher will open
+
+Before writing export code, identify the recipient, what they need to do, and the primary
+deliverables. Reuse an agreed audience and purpose; ask only when a consequential choice remains.
+Native run storage and a researcher-facing folder or ZIP serve different purposes. Keep the
+run's established paths and evidence; prepare a separate handoff when copying the whole run would
+bury the useful results.
+
+Put the files the recipient should open first directly at the delivered folder's top level,
+alongside a short README that names the starting file and explains the contents. For tables,
+follow [data-handling's column guide](../data-handling/SKILL.md#explain-tables-for-the-recipient).
+Group supporting material into a few directories named for its actual purpose, such as mappings,
+figures or provenance. Those are examples, not a required tree; omit groups that are not needed.
+
+Include each file for an identifiable recipient, downstream-use or traceability need. Consolidate
+compatible small outputs when useful; include multiple formats or duplicate views only when they
+serve such a need. Required figure exports may stay in the retained run even when the recipient
+needs only one format. Avoid generating unused exports, but do not delete retained run material
+to make a smaller package. There is no file-count cap or new manifest requirement.
+
+Preserve necessary provenance in the handoff or through a clearly identified retained record the
+recipient can access. A smaller package does not waive source, input, uncertainty or retention
+requirements. Do not move live inputs, upstream outputs or active consumer paths merely to improve
+the delivered layout; use copies or a separately owned export destination within the agreed scope.
+
+Before handback, inspect the actual folder and, if supplied, the ZIP's extracted contents. Can the
+recipient find the main result immediately, understand a row and its columns, and locate optional
+detail without the chat? Check that README paths and needed support files survive extraction.
+If presentation changes the table, compare identities, row counts, values and uncertainty flags
+against the intended source; investigate unexpected loss, duplication or changed meaning before
+delivery. A packaging check does not replace scientific review.
+
+---
+
 ## Script Numbering
 
 Scripts are numbered per-section so `ls` shows them in a sensible order. **Numbers are labels, not

@@ -5,6 +5,19 @@ Entries are dated and identify the released package versions.
 
 ---
 
+## Research Core 0.2.4
+
+- Researcher-facing folders and ZIPs put the primary deliverables and a short README at the top
+  level, with supporting files grouped by purpose. Include outputs for a real recipient,
+  downstream-use or traceability need; there is no universal folder tree or file-count cap.
+- Table guides explain one row, the columns, identifier types, flags, missing values and
+  interpretation limits. Simpler presentation must preserve identities, values and uncertainty.
+- Only `script-organization`, `data-handling` and Core's version manifests change within packages.
+  Yale Research **0.1.3**, Single-cell Research **0.1.1**, Genome Annotation **0.1.2** and frozen
+  Lab Skills **1.12.1** remain unchanged. Dependencies, catalogs, collaboration instructions and
+  update routing are unchanged; both clients receive the same skill text.
+- See the [focused checks and limits](docs/research-plugin-compatibility.md#core-024-deliverable-guidance).
+
 ## Unreleased — comprehensive candidate prepared October 24, 2026
 
 - Research Core **0.2.3** makes explanations, reports and dashboards understandable to a

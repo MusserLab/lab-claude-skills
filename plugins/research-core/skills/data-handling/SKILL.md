@@ -187,6 +187,23 @@ checks and diagnostics on the actual data where they protect interpretation. Use
 when organizing these checks. Before each substantive review, simplify the current retained
 path and report the failures tested and any gaps. This does not add a per-script approval stop.
 
+## Explain tables for the recipient
+
+For a table being handed to a researcher, provide a short guide beside the primary file. Say who
+it is for, what one row represents, which observations or identifiers it covers, and what the
+recipient should open first. Define each column they need to interpret or use the table: its
+meaning, identifier namespace or units, allowed flags, and missing-value conventions. Explain the
+difference between no match, unknown, ambiguous and not yet evaluated when those states occur;
+do not let a blank or a reassuring display name conceal that distinction.
+
+Use a small row example when a list-valued field or relationship is not obvious. State the main
+interpretation limits and point to supporting detail. Keep the guide understandable without
+internal script names or this conversation. Simpler presentation must preserve identities,
+values and uncertainty; a change to filtering, name transfer or scientific meaning needs the
+researcher's decision before dependent work. See
+[script-organization](../script-organization/SKILL.md#packages-a-researcher-will-open) for package
+layout and recipient-view checks.
+
 ## What belongs in the script
 
 - Group all input reads at the top, commented to distinguish external data from another script's
